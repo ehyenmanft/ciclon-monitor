@@ -6,16 +6,27 @@
 
 ---
 
-## ✨ Características (versión actual — MVP)
+## ✨ Características (versión actual)
 
+### Modo Ciclones
 - **Mapa oscuro** (Leaflet + teselas CARTO): sistemas activos con color por categoría Saffir-Simpson.
 - **Ficha por sistema**: categoría, vientos máximos, presión central, movimiento, hora de última actualización, enlace directo al aviso oficial del NHC.
 - **Parseo defensivo**: valida los campos del JSON de NHC por contenido (rango numérico + pista en el nombre), no por nombre exacto de campo — para sobrevivir a cambios de formato sin aviso.
 - **Capa experimental WeatherNext** (Google DeepMind, vía Open-Meteo): dispersión del ensamble de 64 miembros de viento/presión en el punto del sistema. Etiquetada explícitamente como experimental — nunca se usa como fuente de la posición del ciclón.
 - **Proximidad a Venezuela**: distancia calculada al sistema, con enlaces directos a INAMEH y Protección Civil (no hay integración de datos porque INAMEH no publica API).
-- **Honestidad de fuente**: si el NHC no responde, se muestra un aviso explícito con la hora del último dato confirmado — nunca datos viejos como si fueran actuales.
-- **Bilingüe** español/inglés. **Responsive**: hojas deslizables y navegación inferior en móvil. **PWA instalable**.
 - **Modo demo**: sistema de ejemplo, claramente etiquetado, para probar la interfaz cuando no hay ciclones activos reales.
+
+### Modo Clima
+- **Búsqueda global** (geocoding Open-Meteo) + **geolocalización del navegador** + acceso rápido a 8 ciudades de Venezuela.
+- **Condiciones actuales**: temperatura, sensación térmica, humedad, viento, ráfagas, presión, nubosidad, precipitación.
+- **Próximas 24 horas**: franja horaria con ícono, temperatura y probabilidad de precipitación.
+- **Pronóstico de 7 días**: máx/mín, ícono y probabilidad de lluvia por día.
+- **Calidad del aire**: AQI europeo y de EE.UU. en tiempo real.
+- A diferencia del módulo Ciclones, aquí la fuente (API general de Open-Meteo) está bien documentada y es estable, así que se usan nombres de campo exactos sin necesidad de parseo defensivo.
+
+### General
+- **Honestidad de fuente**: si una fuente no responde, se muestra un aviso explícito con la hora del último dato confirmado — nunca datos viejos como si fueran actuales.
+- **Bilingüe** español/inglés. **Responsive**: hojas deslizables y navegación inferior en móvil. **PWA instalable**.
 
 ## 🔌 Fuentes de datos
 
@@ -23,6 +34,9 @@
 |---|---|---|
 | [NHC/NOAA](https://www.nhc.noaa.gov) — `CurrentStorms.json` | Atlántico, Pacífico oriental y central | JSON público, sin clave |
 | [Google WeatherNext 2](https://open-meteo.com/en/docs/google-weathernext-api) vía Open-Meteo | Global, capa experimental | JSON público, sin clave |
+| [Open-Meteo Forecast API](https://open-meteo.com/en/docs) | Global, clima general | JSON público, sin clave |
+| [Open-Meteo Geocoding API](https://open-meteo.com/en/docs/geocoding-api) | Global, búsqueda de ciudades | JSON público, sin clave |
+| [Open-Meteo Air Quality API](https://open-meteo.com/en/docs/air-quality-api) | Global, calidad del aire | JSON público, sin clave |
 | INAMEH (Venezuela) | — | Sin API pública — se enlaza directo a sus canales oficiales |
 
 ### El problema CORS de NHC (posible, sin confirmar aún)

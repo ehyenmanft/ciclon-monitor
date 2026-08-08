@@ -51,6 +51,75 @@ a{color:inherit}
 #right{right:12px;top:12px;width:320px;padding:14px;display:none}
 #right.on{display:block}
 
+/* ===== selector de modo (Ciclones / Clima) ===== */
+#modeSwitch{display:flex;gap:2px;background:#0a0d12;border:1px solid var(--line);border-radius:8px;padding:2px;margin-bottom:12px}
+#modeSwitch button{
+  flex:1;background:none;border:none;color:var(--muted);font-family:inherit;font-size:10.5px;
+  padding:6px 4px;border-radius:6px;cursor:pointer;
+}
+#modeSwitch button.act{background:#1b2430;color:var(--text)}
+
+/* ===== módulo CLIMA: búsqueda ===== */
+.searchRow{display:flex;gap:6px;margin-bottom:8px}
+#climaSearchInput{
+  flex:1;background:#161d26;color:var(--text);border:1px solid var(--line);border-radius:7px;
+  padding:8px 9px;font-family:inherit;font-size:12px;
+}
+#climaSearchInput::placeholder{color:var(--muted)}
+#climaSearchBtn,#climaGeoBtn{
+  background:#161d26;border:1px solid var(--line);color:var(--text);border-radius:7px;
+  padding:0 11px;cursor:pointer;font-size:14px;
+}
+#climaSearchBtn:hover,#climaGeoBtn:hover{border-color:var(--accent)}
+.searchResult{
+  padding:8px 9px;border:1px solid var(--line);border-radius:7px;margin-bottom:5px;cursor:pointer;font-size:11.5px;
+}
+.searchResult:hover{border-color:var(--accent)}
+.searchResult .srName{font-weight:700}
+.searchResult .srMeta{color:var(--muted);font-size:10.5px}
+.quickCities{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
+.quickCities button{
+  background:#161d26;border:1px solid var(--line);color:var(--text);border-radius:20px;
+  padding:5px 11px;font-family:inherit;font-size:10.5px;cursor:pointer;
+}
+.quickCities button:hover{border-color:var(--accent)}
+.quickCities button.sel{border-color:var(--accent);background:#1b2430}
+
+/* ===== módulo CLIMA: ficha ===== */
+.wxNow{text-align:center;padding:10px 0 14px;border-bottom:1px dashed var(--line);margin-bottom:12px}
+.wxNow .wxIcon{font-size:42px;line-height:1}
+.wxNow .wxTemp{font-size:34px;font-weight:700;margin:2px 0}
+.wxNow .wxDesc{color:var(--muted);font-size:12px}
+.wxNow .wxFeels{color:var(--muted);font-size:11px;margin-top:2px}
+.wxGrid{display:grid;grid-template-columns:1fr 1fr;gap:6px 12px;margin-bottom:6px}
+.wxGrid .kv{border-bottom:none;padding:3px 0}
+
+.hourStrip{display:flex;gap:8px;overflow-x:auto;padding:4px 0 10px}
+.hourStrip::-webkit-scrollbar{height:4px}
+.hourStrip::-webkit-scrollbar-thumb{background:var(--line);border-radius:3px}
+.hourCard{
+  flex:0 0 auto;min-width:52px;text-align:center;background:#161d26;border:1px solid var(--line);
+  border-radius:8px;padding:7px 5px;font-size:10.5px;
+}
+.hourCard .hIcon{font-size:16px;margin:3px 0}
+.hourCard .hTemp{font-weight:700}
+.hourCard .hPop{color:#6fb8e0;font-size:9.5px}
+
+.dayRow{
+  display:flex;align-items:center;gap:8px;padding:7px 0;border-bottom:1px dashed var(--line);font-size:11.5px;
+}
+.dayRow .dName{width:64px;flex:0 0 auto;color:var(--muted)}
+.dayRow .dIcon{font-size:16px;width:22px;text-align:center}
+.dayRow .dPop{width:38px;color:#6fb8e0;font-size:10px;text-align:right}
+.dayRow .dTemp{flex:1;text-align:right;font-weight:700}
+.dayRow .dTemp span{color:var(--muted);font-weight:400}
+
+.aqiBox{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:6px}
+.aqiCell{background:#161d26;border:1px solid var(--line);border-radius:8px;padding:8px;text-align:center}
+.aqiCell .aqiVal{font-size:18px;font-weight:700}
+.aqiCell .aqiLabel{font-size:9.5px;color:var(--muted);text-transform:uppercase}
+.aqiPill{display:inline-block;padding:1px 8px;border-radius:20px;font-size:9.5px;font-weight:700;color:#0b0f14;margin-top:3px}
+
 /* ===== topbar ===== */
 #topbar{
   position:fixed;left:50%;top:12px;transform:translateX(-50%);z-index:25;
@@ -156,23 +225,49 @@ a{color:inherit}
   <span class="dot" id="statusDot"></span>
   <b>CICLÓN·MONITOR</b>
   <span id="lastUpdateTxt" style="color:var(--muted);font-size:11px"></span>
+  <button id="reopenLeftBtn" style="display:none">☰</button>
   <button id="langBtn">EN</button>
 </div>
 
 <aside class="panel on" id="left">
-  <h2><span data-i18n="panelSistemas">Sistemas activos</span><button id="leftClose">✕</button></h2>
-  <div id="stormList"></div>
-  <div id="emptyState"></div>
-  <div class="warnbox" data-i18n="disclaimerGlobal">
-    ⚠ Esta plataforma es una herramienta informativa independiente. <b>No sustituye</b> los avisos oficiales
-    de tu autoridad de Protección Civil, tu servicio meteorológico nacional, ni del NHC/NOAA.
-    Ante un sistema activo, sigue siempre las fuentes oficiales.
+  <div id="modeSwitch">
+    <button id="modeBtnCiclones" class="act" data-i18n="modeCiclones">🌀 Ciclones</button>
+    <button id="modeBtnClima" data-i18n="modeClima">🌦️ Clima</button>
+  </div>
+
+  <div id="panelCiclonesLeft">
+    <h2><span data-i18n="panelSistemas">Sistemas activos</span><button id="leftClose">✕</button></h2>
+    <div id="stormList"></div>
+    <div id="emptyState"></div>
+    <div class="warnbox" data-i18n="disclaimerGlobal">
+      ⚠ Esta plataforma es una herramienta informativa independiente. <b>No sustituye</b> los avisos oficiales
+      de tu autoridad de Protección Civil, tu servicio meteorológico nacional, ni del NHC/NOAA.
+      Ante un sistema activo, sigue siempre las fuentes oficiales.
+    </div>
+  </div>
+
+  <div id="panelClimaLeft" style="display:none">
+    <h2><span data-i18n="panelClimaBuscar">Buscar ubicación</span><button id="leftCloseClima">✕</button></h2>
+    <div class="searchRow">
+      <input id="climaSearchInput" type="text" data-i18n-ph="climaBuscarPh" placeholder="Ciudad, país…">
+      <button id="climaSearchBtn" title="Buscar">🔍</button>
+      <button id="climaGeoBtn" title="Mi ubicación">📍</button>
+    </div>
+    <div id="climaSearchResults"></div>
+    <div class="section-title" data-i18n="climaAccesoRapido">Acceso rápido — Venezuela</div>
+    <div class="quickCities" id="climaQuickCities"></div>
   </div>
 </aside>
 
 <aside class="panel" id="right">
-  <h2><span id="detailTitle">—</span><button id="rightClose">✕</button></h2>
-  <div id="detailBody"></div>
+  <div id="panelCiclonesRight">
+    <h2><span id="detailTitle">—</span><button id="rightClose">✕</button></h2>
+    <div id="detailBody"></div>
+  </div>
+  <div id="panelClimaRight" style="display:none">
+    <h2><span id="climaTitle">—</span><button id="rightCloseClima">✕</button></h2>
+    <div id="climaBody"></div>
+  </div>
 </aside>
 
 <div id="sourceBanner"></div>
@@ -202,13 +297,34 @@ a{color:inherit}
  *             ocultar un fallo de la fuente real.
  * ============================================================ */
 var NHC_URL   = 'https://www.nhc.noaa.gov/CurrentStorms.json';
-var NHC_PROXY = 'https://script.google.com/macros/s/AKfycbwHfxRzeJdUAyrajgEjtZOn6p_oAPgJ6SPDfSIKmhvQIYOY1Yo7um-1sTpJnAhU8GAD/exec'; // ← pega aquí tu URL /exec si CORS directo falla
+var NHC_PROXY = 'https://script.google.com/macros/s/AKfycbzkbgV-sw9CzXi0cU9ypwSyu4_RVZ4EIOerYQskDqwI6eu3Ua-rjTRtTHGh2Ih3Lh05/exec'; // ← pega aquí tu URL /exec si CORS directo falla
 var OM_ENSEMBLE = 'https://ensemble-api.open-meteo.com/v1/ensemble';
 var REFRESH_MS = 5 * 60 * 1000; // NHC actualiza por evento, no por polling agresivo
 var DEMO_MODE = true; // desactívalo en cuanto confirmes que la fuente real responde
 
 // Punto de referencia aproximado de Venezuela (Caracas) para distancias.
 var VZ_REF = { lat: 10.5, lon: -66.9, name: 'Venezuela (referencia central)' };
+
+/* ============================================================
+ * MÓDULO CLIMA — API general de Open-Meteo (documentada y
+ * estable, a diferencia de CurrentStorms.json: aquí sí usamos
+ * nombres de campo exactos, confirmados en la documentación
+ * oficial, sin necesidad de parseo defensivo por contenido.
+ * ============================================================ */
+var OM_FORECAST = 'https://api.open-meteo.com/v1/forecast';
+var OM_GEOCODE  = 'https://geocoding-api.open-meteo.com/v1/search';
+var OM_AIRQ     = 'https://air-quality-api.open-meteo.com/v1/air-quality';
+
+var VZ_CITIES = [
+  { name: 'Caracas',       lat: 10.4806, lon: -66.9036 },
+  { name: 'Maracaibo',     lat: 10.6666, lon: -71.6124 },
+  { name: 'Valencia',      lat: 10.1621, lon: -68.0077 },
+  { name: 'Barquisimeto',  lat: 10.0678, lon: -69.3474 },
+  { name: 'Maracay',       lat: 10.2469, lon: -67.5959 },
+  { name: 'Ciudad Guayana',lat: 8.3533,  lon: -62.6417 },
+  { name: 'Mérida',        lat: 8.5960,  lon: -71.1467 },
+  { name: 'Puerto La Cruz',lat: 10.2137, lon: -64.6335 }
+];
 
 /* ============================================================
  * i18n
@@ -232,7 +348,24 @@ var I18N = {
     vzTitle: 'Distancia a Venezuela', vzBajo: 'Riesgo bajo por ahora — sistema lejano.',
     vzMedio: 'Vigilancia recomendada — sistema en la región.', vzAlto: 'Sistema cercano — sigue avisos oficiales de INAMEH y Protección Civil.',
     inameh: 'INAMEH (Venezuela) →', proteccion: 'Protección Civil Venezuela →',
-    selecciona: 'Selecciona un sistema en la lista para ver su ficha completa.'
+    selecciona: 'Selecciona un sistema en la lista para ver su ficha completa.',
+
+    modeCiclones: '🌀 Ciclones', modeClima: '🌦️ Clima',
+    panelClimaBuscar: 'Buscar ubicación', climaBuscarPh: 'Ciudad, país…',
+    climaAccesoRapido: 'Acceso rápido — Venezuela',
+    navBuscar: 'Buscar', navClima: 'Clima',
+    climaBuscando: 'Buscando…', climaSinResultados: 'Sin resultados. Prueba con otro nombre.',
+    climaGeoError: 'No se pudo obtener tu ubicación. Revisa los permisos del navegador.',
+    climaGeoBuscando: 'Obteniendo tu ubicación…',
+    climaSelecciona: 'Busca una ciudad o usa tu ubicación para ver el clima.',
+    climaCargando: 'Cargando datos climatológicos…',
+    climaError: 'No se pudo leer el clima para esta ubicación. Intenta de nuevo.',
+    sensacion: 'Sensación', humedad: 'Humedad', viento: 'Viento', rafagas: 'Ráfagas',
+    presionClima: 'Presión', nubosidad: 'Nubosidad', precipitacion: 'Precipitación',
+    uvIndice: 'Índice UV', proximas24h: 'Próximas 24 horas', pronostico7d: 'Pronóstico 7 días',
+    calidadAire: 'Calidad del aire', aqiEuropeo: 'AQI Europeo', aqiEEUU: 'AQI EE.UU.',
+    fuenteClima: 'Fuente: Open-Meteo (combina modelos de agencias meteorológicas nacionales). No sustituye avisos oficiales de INAMEH ante fenómenos severos.',
+    hoy: 'Hoy'
   },
   en: {
     panelSistemas: 'Active systems',
@@ -252,7 +385,24 @@ var I18N = {
     vzTitle: 'Distance to Venezuela', vzBajo: 'Low risk for now — system is far.',
     vzMedio: 'Monitoring recommended — system is in the region.', vzAlto: 'System nearby — follow official INAMEH and Civil Protection advisories.',
     inameh: 'INAMEH (Venezuela) →', proteccion: 'Venezuela Civil Protection →',
-    selecciona: 'Select a system from the list to see its full profile.'
+    selecciona: 'Select a system from the list to see its full profile.',
+
+    modeCiclones: '🌀 Cyclones', modeClima: '🌦️ Weather',
+    panelClimaBuscar: 'Search location', climaBuscarPh: 'City, country…',
+    climaAccesoRapido: 'Quick access — Venezuela',
+    navBuscar: 'Search', navClima: 'Weather',
+    climaBuscando: 'Searching…', climaSinResultados: 'No results. Try another name.',
+    climaGeoError: 'Could not get your location. Check browser permissions.',
+    climaGeoBuscando: 'Getting your location…',
+    climaSelecciona: 'Search a city or use your location to see the weather.',
+    climaCargando: 'Loading weather data…',
+    climaError: 'Could not read weather for this location. Try again.',
+    sensacion: 'Feels like', humedad: 'Humidity', viento: 'Wind', rafagas: 'Gusts',
+    presionClima: 'Pressure', nubosidad: 'Cloud cover', precipitacion: 'Precipitation',
+    uvIndice: 'UV Index', proximas24h: 'Next 24 hours', pronostico7d: '7-day forecast',
+    calidadAire: 'Air quality', aqiEuropeo: 'European AQI', aqiEEUU: 'US AQI',
+    fuenteClima: 'Source: Open-Meteo (combines national weather agency models). Does not replace official INAMEH advisories during severe events.',
+    hoy: 'Today'
   }
 };
 var lang = (navigator.language || 'es').startsWith('en') ? 'en' : 'es';
@@ -263,9 +413,15 @@ function applyI18n(){
   document.querySelectorAll('[data-i18n]').forEach(function(el){
     el.textContent = t(el.getAttribute('data-i18n'));
   });
+  document.querySelectorAll('[data-i18n-ph]').forEach(function(el){
+    el.placeholder = t(el.getAttribute('data-i18n-ph'));
+  });
   document.getElementById('langBtn').textContent = lang === 'es' ? 'EN' : 'ES';
   renderEmptyState();
   if (selectedStorm) renderDetail(selectedStorm); else renderNoSelection();
+  updateNavLabels();
+  renderQuickCities();
+  if (climaLocation) renderClima(); else renderClimaNoSelection();
 }
 document.getElementById('langBtn').addEventListener('click', function(){
   lang = lang === 'es' ? 'en' : 'es';
@@ -655,6 +811,247 @@ function loadWeatherNext(s){
 }
 
 /* ============================================================
+ * MÓDULO CLIMA
+ * ------------------------------------------------------------
+ * A diferencia de NHC, la API general de Open-Meteo (/v1/forecast,
+ * geocoding, air-quality) está bien documentada y es estable —
+ * aquí sí usamos nombres de campo exactos, confirmados contra la
+ * documentación oficial, sin parseo defensivo por contenido.
+ * ============================================================ */
+var appMode = 'ciclones'; // 'ciclones' | 'clima'
+var climaLocation = null; // {lat, lon, name}
+var climaMarker = null;
+var lastClimaData = null;
+var searchDebounceTimer = null;
+
+var WMO_ICON = {
+  0:'☀️',1:'🌤️',2:'⛅',3:'☁️',
+  45:'🌫️',48:'🌫️',
+  51:'🌦️',53:'🌦️',55:'🌦️',56:'🌦️',57:'🌦️',
+  61:'🌧️',63:'🌧️',65:'🌧️',66:'🌧️',67:'🌧️',
+  71:'🌨️',73:'🌨️',75:'🌨️',77:'🌨️',
+  80:'🌦️',81:'🌧️',82:'⛈️',85:'🌨️',86:'🌨️',
+  95:'⛈️',96:'⛈️',99:'⛈️'
+};
+function wmoIcon(code){ return WMO_ICON[code] || '🌡️'; }
+var WMO_DESC = {
+  es: {0:'Cielo despejado',1:'Mayormente despejado',2:'Parcialmente nublado',3:'Nublado',45:'Neblina',48:'Neblina helada',51:'Llovizna ligera',53:'Llovizna moderada',55:'Llovizna densa',56:'Llovizna helada',57:'Llovizna helada densa',61:'Lluvia ligera',63:'Lluvia moderada',65:'Lluvia fuerte',66:'Lluvia helada',67:'Lluvia helada fuerte',71:'Nieve ligera',73:'Nieve moderada',75:'Nieve fuerte',77:'Granos de nieve',80:'Chubascos ligeros',81:'Chubascos moderados',82:'Chubascos violentos',85:'Chubascos de nieve',86:'Chubascos de nieve fuertes',95:'Tormenta eléctrica',96:'Tormenta con granizo',99:'Tormenta con granizo fuerte'},
+  en: {0:'Clear sky',1:'Mainly clear',2:'Partly cloudy',3:'Overcast',45:'Fog',48:'Freezing fog',51:'Light drizzle',53:'Moderate drizzle',55:'Dense drizzle',56:'Freezing drizzle',57:'Dense freezing drizzle',61:'Light rain',63:'Moderate rain',65:'Heavy rain',66:'Freezing rain',67:'Heavy freezing rain',71:'Light snow',73:'Moderate snow',75:'Heavy snow',77:'Snow grains',80:'Light showers',81:'Moderate showers',82:'Violent showers',85:'Snow showers',86:'Heavy snow showers',95:'Thunderstorm',96:'Thunderstorm with hail',99:'Severe thunderstorm with hail'}
+};
+function wmoDesc(code){ return (WMO_DESC[lang] && WMO_DESC[lang][code]) || '—'; }
+
+function updateNavLabels(){
+  var sisSpan = document.querySelector('#mnSistemas span:last-child');
+  var fichaSpan = document.querySelector('#mnFicha span:last-child');
+  if (!sisSpan || !fichaSpan) return;
+  sisSpan.textContent = appMode === 'clima' ? t('navBuscar') : t('navSistemas');
+  fichaSpan.textContent = appMode === 'clima' ? t('navClima') : t('navFicha');
+}
+
+function setMode(mode){
+  appMode = mode;
+  document.getElementById('modeBtnCiclones').classList.toggle('act', mode==='ciclones');
+  document.getElementById('modeBtnClima').classList.toggle('act', mode==='clima');
+  document.getElementById('panelCiclonesLeft').style.display = mode==='ciclones' ? '' : 'none';
+  document.getElementById('panelClimaLeft').style.display = mode==='clima' ? '' : 'none';
+  document.getElementById('panelCiclonesRight').style.display = mode==='ciclones' ? '' : 'none';
+  document.getElementById('panelClimaRight').style.display = mode==='clima' ? '' : 'none';
+  updateNavLabels();
+  document.getElementById('right').classList.toggle('on', mode==='clima' ? !!climaLocation : !!selectedStorm);
+}
+document.getElementById('modeBtnCiclones').addEventListener('click', function(){ setMode('ciclones'); });
+document.getElementById('modeBtnClima').addEventListener('click', function(){ setMode('clima'); });
+
+function renderQuickCities(){
+  var wrap = document.getElementById('climaQuickCities');
+  if (!wrap) return;
+  wrap.innerHTML = '';
+  VZ_CITIES.forEach(function(c){
+    var btn = document.createElement('button');
+    btn.textContent = c.name;
+    if (climaLocation && climaLocation.name === c.name) btn.classList.add('sel');
+    btn.addEventListener('click', function(){ selectClimaLocation(c.lat, c.lon, c.name); });
+    wrap.appendChild(btn);
+  });
+}
+
+document.getElementById('climaGeoBtn').addEventListener('click', function(){
+  if (!navigator.geolocation){ alert(t('climaGeoError')); return; }
+  document.getElementById('climaSearchResults').innerHTML = '<div style="color:var(--muted);font-size:11px">' + t('climaGeoBuscando') + '</div>';
+  navigator.geolocation.getCurrentPosition(function(pos){
+    document.getElementById('climaSearchResults').innerHTML = '';
+    selectClimaLocation(pos.coords.latitude, pos.coords.longitude, lang==='es' ? 'Mi ubicación' : 'My location');
+  }, function(err){
+    console.error('Error de geolocalización:', err);
+    document.getElementById('climaSearchResults').innerHTML = '<div style="color:var(--danger);font-size:11px">' + t('climaGeoError') + '</div>';
+  }, { timeout: 10000 });
+});
+
+document.getElementById('climaSearchInput').addEventListener('input', function(){
+  var q = this.value.trim();
+  clearTimeout(searchDebounceTimer);
+  if (q.length < 2){ document.getElementById('climaSearchResults').innerHTML=''; return; }
+  searchDebounceTimer = setTimeout(function(){ doGeocodeSearch(q); }, 400);
+});
+document.getElementById('climaSearchBtn').addEventListener('click', function(){
+  doGeocodeSearch(document.getElementById('climaSearchInput').value.trim());
+});
+function doGeocodeSearch(q){
+  if (!q) return;
+  var wrap = document.getElementById('climaSearchResults');
+  wrap.innerHTML = '<div style="color:var(--muted);font-size:11px">' + t('climaBuscando') + '</div>';
+  var url = OM_GEOCODE + '?name=' + encodeURIComponent(q) + '&count=8&language=' + lang + '&format=json';
+  fetchJson(url).then(function(data){
+    var results = data.results || [];
+    if (!results.length){ wrap.innerHTML = '<div style="color:var(--muted);font-size:11px">' + t('climaSinResultados') + '</div>'; return; }
+    wrap.innerHTML = '';
+    results.forEach(function(r){
+      var div = document.createElement('div');
+      div.className = 'searchResult';
+      var parts = [r.admin1, r.country].filter(Boolean);
+      div.innerHTML = '<div class="srName">' + escapeHtml(r.name) + '</div><div class="srMeta">' + escapeHtml(parts.join(', ')) + '</div>';
+      div.addEventListener('click', function(){
+        selectClimaLocation(r.latitude, r.longitude, r.name);
+        wrap.innerHTML = '';
+        document.getElementById('climaSearchInput').value = '';
+      });
+      wrap.appendChild(div);
+    });
+  }).catch(function(err){
+    console.error('Error de geocodificación:', err);
+    wrap.innerHTML = '<div style="color:var(--danger);font-size:11px">' + t('climaError') + '</div>';
+  });
+}
+
+function selectClimaLocation(lat, lon, name){
+  climaLocation = { lat: lat, lon: lon, name: name };
+  renderQuickCities();
+  document.getElementById('right').classList.add('on');
+  map.panTo([lat, lon]);
+  if (climaMarker) map.removeLayer(climaMarker);
+  climaMarker = L.circleMarker([lat, lon], { radius: 7, color:'#6fb8e0', weight:2, fillColor:'#6fb8e0', fillOpacity:.5 }).addTo(map);
+  loadClima();
+  if (window.innerWidth <= 820) setMobileTab('ficha');
+}
+
+function renderClimaNoSelection(){
+  var el = document.getElementById('climaTitle');
+  if (!el) return;
+  el.textContent = '—';
+  document.getElementById('climaBody').innerHTML = '<p style="color:var(--muted);font-size:12px">' + t('climaSelecciona') + '</p>';
+}
+
+function loadClima(){
+  if (!climaLocation) return;
+  document.getElementById('climaTitle').textContent = climaLocation.name;
+  document.getElementById('climaBody').innerHTML = '<p style="color:var(--muted);font-size:12px">' + t('climaCargando') + '</p>';
+
+  var fUrl = OM_FORECAST + '?latitude=' + climaLocation.lat.toFixed(4) + '&longitude=' + climaLocation.lon.toFixed(4) +
+    '&current=temperature_2m,relative_humidity_2m,apparent_temperature,precipitation,weather_code,cloud_cover,pressure_msl,wind_speed_10m,wind_direction_10m,wind_gusts_10m' +
+    '&hourly=temperature_2m,precipitation_probability,weather_code' +
+    '&daily=weather_code,temperature_2m_max,temperature_2m_min,precipitation_sum,precipitation_probability_max,uv_index_max,sunrise,sunset' +
+    '&forecast_days=7&timezone=auto';
+  var aUrl = OM_AIRQ + '?latitude=' + climaLocation.lat.toFixed(4) + '&longitude=' + climaLocation.lon.toFixed(4) +
+    '&current=european_aqi,us_aqi,pm2_5,pm10,uv_index&timezone=auto';
+
+  Promise.all([ fetchJson(fUrl), fetchJson(aUrl).catch(function(){ return null; }) ])
+    .then(function(results){
+      lastClimaData = { forecast: results[0], air: results[1] };
+      renderClima();
+    })
+    .catch(function(err){
+      console.error('Error leyendo clima:', err);
+      var body = document.getElementById('climaBody');
+      if (body) body.innerHTML = '<p style="color:var(--danger);font-size:12px">' + t('climaError') + '</p>';
+    });
+}
+
+function findNowIndex(times){
+  var now = new Date();
+  for (var i=0;i<times.length;i++){ if (new Date(times[i]) >= now) return i; }
+  return 0;
+}
+function kvRow(label, val){ return '<div class="kv"><span>' + label + '</span><span>' + val + '</span></div>'; }
+function aqiColorEU(v){
+  if (typeof v !== 'number') return 'var(--muted)';
+  if (v < 20) return '#3ec6a8'; if (v < 40) return '#8fd13c'; if (v < 60) return '#e8b23c'; if (v < 80) return '#f07f3c'; return '#e8484f';
+}
+function aqiColorUS(v){
+  if (typeof v !== 'number') return 'var(--muted)';
+  if (v <= 50) return '#3ec6a8'; if (v <= 100) return '#8fd13c'; if (v <= 150) return '#e8b23c'; if (v <= 200) return '#f07f3c'; return '#e8484f';
+}
+function aqiCell(label, val, color){
+  var shown = typeof val === 'number' ? Math.round(val) : '—';
+  return '<div class="aqiCell"><div class="aqiVal" style="color:'+color+'">' + shown + '</div><div class="aqiLabel">' + label + '</div></div>';
+}
+
+function renderClima(){
+  if (!lastClimaData) return;
+  var f = lastClimaData.forecast, a = lastClimaData.air;
+  var c = f.current || {};
+  var html = '';
+
+  html += '<div class="wxNow">' +
+    '<div class="wxIcon">' + wmoIcon(c.weather_code) + '</div>' +
+    '<div class="wxTemp">' + Math.round(c.temperature_2m) + '°C</div>' +
+    '<div class="wxDesc">' + escapeHtml(wmoDesc(c.weather_code)) + '</div>' +
+    '<div class="wxFeels">' + t('sensacion') + ' ' + Math.round(c.apparent_temperature) + '°C</div>' +
+  '</div>';
+
+  html += '<div class="wxGrid">';
+  html += kvRow(t('humedad'), Math.round(c.relative_humidity_2m) + '%');
+  html += kvRow(t('viento'), Math.round(c.wind_speed_10m) + ' km/h');
+  html += kvRow(t('rafagas'), Math.round(c.wind_gusts_10m) + ' km/h');
+  html += kvRow(t('presionClima'), Math.round(c.pressure_msl) + ' hPa');
+  html += kvRow(t('nubosidad'), Math.round(c.cloud_cover) + '%');
+  html += kvRow(t('precipitacion'), (c.precipitation||0).toFixed(1) + ' mm');
+  html += '</div>';
+
+  html += '<div class="section-title">' + t('proximas24h') + '</div>';
+  html += '<div class="hourStrip">';
+  if (f.hourly && f.hourly.time){
+    var nowIdx = findNowIndex(f.hourly.time);
+    for (var i = nowIdx; i < Math.min(nowIdx + 24, f.hourly.time.length); i++){
+      var hh = new Date(f.hourly.time[i]).toLocaleTimeString(lang==='es'?'es-VE':'en-US', {hour:'2-digit'});
+      html += '<div class="hourCard">' +
+        '<div>' + hh + '</div>' +
+        '<div class="hIcon">' + wmoIcon(f.hourly.weather_code[i]) + '</div>' +
+        '<div class="hTemp">' + Math.round(f.hourly.temperature_2m[i]) + '°</div>' +
+        '<div class="hPop">' + Math.round(f.hourly.precipitation_probability[i]||0) + '%</div>' +
+      '</div>';
+    }
+  }
+  html += '</div>';
+
+  html += '<div class="section-title">' + t('pronostico7d') + '</div>';
+  if (f.daily && f.daily.time){
+    f.daily.time.forEach(function(dateStr, i){
+      var d = new Date(dateStr + 'T12:00:00');
+      var dayLabel = i === 0 ? t('hoy') : d.toLocaleDateString(lang==='es'?'es-VE':'en-US', {weekday:'short'});
+      html += '<div class="dayRow">' +
+        '<div class="dName">' + dayLabel + '</div>' +
+        '<div class="dIcon">' + wmoIcon(f.daily.weather_code[i]) + '</div>' +
+        '<div class="dPop">' + Math.round(f.daily.precipitation_probability_max[i]||0) + '%</div>' +
+        '<div class="dTemp">' + Math.round(f.daily.temperature_2m_max[i]) + '° <span>' + Math.round(f.daily.temperature_2m_min[i]) + '°</span></div>' +
+      '</div>';
+    });
+  }
+
+  if (a && a.current){
+    html += '<div class="section-title">' + t('calidadAire') + '</div>';
+    html += '<div class="aqiBox">';
+    html += aqiCell(t('aqiEuropeo'), a.current.european_aqi, aqiColorEU(a.current.european_aqi));
+    html += aqiCell(t('aqiEEUU'), a.current.us_aqi, aqiColorUS(a.current.us_aqi));
+    html += '</div>';
+  }
+
+  html += '<div class="warnbox" style="margin-top:12px">' + t('fuenteClima') + '</div>';
+
+  var body = document.getElementById('climaBody');
+  if (body) body.innerHTML = html;
+}
+
+/* ============================================================
  * NAV MÓVIL
  * ============================================================ */
 function setMobileTab(tab){
@@ -668,10 +1065,25 @@ function setMobileTab(tab){
 document.getElementById('mnMapa').addEventListener('click', function(){ setMobileTab('mapa'); });
 document.getElementById('mnSistemas').addEventListener('click', function(){ setMobileTab('sistemas'); });
 document.getElementById('mnFicha').addEventListener('click', function(){ setMobileTab('ficha'); });
+function closeLeftDesktop(){
+  document.getElementById('left').classList.add('hideDesk');
+  document.getElementById('reopenLeftBtn').style.display = '';
+}
+document.getElementById('reopenLeftBtn').addEventListener('click', function(){
+  document.getElementById('left').classList.remove('hideDesk');
+  this.style.display = 'none';
+});
 document.getElementById('leftClose').addEventListener('click', function(){
-  if (window.innerWidth <= 820) setMobileTab('mapa'); else document.getElementById('left').classList.add('hideDesk');
+  if (window.innerWidth <= 820) setMobileTab('mapa'); else closeLeftDesktop();
 });
 document.getElementById('rightClose').addEventListener('click', function(){
+  document.getElementById('right').classList.remove('on');
+  if (window.innerWidth <= 820) setMobileTab('mapa');
+});
+document.getElementById('leftCloseClima').addEventListener('click', function(){
+  if (window.innerWidth <= 820) setMobileTab('mapa'); else closeLeftDesktop();
+});
+document.getElementById('rightCloseClima').addEventListener('click', function(){
   document.getElementById('right').classList.remove('on');
   if (window.innerWidth <= 820) setMobileTab('mapa');
 });

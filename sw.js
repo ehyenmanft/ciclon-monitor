@@ -7,7 +7,7 @@
  *    viejos como frescos.
  * Al actualizar la web, sube también este archivo cambiando VERSION.
  */
-const VERSION = 'v1';
+const VERSION = 'v2';
 const CACHE = 'ciclon-monitor-' + VERSION;
 
 const PRECACHE = [
@@ -25,8 +25,7 @@ const DATOS_VIVOS = [
   'nhc.noaa.gov',
   'script.google.com',
   'script.googleusercontent.com',
-  'open-meteo.com',
-  'ensemble-api.open-meteo.com',
+  'open-meteo.com', // cubre también api./ensemble-api./geocoding-api./air-quality-api. (endsWith)
   'basemaps.cartocdn.com'
 ];
 
