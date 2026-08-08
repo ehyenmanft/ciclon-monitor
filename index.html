@@ -1,0 +1,698 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>CICLÓN·MONITOR — Monitoreo de ciclones tropicales</title>
+<meta name="description" content="Monitoreo gratuito de ciclones tropicales y huracanes, con foco en Venezuela y el Caribe. Fuente oficial: NHC/NOAA. Capa experimental: Google WeatherNext.">
+<meta name="theme-color" content="#0b0f14">
+<link rel="manifest" href="manifest.json">
+<link rel="icon" href="icon-192.png">
+<link rel="apple-touch-icon" href="icon-192.png">
+<style>
+:root{
+  --bg:#0b0f14;
+  --panel:#10151cdd;
+  --line:#1e2833;
+  --text:#dde7ef;
+  --muted:#76879a;
+  /* severidad Saffir-Simpson, mismo lenguaje de color que SISMO·MONITOR (m1..m4) */
+  --c-td:#3ec6a8;   /* depresión / onda tropical */
+  --c-ts:#e8b23c;   /* tormenta tropical */
+  --c-h1:#f0a83c;   /* huracán cat 1-2 */
+  --c-h3:#f07f3c;   /* huracán cat 3 */
+  --c-h5:#e8484f;   /* huracán cat 4-5 */
+  --accent:#f07f3c;
+  --danger:#e8484f;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{height:100%;overflow:hidden}
+body{
+  background:var(--bg);color:var(--text);
+  font-family:'JetBrains Mono',ui-monospace,SFMono-Regular,Menlo,monospace;
+  font-size:13px;
+}
+a{color:inherit}
+#map{position:fixed;inset:0;width:100%;height:100%;background:#060a0e}
+.leaflet-container{background:#060a0e}
+
+/* ===== paneles ===== */
+.panel{
+  position:fixed;background:var(--panel);border:1px solid var(--line);border-radius:12px;
+  backdrop-filter:blur(10px);z-index:20;max-height:calc(100vh - 24px);overflow-y:auto;
+}
+.panel::-webkit-scrollbar{width:5px}
+.panel::-webkit-scrollbar-thumb{background:var(--line);border-radius:3px}
+.panel h2{font-size:12px;letter-spacing:.06em;color:var(--muted);text-transform:uppercase;margin-bottom:10px;display:flex;align-items:center;justify-content:space-between}
+.panel h2 button{background:none;border:none;color:var(--muted);cursor:pointer;font-family:inherit;font-size:13px}
+.panel h2 button:hover{color:var(--text)}
+
+#left{left:12px;top:12px;width:300px;padding:14px}
+#right{right:12px;top:12px;width:320px;padding:14px;display:none}
+#right.on{display:block}
+
+/* ===== topbar ===== */
+#topbar{
+  position:fixed;left:50%;top:12px;transform:translateX(-50%);z-index:25;
+  display:flex;align-items:center;gap:10px;background:var(--panel);border:1px solid var(--line);
+  border-radius:12px;padding:8px 14px;backdrop-filter:blur(10px);
+}
+#topbar b{font-size:13px;letter-spacing:.03em}
+#topbar .dot{width:7px;height:7px;border-radius:50%;background:var(--muted)}
+#topbar .dot.live{background:var(--c-td);box-shadow:0 0 6px var(--c-td)}
+#topbar .dot.err{background:var(--danger);box-shadow:0 0 6px var(--danger)}
+#langBtn{background:#161d26;border:1px solid var(--line);color:var(--text);border-radius:6px;padding:4px 8px;cursor:pointer;font-family:inherit;font-size:11px}
+
+/* ===== banner de estado de fuente (honestidad: nunca mostrar datos viejos como actuales) ===== */
+#sourceBanner{
+  display:none;position:fixed;left:50%;bottom:16px;transform:translateX(-50%);z-index:35;
+  background:#3a1518;border:1px solid var(--danger);color:#ffd9db;padding:10px 18px;border-radius:10px;
+  font-size:12px;text-align:center;max-width:min(560px,92vw);
+}
+#sourceBanner.on{display:block}
+
+/* ===== lista de sistemas ===== */
+.stormCard{
+  border:1px solid var(--line);border-radius:9px;padding:10px;margin-bottom:8px;cursor:pointer;
+  transition:border-color .15s;
+}
+.stormCard:hover{border-color:var(--accent)}
+.stormCard.sel{border-color:var(--accent);background:#1b2430}
+.stormCard .name{font-weight:700;font-size:13px;margin-bottom:3px}
+.stormCard .meta{color:var(--muted);font-size:11px;display:flex;gap:8px;flex-wrap:wrap}
+.catPill{display:inline-block;padding:1px 7px;border-radius:20px;font-size:10px;font-weight:700;color:#0b0f14}
+
+#emptyState{color:var(--muted);font-size:12px;line-height:1.6;padding:6px 2px}
+#emptyState b{color:var(--text)}
+
+/* ===== ficha de detalle ===== */
+.kv{display:flex;justify-content:space-between;padding:5px 0;border-bottom:1px dashed var(--line);font-size:12px}
+.kv span:first-child{color:var(--muted)}
+.kv span:last-child{font-weight:700;text-align:right}
+.section-title{font-size:10.5px;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;margin:12px 0 6px}
+.warnbox{
+  background:#2a1f0e;border:1px solid #6a4a1a;color:#f0d9a8;border-radius:8px;padding:9px 10px;
+  font-size:11px;line-height:1.5;margin-top:10px;
+}
+.warnbox b{color:#ffe6b8}
+.linkbtn{
+  display:block;text-align:center;margin-top:8px;padding:8px;border-radius:8px;
+  background:#161d26;border:1px solid var(--line);color:var(--text);text-decoration:none;font-size:11.5px;
+}
+.linkbtn:hover{border-color:var(--accent)}
+#rawBtn{width:100%;margin-top:10px;padding:6px;background:#161d26;color:var(--muted);border:1px solid var(--line);
+  border-radius:7px;font-family:inherit;font-size:10.5px;cursor:pointer}
+#rawBtn:hover{border-color:var(--accent);color:var(--text)}
+#rawJson{display:none;white-space:pre-wrap;font-size:10px;color:#89a;background:#0a0d12;border-radius:6px;padding:8px;margin-top:6px;max-height:220px;overflow:auto}
+#rawJson.on{display:block}
+
+/* ===== capa WeatherNext (experimental) ===== */
+.wnBox{border:1px solid #2a3b4a;background:#0d1a22;border-radius:8px;padding:9px;margin-top:8px}
+.wnBox .wnTitle{font-size:10.5px;color:#6fb8e0;text-transform:uppercase;letter-spacing:.05em;margin-bottom:6px;display:flex;justify-content:space-between}
+.wnSpread{font-size:11px;color:var(--muted);line-height:1.6}
+.wnLoading{color:var(--muted);font-size:11px}
+
+/* ===== proximidad Venezuela ===== */
+.vzBox{border-radius:8px;padding:9px 10px;margin-top:10px;font-size:11.5px;line-height:1.6}
+.vzBox.low{background:#0e2a18;border:1px solid #2f6a44;color:#bfe8cf}
+.vzBox.mid{background:#2a230e;border:1px solid #6a5a1a;color:#e8dcaf}
+.vzBox.high{background:#2a1518;border:1px solid #6a2a2f;color:#f0bfc2}
+
+/* ===== nav móvil ===== */
+#mobilenav{display:none}
+@media (max-width:820px){
+  #topbar{top:10px;padding:7px 12px}
+  #left,#right{
+    left:0;right:0;top:auto;bottom:56px;width:100%;border-radius:16px 16px 0 0;
+    max-height:52vh;padding:14px 14px 18px;
+  }
+  #left{display:none}
+  #left.on{display:block}
+  #right{display:none}
+  #right.on{display:block}
+  #mobilenav{
+    display:flex;position:fixed;left:0;right:0;bottom:0;height:56px;z-index:30;
+    background:var(--panel);border-top:1px solid var(--line);backdrop-filter:blur(10px);
+  }
+  #mobilenav button{
+    flex:1;background:none;border:none;color:var(--muted);font-family:inherit;font-size:9.5px;
+    display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;cursor:pointer;
+  }
+  #mobilenav button.act{color:var(--accent)}
+  #mobilenav .ico{font-size:16px}
+  #sourceBanner{bottom:64px}
+}
+@media (min-width:821px){
+  #left.hideDesk{display:none}
+}
+[data-i18n]{}
+</style>
+</head>
+<body>
+
+<div id="map"></div>
+
+<div id="topbar">
+  <span class="dot" id="statusDot"></span>
+  <b>CICLÓN·MONITOR</b>
+  <span id="lastUpdateTxt" style="color:var(--muted);font-size:11px"></span>
+  <button id="langBtn">EN</button>
+</div>
+
+<aside class="panel on" id="left">
+  <h2><span data-i18n="panelSistemas">Sistemas activos</span><button id="leftClose">✕</button></h2>
+  <div id="stormList"></div>
+  <div id="emptyState"></div>
+  <div class="warnbox" data-i18n="disclaimerGlobal">
+    ⚠ Esta plataforma es una herramienta informativa independiente. <b>No sustituye</b> los avisos oficiales
+    de tu autoridad de Protección Civil, tu servicio meteorológico nacional, ni del NHC/NOAA.
+    Ante un sistema activo, sigue siempre las fuentes oficiales.
+  </div>
+</aside>
+
+<aside class="panel" id="right">
+  <h2><span id="detailTitle">—</span><button id="rightClose">✕</button></h2>
+  <div id="detailBody"></div>
+</aside>
+
+<div id="sourceBanner"></div>
+
+<nav id="mobilenav">
+  <button id="mnMapa" class="act"><span class="ico">◉</span><span data-i18n="navMapa">Mapa</span></button>
+  <button id="mnSistemas"><span class="ico">☰</span><span data-i18n="navSistemas">Sistemas</span></button>
+  <button id="mnFicha"><span class="ico">▤</span><span data-i18n="navFicha">Ficha</span></button>
+</nav>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
+
+<script>
+'use strict';
+
+/* ============================================================
+ * CONFIGURACIÓN
+ * ============================================================
+ * NHC_URL:    fuente oficial. Si el navegador reporta error de
+ *             CORS al leerla directo, rellena NHC_PROXY con la
+ *             URL /exec de un Apps Script igual al patrón de
+ *             funvisis-proxy.gs (ver nhc-proxy.gs en este repo).
+ * DEMO_MODE:  true muestra un sistema de ejemplo CLARAMENTE
+ *             etiquetado para poder probar la interfaz mientras
+ *             no haya ciclones activos reales. Nunca se usa para
+ *             ocultar un fallo de la fuente real.
+ * ============================================================ */
+var NHC_URL   = 'https://www.nhc.noaa.gov/CurrentStorms.json';
+var NHC_PROXY = ''; // ← pega aquí tu URL /exec si CORS directo falla
+var OM_ENSEMBLE = 'https://ensemble-api.open-meteo.com/v1/ensemble';
+var REFRESH_MS = 5 * 60 * 1000; // NHC actualiza por evento, no por polling agresivo
+var DEMO_MODE = true; // desactívalo en cuanto confirmes que la fuente real responde
+
+// Punto de referencia aproximado de Venezuela (Caracas) para distancias.
+var VZ_REF = { lat: 10.5, lon: -66.9, name: 'Venezuela (referencia central)' };
+
+/* ============================================================
+ * i18n
+ * ============================================================ */
+var I18N = {
+  es: {
+    panelSistemas: 'Sistemas activos',
+    navMapa: 'Mapa', navSistemas: 'Sistemas', navFicha: 'Ficha',
+    disclaimerGlobal: '⚠ Esta plataforma es una herramienta informativa independiente. No sustituye los avisos oficiales de tu autoridad de Protección Civil, tu servicio meteorológico nacional, ni del NHC/NOAA. Ante un sistema activo, sigue siempre las fuentes oficiales.',
+    sinSistemas: 'No hay ciclones tropicales activos reportados por el NHC en este momento.',
+    sinSistemas2: 'Esto es una buena noticia — significa que no hay avisos que atender ahora mismo.',
+    fuenteError: 'No se pudo leer la fuente oficial (NHC). Mostrando el último estado confirmado exitoso, no datos en vivo.',
+    fuenteErrorSinDatos: 'No se pudo leer la fuente oficial (NHC) y no hay datos previos en esta sesión. Intenta recargar en unos minutos o consulta nhc.noaa.gov directamente.',
+    demoTag: 'EJEMPLO — no es un sistema real, solo para probar la interfaz',
+    vientos: 'Vientos máx.', presion: 'Presión central', movimiento: 'Movimiento',
+    actualizado: 'Actualizado', categoria: 'Categoría', verOficial: 'Ver avisos oficiales del NHC →',
+    verRaw: 'Ver JSON crudo de esta fuente', ocultarRaw: 'Ocultar JSON crudo',
+    wnTitle: 'WeatherNext (experimental, Google DeepMind)', wnCargando: 'Consultando ensamble…',
+    wnAviso: 'Pronóstico probabilístico de IA en el punto del sistema, no una posición oficial. 64 miembros de ensamble.',
+    wnError: 'No se pudo consultar WeatherNext en este momento.',
+    vzTitle: 'Distancia a Venezuela', vzBajo: 'Riesgo bajo por ahora — sistema lejano.',
+    vzMedio: 'Vigilancia recomendada — sistema en la región.', vzAlto: 'Sistema cercano — sigue avisos oficiales de INAMEH y Protección Civil.',
+    inameh: 'INAMEH (Venezuela) →', proteccion: 'Protección Civil Venezuela →',
+    selecciona: 'Selecciona un sistema en la lista para ver su ficha completa.'
+  },
+  en: {
+    panelSistemas: 'Active systems',
+    navMapa: 'Map', navSistemas: 'Systems', navFicha: 'Details',
+    disclaimerGlobal: '⚠ This platform is an independent informational tool. It does not replace official advisories from your civil protection authority, your national weather service, or the NHC/NOAA. During an active system, always follow official sources.',
+    sinSistemas: 'No active tropical cyclones currently reported by the NHC.',
+    sinSistemas2: 'That is good news — nothing to act on right now.',
+    fuenteError: 'Could not read the official NHC source. Showing the last successfully confirmed state, not live data.',
+    fuenteErrorSinDatos: 'Could not read the official NHC source and there is no prior data this session. Try reloading in a few minutes or check nhc.noaa.gov directly.',
+    demoTag: 'EXAMPLE — not a real system, for interface testing only',
+    vientos: 'Max winds', presion: 'Central pressure', movimiento: 'Movement',
+    actualizado: 'Updated', categoria: 'Category', verOficial: 'View official NHC advisories →',
+    verRaw: 'View raw source JSON', ocultarRaw: 'Hide raw JSON',
+    wnTitle: 'WeatherNext (experimental, Google DeepMind)', wnCargando: 'Querying ensemble…',
+    wnAviso: 'AI probabilistic forecast at the system\'s point, not an official position. 64-member ensemble.',
+    wnError: 'Could not query WeatherNext right now.',
+    vzTitle: 'Distance to Venezuela', vzBajo: 'Low risk for now — system is far.',
+    vzMedio: 'Monitoring recommended — system is in the region.', vzAlto: 'System nearby — follow official INAMEH and Civil Protection advisories.',
+    inameh: 'INAMEH (Venezuela) →', proteccion: 'Venezuela Civil Protection →',
+    selecciona: 'Select a system from the list to see its full profile.'
+  }
+};
+var lang = (navigator.language || 'es').startsWith('en') ? 'en' : 'es';
+
+function t(key){ return I18N[lang][key] || key; }
+function applyI18n(){
+  document.documentElement.lang = lang;
+  document.querySelectorAll('[data-i18n]').forEach(function(el){
+    el.textContent = t(el.getAttribute('data-i18n'));
+  });
+  document.getElementById('langBtn').textContent = lang === 'es' ? 'EN' : 'ES';
+  renderEmptyState();
+  if (selectedStorm) renderDetail(selectedStorm); else renderNoSelection();
+}
+document.getElementById('langBtn').addEventListener('click', function(){
+  lang = lang === 'es' ? 'en' : 'es';
+  applyI18n();
+});
+
+/* ============================================================
+ * MAPA (Leaflet, teselas oscuras, sin clave)
+ * ============================================================ */
+var map = L.map('map', { zoomControl: false, worldCopyJump: true }).setView([18, -65], 4);
+L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+  attribution: '© OpenStreetMap, © CARTO',
+  subdomains: 'abcd', maxZoom: 10
+}).addTo(map);
+L.control.zoom({ position: 'bottomright' }).addTo(map);
+
+var markersLayer = L.layerGroup().addTo(map);
+var coneLayer = L.layerGroup().addTo(map);
+
+/* marcador VZ de referencia, siempre visible como ancla geográfica */
+L.circleMarker([VZ_REF.lat, VZ_REF.lon], {
+  radius: 5, color: '#3ec6a8', weight: 2, fillColor: '#3ec6a8', fillOpacity: .5
+}).addTo(map).bindTooltip('Venezuela', { permanent: false });
+
+/* ============================================================
+ * COLOR POR CATEGORÍA (Saffir-Simpson + tormenta/depresión)
+ * ============================================================ */
+function catColor(kind, windKt){
+  // kind: TD, STD, TS, HU, STS, PTC, TY, PC (códigos oficiales NHC)
+  if (kind === 'HU' || kind === 'TY') {
+    if (windKt >= 137) return getComputedStyle(document.documentElement).getPropertyValue('--c-h5').trim() || '#e8484f';
+    if (windKt >= 96)  return '#f07f3c';
+    return '#f0a83c';
+  }
+  if (kind === 'TS' || kind === 'STS') return '#e8b23c';
+  return '#3ec6a8'; // TD, STD, PTC, PC — sistema débil o post-tropical
+}
+function kindLabel(kind){
+  var map_ = {
+    TD: lang==='es'?'Depresión tropical':'Tropical depression',
+    STD: lang==='es'?'Depresión subtropical':'Subtropical depression',
+    TS: lang==='es'?'Tormenta tropical':'Tropical storm',
+    HU: lang==='es'?'Huracán':'Hurricane',
+    STS: lang==='es'?'Tormenta subtropical':'Subtropical storm',
+    PTC: lang==='es'?'Ciclón post-tropical':'Post-tropical cyclone',
+    TY: 'Typhoon',
+    PC: lang==='es'?'Ciclón tropical potencial':'Potential tropical cyclone'
+  };
+  return map_[kind] || kind || '—';
+}
+
+/* ============================================================
+ * PARSEO DEFENSIVO
+ * ------------------------------------------------------------
+ * El esquema documentado de CurrentStorms.json confirma campos
+ * como id/name/classification y una familia de URLs de producto
+ * (publicAdvisory, forecastTrack, trackCone, etc). No pude
+ * confirmar en vivo los nombres exactos de los campos numéricos
+ * (posición, viento, presión) porque no hay ningún sistema activo
+ * ahora mismo para inspeccionar una respuesta real.
+ *
+ * Por eso, en vez de asumir nombres de campo, esta función:
+ *  1) intenta una lista de alias conocidos/plausibles primero
+ *  2) si ninguno calza, escanea todas las claves del objeto y
+ *     clasifica por CONTENIDO (rango numérico + pista en el
+ *     nombre de la clave) — el mismo principio que ya usas en
+ *     funvisis-proxy.gs.
+ * Cuando actives DEMO_MODE=false con un ciclón real, usa el
+ * botón "ver JSON crudo" de la ficha para confirmar los alias
+ * reales y así los subo como primera opción (más rápido, sin
+ * heurística) en el próximo ajuste.
+ * ============================================================ */
+function firstDefined(obj, keys){
+  for (var i=0;i<keys.length;i++){
+    var v = obj[keys[i]];
+    if (v !== undefined && v !== null && v !== '') return v;
+  }
+  return undefined;
+}
+function flattenObj(obj, prefix, out){
+  prefix = prefix || ''; out = out || {};
+  if (obj === null || typeof obj !== 'object') { out[prefix] = obj; return out; }
+  Object.keys(obj).forEach(function(k){
+    var v = obj[k];
+    var key = prefix ? prefix + '.' + k : k;
+    if (v !== null && typeof v === 'object' && !Array.isArray(v)) flattenObj(v, key, out);
+    else out[key] = v;
+  });
+  return out;
+}
+function scanByContent(flat, opts){
+  // opts: {min, max, keyHints:[...]} → devuelve el primer valor numérico
+  // dentro del rango cuyo nombre de clave contenga alguna pista.
+  var keys = Object.keys(flat);
+  // 1er intento: nombre de clave coincide con la pista Y valor en rango
+  for (var i=0;i<keys.length;i++){
+    var k = keys[i].toLowerCase(), v = flat[keys[i]];
+    if (typeof v !== 'number') continue;
+    if (v < opts.min || v > opts.max) continue;
+    for (var j=0;j<opts.keyHints.length;j++){
+      if (k.indexOf(opts.keyHints[j]) !== -1) return v;
+    }
+  }
+  return undefined;
+}
+function normalizeStorm(raw){
+  var flat = flattenObj(raw);
+
+  var id = firstDefined(raw, ['id','stormId','atcfId','binNumber']) || ('storm-' + Math.random().toString(36).slice(2));
+  var name = firstDefined(raw, ['name','stormName','fullName']) || id;
+  var classification = firstDefined(raw, ['classification','stormType','kind']) ||
+    (function(){
+      // busca un código de 2-3 letras conocido en cualquier valor string
+      var codes = ['TD','STD','TS','HU','STS','PTC','TY','PC'];
+      for (var k in flat){ if (codes.indexOf(flat[k]) !== -1) return flat[k]; }
+      return 'TS';
+    })();
+
+  var lat = firstDefined(raw, ['latitude','latitudeNumeric','lat']);
+  var lon = firstDefined(raw, ['longitude','longitudeNumeric','lon']);
+  if (typeof lat !== 'number') lat = scanByContent(flat, {min:-5,max:60,keyHints:['lat']});
+  if (typeof lon !== 'number') lon = scanByContent(flat, {min:-170,max:0,keyHints:['lon','long']});
+
+  var windKt = firstDefined(raw, ['intensity','maxSustainedWind','windSpeed']);
+  if (typeof windKt !== 'number') windKt = scanByContent(flat, {min:10,max:220,keyHints:['wind','intensity']});
+
+  var pressureMb = firstDefined(raw, ['pressure','minimumPressure']);
+  if (typeof pressureMb !== 'number') pressureMb = scanByContent(flat, {min:860,max:1020,keyHints:['pressure']});
+
+  var moveDir = firstDefined(raw, ['movementDir','movementDirection']);
+  var moveSpeed = firstDefined(raw, ['movementSpeed']);
+  if (typeof moveSpeed !== 'number') moveSpeed = scanByContent(flat, {min:0,max:70,keyHints:['speed','movement']});
+
+  var lastUpdate = firstDefined(raw, ['lastUpdate','issuance','advisoryTime']);
+
+  var advisoryUrl = firstDefined(raw, ['publicAdvisory','textForecastAdvisory']);
+  if (advisoryUrl && typeof advisoryUrl === 'object') advisoryUrl = advisoryUrl.url || advisoryUrl.text;
+
+  return {
+    id: String(id), name: String(name), classification: classification,
+    lat: lat, lon: lon, windKt: windKt, pressureMb: pressureMb,
+    moveDir: moveDir, moveSpeed: moveSpeed, lastUpdate: lastUpdate,
+    advisoryUrl: typeof advisoryUrl === 'string' ? advisoryUrl : null,
+    _raw: raw, _hasPosition: typeof lat === 'number' && typeof lon === 'number'
+  };
+}
+
+/* ============================================================
+ * OBTENCIÓN DE DATOS — nunca mostrar viejo como actual
+ * ============================================================ */
+var lastGoodStorms = null;
+var lastGoodAt = null;
+var storms = [];
+var selectedStorm = null;
+
+function fetchJson(url){
+  return fetch(url, { cache: 'no-store' }).then(function(r){
+    if (!r.ok) throw new Error('HTTP ' + r.status);
+    return r.json();
+  });
+}
+
+function loadStorms(){
+  setStatus('loading');
+  var attempt = fetchJson(NHC_URL)
+    .catch(function(err){
+      if (NHC_PROXY) return fetchJson(NHC_PROXY);
+      throw err;
+    });
+
+  attempt.then(function(data){
+    var list = (data && data.activeStorms) || [];
+    storms = list.map(normalizeStorm);
+    lastGoodStorms = storms; lastGoodAt = new Date();
+    hideSourceBanner();
+    setStatus('live');
+    renderAll();
+  }).catch(function(err){
+    console.error('Error leyendo NHC:', err);
+    if (lastGoodStorms){
+      storms = lastGoodStorms;
+      showSourceBanner(t('fuenteError') + ' (' + fmtTime(lastGoodAt) + ')');
+    } else if (DEMO_MODE){
+      storms = [normalizeStorm(demoStorm())];
+      showSourceBanner('[DEMO] ' + t('fuenteErrorSinDatos'));
+    } else {
+      storms = [];
+      showSourceBanner(t('fuenteErrorSinDatos'));
+    }
+    setStatus('err');
+    renderAll();
+  });
+}
+
+function demoStorm(){
+  // Sistema ficticio, SOLO para poder ver la interfaz funcionando
+  // mientras no hay ciclones reales. Se etiqueta explícitamente
+  // como EJEMPLO en toda la interfaz.
+  return {
+    id: 'DEMO-AL01', name: 'EJEMPLO', classification: 'HU',
+    latitude: 17.4, longitude: -62.1,
+    intensity: 105, pressure: 962,
+    movementDir: 295, movementSpeed: 18,
+    lastUpdate: new Date().toISOString(),
+    __demo: true
+  };
+}
+
+function setStatus(state){
+  var dot = document.getElementById('statusDot');
+  dot.className = 'dot ' + (state === 'live' ? 'live' : state === 'err' ? 'err' : '');
+}
+function fmtTime(d){
+  if (!d) return '—';
+  try { return new Date(d).toLocaleString(lang==='es'?'es-VE':'en-US', { hour:'2-digit', minute:'2-digit', day:'2-digit', month:'short' }); }
+  catch(e){ return String(d); }
+}
+function showSourceBanner(msg){
+  var b = document.getElementById('sourceBanner');
+  b.textContent = msg; b.classList.add('on');
+}
+function hideSourceBanner(){ document.getElementById('sourceBanner').classList.remove('on'); }
+
+/* ============================================================
+ * RENDER: lista + marcadores
+ * ============================================================ */
+function renderAll(){
+  document.getElementById('lastUpdateTxt').textContent = lastGoodAt ? fmtTime(lastGoodAt) : '';
+  renderList();
+  renderMarkers();
+  renderEmptyState();
+}
+function renderEmptyState(){
+  var el = document.getElementById('emptyState');
+  if (storms.length === 0){
+    el.innerHTML = '<b>' + t('sinSistemas') + '</b><br>' + t('sinSistemas2');
+  } else { el.innerHTML = ''; }
+}
+function renderList(){
+  var wrap = document.getElementById('stormList');
+  wrap.innerHTML = '';
+  storms.forEach(function(s){
+    var card = document.createElement('div');
+    card.className = 'stormCard' + (selectedStorm && selectedStorm.id === s.id ? ' sel' : '');
+    var color = catColor(s.classification, s.windKt || 0);
+    card.innerHTML =
+      '<div class="name">' + (s.__demo || s._raw.__demo ? '⚠ ' + t('demoTag') + ' — ' : '') + escapeHtml(s.name) + '</div>' +
+      '<div class="meta">' +
+        '<span class="catPill" style="background:'+color+'">' + escapeHtml(kindLabel(s.classification)) + '</span>' +
+        (typeof s.windKt === 'number' ? '<span>' + Math.round(s.windKt) + ' kt</span>' : '') +
+      '</div>';
+    card.addEventListener('click', function(){ selectStorm(s); });
+    wrap.appendChild(card);
+  });
+}
+function renderMarkers(){
+  markersLayer.clearLayers();
+  coneLayer.clearLayers();
+  storms.forEach(function(s){
+    if (!s._hasPosition) return;
+    var color = catColor(s.classification, s.windKt || 0);
+    var m = L.circleMarker([s.lat, s.lon], {
+      radius: 9, color: color, weight: 2, fillColor: color, fillOpacity: .55
+    }).addTo(markersLayer);
+    m.bindTooltip(s.name);
+    m.on('click', function(){ selectStorm(s); });
+  });
+}
+function escapeHtml(str){
+  return String(str).replace(/[&<>"']/g, function(c){
+    return { '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[c];
+  });
+}
+
+/* ============================================================
+ * SELECCIÓN Y FICHA DE DETALLE
+ * ============================================================ */
+function selectStorm(s){
+  selectedStorm = s;
+  renderList();
+  document.getElementById('right').classList.add('on');
+  if (s._hasPosition) map.panTo([s.lat, s.lon]);
+  renderDetail(s);
+  loadWeatherNext(s);
+  if (window.innerWidth <= 820) setMobileTab('ficha');
+}
+function renderNoSelection(){
+  document.getElementById('detailTitle').textContent = '—';
+  document.getElementById('detailBody').innerHTML = '<p style="color:var(--muted);font-size:12px">' + t('selecciona') + '</p>';
+}
+function renderDetail(s){
+  document.getElementById('detailTitle').textContent = s.name;
+  var color = catColor(s.classification, s.windKt || 0);
+  var html = '';
+
+  if (s.__demo || (s._raw && s._raw.__demo)){
+    html += '<div class="warnbox"><b>' + t('demoTag') + '</b></div>';
+  }
+
+  html += '<div class="kv"><span data-i18n="categoria">' + t('categoria') + '</span><span style="color:'+color+'">' + escapeHtml(kindLabel(s.classification)) + '</span></div>';
+  html += '<div class="kv"><span>' + t('vientos') + '</span><span>' + (typeof s.windKt==='number' ? Math.round(s.windKt)+' kt ('+Math.round(s.windKt*1.852)+' km/h)' : '—') + '</span></div>';
+  html += '<div class="kv"><span>' + t('presion') + '</span><span>' + (typeof s.pressureMb==='number' ? Math.round(s.pressureMb)+' hPa' : '—') + '</span></div>';
+  html += '<div class="kv"><span>' + t('movimiento') + '</span><span>' + (typeof s.moveSpeed==='number' ? Math.round(s.moveSpeed)+' kt'+(s.moveDir!=null?' @ '+Math.round(s.moveDir)+'°':'') : '—') + '</span></div>';
+  html += '<div class="kv"><span>' + t('actualizado') + '</span><span>' + (s.lastUpdate ? fmtTime(s.lastUpdate) : (lastGoodAt?fmtTime(lastGoodAt):'—')) + '</span></div>';
+
+  if (s.advisoryUrl){
+    html += '<a class="linkbtn" target="_blank" rel="noopener" href="' + s.advisoryUrl + '">' + t('verOficial') + '</a>';
+  } else {
+    html += '<a class="linkbtn" target="_blank" rel="noopener" href="https://www.nhc.noaa.gov/">' + t('verOficial') + '</a>';
+  }
+
+  // proximidad Venezuela
+  if (s._hasPosition){
+    var distKm = haversine(s.lat, s.lon, VZ_REF.lat, VZ_REF.lon);
+    var level = distKm < 500 ? 'high' : distKm < 1500 ? 'mid' : 'low';
+    var levelTxt = distKm < 500 ? t('vzAlto') : distKm < 1500 ? t('vzMedio') : t('vzBajo');
+    html += '<div class="section-title">' + t('vzTitle') + '</div>';
+    html += '<div class="vzBox ' + level + '">' + Math.round(distKm) + ' km — ' + levelTxt + '</div>';
+    html += '<a class="linkbtn" target="_blank" rel="noopener" href="https://x.com/inameh">' + t('inameh') + '</a>';
+    html += '<a class="linkbtn" target="_blank" rel="noopener" href="https://www.gestionderiesgo.gob.ve/">' + t('proteccion') + '</a>';
+  }
+
+  // capa WeatherNext (se llena async)
+  html += '<div class="section-title">' + t('wnTitle') + '</div>';
+  html += '<div class="wnBox" id="wnBox"><div class="wnLoading">' + t('wnCargando') + '</div></div>';
+
+  html += '<button id="rawBtn">' + t('verRaw') + '</button>';
+  html += '<div id="rawJson">' + escapeHtml(JSON.stringify(s._raw, null, 2)) + '</div>';
+
+  document.getElementById('detailBody').innerHTML = html;
+
+  document.getElementById('rawBtn').addEventListener('click', function(){
+    var box = document.getElementById('rawJson');
+    var open = box.classList.toggle('on');
+    this.textContent = open ? t('ocultarRaw') : t('verRaw');
+  });
+}
+function haversine(lat1,lon1,lat2,lon2){
+  var R=6371, dLat=(lat2-lat1)*Math.PI/180, dLon=(lon2-lon1)*Math.PI/180;
+  var a = Math.sin(dLat/2)**2 + Math.cos(lat1*Math.PI/180)*Math.cos(lat2*Math.PI/180)*Math.sin(dLon/2)**2;
+  return R * 2*Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+}
+
+/* ============================================================
+ * CAPA EXPERIMENTAL: Google WeatherNext vía Open-Meteo
+ * ------------------------------------------------------------
+ * Punto importante confirmado en la investigación: este endpoint
+ * da campos atmosféricos de rejilla en el punto que pidas
+ * (viento, presión, temperatura) para 64 miembros de ensamble.
+ * NO da "el ciclón" como objeto — por eso solo la usamos como
+ * contexto adicional en el punto donde el NHC ya nos dijo que
+ * está el centro del sistema, nunca como fuente de la posición.
+ * ============================================================ */
+function loadWeatherNext(s){
+  if (!s._hasPosition) return;
+  var url = OM_ENSEMBLE + '?latitude=' + s.lat.toFixed(2) + '&longitude=' + s.lon.toFixed(2) +
+    '&hourly=wind_speed_10m,pressure_msl&forecast_days=3&models=google_weathernext2_ensemble';
+  fetchJson(url).then(function(data){
+    var box = document.getElementById('wnBox');
+    if (!box) return; // el usuario cambió de selección mientras cargaba
+    if (!data.hourly || !data.hourly.wind_speed_10m){
+      box.innerHTML = '<div class="wnSpread">' + t('wnError') + '</div>';
+      return;
+    }
+    // el ensamble llega como wind_speed_10m_member01, _member02, ...
+    var members = Object.keys(data.hourly).filter(function(k){ return k.indexOf('wind_speed_10m_member') === 0; });
+    var firstStepVals = members.map(function(k){ return data.hourly[k][0]; }).filter(function(v){ return typeof v === 'number'; });
+    var html = '<div class="wnTitle"><span>' + t('wnTitle') + '</span></div>';
+    if (firstStepVals.length){
+      var min = Math.min.apply(null, firstStepVals), max = Math.max.apply(null, firstStepVals);
+      var avg = firstStepVals.reduce(function(a,b){return a+b;},0) / firstStepVals.length;
+      html += '<div class="wnSpread">' +
+        'Viento 10m (' + firstStepVals.length + ' miembros): ' +
+        min.toFixed(0) + '–' + max.toFixed(0) + ' km/h (media ' + avg.toFixed(0) + ')</div>';
+    } else if (typeof data.hourly.wind_speed_10m[0] === 'number') {
+      html += '<div class="wnSpread">Viento 10m: ' + data.hourly.wind_speed_10m[0].toFixed(0) + ' km/h</div>';
+    } else {
+      html += '<div class="wnSpread">' + t('wnError') + '</div>';
+    }
+    html += '<div class="wnSpread" style="margin-top:4px;font-size:10px;opacity:.8">' + t('wnAviso') + '</div>';
+    box.innerHTML = html;
+  }).catch(function(err){
+    console.error('Error WeatherNext:', err);
+    var box = document.getElementById('wnBox');
+    if (box) box.innerHTML = '<div class="wnSpread">' + t('wnError') + '</div>';
+  });
+}
+
+/* ============================================================
+ * NAV MÓVIL
+ * ============================================================ */
+function setMobileTab(tab){
+  document.getElementById('left').classList.remove('on');
+  document.getElementById('right').classList.remove('on');
+  ['mnMapa','mnSistemas','mnFicha'].forEach(function(id){ document.getElementById(id).classList.remove('act'); });
+  if (tab === 'mapa'){ document.getElementById('mnMapa').classList.add('act'); }
+  if (tab === 'sistemas'){ document.getElementById('left').classList.add('on'); document.getElementById('mnSistemas').classList.add('act'); }
+  if (tab === 'ficha'){ document.getElementById('right').classList.add('on'); document.getElementById('mnFicha').classList.add('act'); }
+}
+document.getElementById('mnMapa').addEventListener('click', function(){ setMobileTab('mapa'); });
+document.getElementById('mnSistemas').addEventListener('click', function(){ setMobileTab('sistemas'); });
+document.getElementById('mnFicha').addEventListener('click', function(){ setMobileTab('ficha'); });
+document.getElementById('leftClose').addEventListener('click', function(){
+  if (window.innerWidth <= 820) setMobileTab('mapa'); else document.getElementById('left').classList.add('hideDesk');
+});
+document.getElementById('rightClose').addEventListener('click', function(){
+  document.getElementById('right').classList.remove('on');
+  if (window.innerWidth <= 820) setMobileTab('mapa');
+});
+
+/* en escritorio, el panel izquierdo siempre visible por defecto */
+if (window.innerWidth <= 820) setMobileTab('mapa');
+
+/* ============================================================
+ * ARRANQUE
+ * ============================================================ */
+applyI18n();
+renderNoSelection();
+loadStorms();
+setInterval(loadStorms, REFRESH_MS);
+
+/* PWA: registrar service worker si existe */
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', function(){
+    navigator.serviceWorker.register('sw.js').catch(function(e){ console.warn('SW no registrado:', e); });
+  });
+}
+</script>
+</body>
+</html>
