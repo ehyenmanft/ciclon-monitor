@@ -30,8 +30,10 @@
 - **Notificaciones del navegador** (🔔): aviso con sonido cuando aparece un sistema nuevo o Venezuela entra en zona de watch/warning — pensado para un panel desatendido en sala de situación.
 - **Reporte de situación** (🖨️): resumen imprimible de todos los sistemas activos + estado de alerta, en un clic.
 - **Persistencia local**: si la página se recarga durante un corte de conexión, muestra el último dato confirmado guardado en el navegador (con su hora real) en vez de una pantalla vacía.
-- **Capa de viento**: muestreo de puntos con Open-Meteo sobre el área visible, flechas rotadas por dirección y coloreadas por velocidad.
-- **Radar en tiempo real** ([RainViewer](https://www.rainviewer.com)) con leyenda de intensidad, y **vista satelital diaria** (NASA GIBS).
+- **Capa de viento y nubosidad**: muestreo de 16 puntos con Open-Meteo sobre el área visible — flechas de viento rotadas por dirección/velocidad, nubosidad como sombreado translúcido. Colapsable en un solo panel de "Capas del mapa".
+- **Convergencia aproximada**: cuando la capa de viento está activa, resalta zonas donde el viento converge entre puntos vecinos de la rejilla (asociado a mayor probabilidad de lluvia). Etiquetado explícitamente como estimación gruesa, no un análisis sinóptico oficial ni una zona de convergencia intertropical real.
+- **Radar en tiempo real** ([RainViewer](https://www.rainviewer.com)) con leyenda de intensidad.
+- **Vista satelital dual**: diaria (NASA VIIRS, confiable, ~24h de latencia) o casi en vivo (NOAA/NASA GOES-East GeoColor, ~10-15 min — experimental, el ajuste técnico exacto de esta capa no se pudo confirmar en desarrollo).
 
 ### General
 - **Vista principal: Clima** por defecto, con Caracas precargada.
@@ -84,6 +86,7 @@ Primera versión funcional (MVP). Pendiente de validar en vivo: comportamiento r
 ## 🗺 Hoja de ruta
 
 - [ ] Confirmar CORS directo a NHC y al GIS de NOAA (o activar los proxys)
+- [ ] Confirmar el TileMatrixSet correcto para la capa GOES-East casi en vivo (si no se ve nada con "Casi en vivo" activado, avisar para ajustar)
 - [ ] Confirmar esquema real de campos con un sistema activo
 - [ ] Íconos PWA definitivos (los actuales son un placeholder generado)
 - [ ] Modo kiosko para pantalla de sala de situación (auto-rotación entre sistemas, sin interacción)

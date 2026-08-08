@@ -124,25 +124,34 @@ a{color:inherit}
 #layersControl{
   position:fixed;left:12px;bottom:12px;z-index:22;
   background:var(--panel);border:1px solid var(--line);border-radius:12px;
-  backdrop-filter:blur(10px);padding:8px;display:flex;flex-direction:column;gap:7px;
+  backdrop-filter:blur(10px);max-width:200px;
 }
+#layersControlHeader{
+  display:flex;align-items:center;justify-content:space-between;gap:10px;
+  padding:9px 10px;font-size:11px;font-weight:700;cursor:pointer;
+}
+#layersCollapseBtn{background:none;border:none;color:var(--muted);font-size:11px;cursor:pointer;transition:transform .15s}
+#layersControlBody{padding:0 8px 8px;display:flex;flex-direction:column;gap:7px}
+#layersControlBody.collapsed{display:none}
 #layersControl .layerBtns{display:flex;gap:6px}
 #layersControl button{
   background:#161d26;border:1px solid var(--line);color:var(--text);border-radius:8px;
   padding:7px 10px;font-family:inherit;font-size:11px;cursor:pointer;white-space:nowrap;
 }
 #layersControl button.act{border-color:#6fb8e0;background:#0d1a22;color:#6fb8e0}
+#satModeRow{display:none;gap:5px}
+#satModeRow.on{display:flex}
+#satModeRow button{flex:1;font-size:9.5px !important;padding:5px 4px !important}
 #radarControls{display:none;align-items:center;gap:7px;font-size:10px;color:var(--muted);padding-top:2px;border-top:1px dashed var(--line)}
 #radarControls.on{display:flex}
 #radarPlayBtn{background:#161d26;border:1px solid var(--line);color:var(--text);border-radius:6px;
   width:26px;height:26px;cursor:pointer;font-size:11px;flex:0 0 auto}
 #radarTime{min-width:44px}
 #radarAttrib{font-size:9px;opacity:.75}
-#satAttrib{display:none;font-size:9px;color:var(--muted);padding-top:2px;border-top:1px dashed var(--line);max-width:190px;line-height:1.4}
-#satAttrib.on{display:block}
-#vientoLeyenda{display:none;font-size:9px;color:var(--muted);padding-top:2px;border-top:1px dashed var(--line);max-width:190px;line-height:1.4}
-#vientoLeyenda.on{display:block}
-#radarLegend{display:none;align-items:center;gap:4px;font-size:9px;color:var(--muted)}
+#satAttrib,#satGoesAviso,#vientoLeyenda,#nubesLeyenda{display:none;font-size:9px;color:var(--muted);padding-top:2px;border-top:1px dashed var(--line);max-width:190px;line-height:1.4}
+#satAttrib.on,#satGoesAviso.on,#vientoLeyenda.on,#nubesLeyenda.on{display:block}
+#satGoesAviso{color:#e0b840}
+#radarLegend{display:none;align-items:center;gap:4px;font-size:9px;color:var(--muted);flex-wrap:wrap}
 #radarLegend.on{display:flex}
 .legendChip{width:12px;height:8px;border-radius:2px;display:inline-block}
 .legendItem{display:inline-flex;align-items:center;gap:3px}
@@ -396,30 +405,45 @@ a{color:inherit}
 <div id="sourceBanner"></div>
 
 <div id="layersControl">
-  <div class="layerBtns">
-    <button id="btnRadar" title="Radar de lluvia (RainViewer)">🌧️ <span data-i18n="capaRadar">Radar</span></button>
-    <button id="btnSat" title="Satélite (NASA)">🛰️ <span data-i18n="capaSatelite">Satélite</span></button>
-    <button id="btnViento" title="Viento (Open-Meteo)">💨 <span data-i18n="capaViento">Viento</span></button>
+  <div id="layersControlHeader">
+    <span>🗺️ <span data-i18n="capasTitulo">Capas del mapa</span></span>
+    <button id="layersCollapseBtn">▾</button>
   </div>
-  <div class="layerBtns">
-    <button id="btnLegend" title="Leyenda / cómo leer el mapa">❓ <span data-i18n="verLeyenda">Leyenda</span></button>
-    <button id="btnShareLoc" title="Compartir ubicación">📍 <span data-i18n="compartirUbi">Compartir</span></button>
+  <div id="layersControlBody">
+    <div class="layerBtns">
+      <button id="btnRadar" title="Radar de lluvia (RainViewer)">🌧️ <span data-i18n="capaRadar">Radar</span></button>
+      <button id="btnSat" title="Satélite (NASA)">🛰️ <span data-i18n="capaSatelite">Satélite</span></button>
+    </div>
+    <div class="layerBtns">
+      <button id="btnViento" title="Viento (Open-Meteo)">💨 <span data-i18n="capaViento">Viento</span></button>
+      <button id="btnNubes" title="Nubosidad (Open-Meteo)">☁️ <span data-i18n="capaNubes">Nubes</span></button>
+    </div>
+    <div class="layerBtns">
+      <button id="btnLegend" title="Leyenda / cómo leer el mapa">❓ <span data-i18n="verLeyenda">Leyenda</span></button>
+      <button id="btnShareLoc" title="Compartir ubicación">📍 <span data-i18n="compartirUbi">Compartir</span></button>
+    </div>
+    <div id="satModeRow">
+      <button id="satModeViirs" class="act" data-i18n="satModoDiario">Diario (VIIRS)</button>
+      <button id="satModeGoes" data-i18n="satModoVivo">Casi en vivo (GOES)</button>
+    </div>
+    <div id="radarControls">
+      <button id="radarPlayBtn">▶</button>
+      <span id="radarTime">—</span>
+      <span id="radarAttrib">RainViewer.com</span>
+    </div>
+    <div id="radarLegend">
+      <span data-i18n="radarLeyenda">Intensidad:</span>
+      <span class="legendItem"><span class="legendChip" style="background:#3ec6a8"></span><span data-i18n="intLigera">Ligera</span></span>
+      <span class="legendItem"><span class="legendChip" style="background:#e8b23c"></span><span data-i18n="intModerada">Moderada</span></span>
+      <span class="legendItem"><span class="legendChip" style="background:#f07f3c"></span><span data-i18n="intFuerte">Fuerte</span></span>
+      <span class="legendItem"><span class="legendChip" style="background:#e8484f"></span><span data-i18n="intExtrema">Extrema</span></span>
+    </div>
+    <div id="satAttrib" data-i18n="satAviso"></div>
+    <div id="satGoesAviso" data-i18n="satGoesAviso"></div>
+    <div id="vientoLeyenda" data-i18n="vientoAviso"></div>
+    <div id="nubesLeyenda" data-i18n="nubesAviso"></div>
+    <div id="coordsReadout">— , —</div>
   </div>
-  <div id="radarControls">
-    <button id="radarPlayBtn">▶</button>
-    <span id="radarTime">—</span>
-    <span id="radarAttrib">RainViewer.com</span>
-  </div>
-  <div id="radarLegend">
-    <span data-i18n="radarLeyenda">Intensidad:</span>
-    <span class="legendItem"><span class="legendChip" style="background:#3ec6a8"></span><span data-i18n="intLigera">Ligera</span></span>
-    <span class="legendItem"><span class="legendChip" style="background:#e8b23c"></span><span data-i18n="intModerada">Moderada</span></span>
-    <span class="legendItem"><span class="legendChip" style="background:#f07f3c"></span><span data-i18n="intFuerte">Fuerte</span></span>
-    <span class="legendItem"><span class="legendChip" style="background:#e8484f"></span><span data-i18n="intExtrema">Extrema</span></span>
-  </div>
-  <div id="satAttrib" data-i18n="satAviso"></div>
-  <div id="vientoLeyenda" data-i18n="vientoAviso"></div>
-  <div id="coordsReadout">— , —</div>
 </div>
 
 <div id="legendModal">
@@ -461,7 +485,7 @@ a{color:inherit}
  *             ocultar un fallo de la fuente real.
  * ============================================================ */
 var NHC_URL   = 'https://www.nhc.noaa.gov/CurrentStorms.json';
-var NHC_PROXY = 'https://script.google.com/macros/s/AKfycbytHFYnJuV0W_vwPPI0DpEID0EH0CjbPQlRmPBDHOABvOmX_b0n_mOMpw8xtrdGlijm/exec'; // ← pega aquí tu URL /exec si CORS directo falla
+var NHC_PROXY = 'https://script.google.com/macros/s/AKfycbwXMqLQHESSqgPzgATOnsESxLBIt18RtT4scTsfJNw3wJa7mjtCyS8KdaeKuC7enMuh/exec'; // ← pega aquí tu URL /exec si CORS directo falla
 var OM_ENSEMBLE = 'https://ensemble-api.open-meteo.com/v1/ensemble';
 var REFRESH_MS = 5 * 60 * 1000; // NHC actualiza por evento, no por polling agresivo
 var DEMO_MODE = true; // desactívalo en cuanto confirmes que la fuente real responde
@@ -583,7 +607,13 @@ var I18N = {
     compartirUbi: 'Compartir', compartirUbiTitulo: 'Compartir ubicación', compartirUbiCargando: 'Obteniendo ubicación…',
     compartirUbiCentroMapa: 'No se pudo obtener tu GPS — usando el centro actual del mapa.',
     compartirUbiMsg: 'Mi ubicación', compartirUbiCopiar: 'Copiar', compartirUbiCopiado: 'Copiado',
-    intLigera: 'Ligera', intModerada: 'Moderada', intFuerte: 'Fuerte', intExtrema: 'Extrema'
+    intLigera: 'Ligera', intModerada: 'Moderada', intFuerte: 'Fuerte', intExtrema: 'Extrema',
+    capasTitulo: 'Capas del mapa', capaNubes: 'Nubes',
+    satModoDiario: 'Diario (VIIRS)', satModoVivo: 'Casi en vivo (GOES)',
+    satGoesAviso: '⚠ Experimental: imagen del satélite GOES-East cada ~10-15 min. Si no se ve nada, aún no está confirmado el ajuste técnico exacto de esta capa — usa "Diario" mientras tanto.',
+    nubosidadLower: 'nubosidad',
+    nubesAviso: 'Nubosidad muestreada en 16 puntos del área visible (Open-Meteo) — no es una imagen satelital continua.',
+    convergenciaTooltip: '⚠ Convergencia aproximada (estimación entre puntos muestreados, no es un análisis sinóptico oficial)'
   },
   en: {
     panelSistemas: 'Active systems',
@@ -646,7 +676,13 @@ var I18N = {
     compartirUbi: 'Share', compartirUbiTitulo: 'Share location', compartirUbiCargando: 'Getting location…',
     compartirUbiCentroMapa: 'Could not get your GPS — using the current map center instead.',
     compartirUbiMsg: 'My location', compartirUbiCopiar: 'Copy', compartirUbiCopiado: 'Copied',
-    intLigera: 'Light', intModerada: 'Moderate', intFuerte: 'Heavy', intExtrema: 'Extreme'
+    intLigera: 'Light', intModerada: 'Moderate', intFuerte: 'Heavy', intExtrema: 'Extreme',
+    capasTitulo: 'Map layers', capaNubes: 'Clouds',
+    satModoDiario: 'Daily (VIIRS)', satModoVivo: 'Near real-time (GOES)',
+    satGoesAviso: '⚠ Experimental: GOES-East satellite image every ~10-15 min. If nothing shows up, the exact technical setting for this layer is not yet confirmed — use "Daily" in the meantime.',
+    nubosidadLower: 'cloud cover',
+    nubesAviso: 'Cloud cover sampled at 16 points across the visible area (Open-Meteo) — not a continuous satellite image.',
+    convergenciaTooltip: '⚠ Approximate convergence (estimate between sampled points, not an official synoptic analysis)'
   }
 };
 var lang = (navigator.language || 'es').startsWith('en') ? 'en' : 'es';
@@ -700,6 +736,15 @@ function updateCoordsReadout(){
 }
 map.on('moveend', updateCoordsReadout);
 updateCoordsReadout();
+
+/* Panel de capas colapsable — con tantos controles acumulados, en
+ * pantallas chicas conviene poder reducirlo a solo el encabezado. */
+document.getElementById('layersControlHeader').addEventListener('click', function(){
+  var body = document.getElementById('layersControlBody');
+  var btn = document.getElementById('layersCollapseBtn');
+  var collapsed = body.classList.toggle('collapsed');
+  btn.style.transform = collapsed ? 'rotate(-90deg)' : 'rotate(0deg)';
+});
 
 var markersLayer = L.layerGroup().addTo(map);
 var coneLayer = L.layerGroup().addTo(map);
@@ -1758,99 +1803,187 @@ document.getElementById('radarPlayBtn').addEventListener('click', function(){
 /* ============================================================
  * CAPA SATELITAL — NASA EOSDIS GIBS
  * ------------------------------------------------------------
- * Mismo patrón EXACTO ya probado en producción en SISMO·MONITOR
- * (VIIRS_SNPP_CorrectedReflectance_TrueColor, EPSG3857,
- * GoogleMapsCompatible_Level9, imagen de ayer por la latencia de
- * ~1 día del producto). No es tiempo real — se etiqueta como tal.
+ * Dos variantes:
+ *  - VIIRS true color: mismo patrón EXACTO ya probado en producción
+ *    en SISMO·MONITOR. Imagen de ayer (~1 día de latencia). Confiable.
+ *  - GOES-East GeoColor: identificador de capa CONFIRMADO contra la
+ *    documentación oficial de GIBS (near real-time, ~10-15 min,
+ *    ~40 min de latencia) — pero el TileMatrixSet exacto para
+ *    productos geoestacionarios NO se pudo confirmar desde este
+ *    entorno (son distintos de los productos polares MODIS/VIIRS).
+ *    Se etiqueta como "casi en vivo, experimental" y si las teselas
+ *    no cargan, avísame para ajustar el TileMatrixSet.
  * ============================================================ */
 var satOn = false, satLayer = null;
-function toggleSat(){
-  satOn = !satOn;
-  document.getElementById('btnSat').classList.toggle('act', satOn);
-  if (!satOn){
-    if (satLayer){ map.removeLayer(satLayer); satLayer = null; }
-    document.getElementById('satAttrib').classList.remove('on');
-    return;
+var satMode = 'viirs'; // 'viirs' | 'goes'
+function buildSatLayer(){
+  if (satMode === 'goes'){
+    var hoy = new Date().toISOString().slice(0,10);
+    return L.tileLayer(
+      'https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/GOES-East_ABI_GeoColor/default/'
+      + hoy + '/GoogleMapsCompatible_Level7/{z}/{y}/{x}.png',
+      { maxNativeZoom: 7, maxZoom: 12, opacity: .85, zIndex: 440, attribution: 'Satélite: NOAA/NASA GOES-East GeoColor' }
+    );
   }
   var ayer = new Date(Date.now() - 86400000).toISOString().slice(0,10);
-  satLayer = L.tileLayer(
+  return L.tileLayer(
     'https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/VIIRS_SNPP_CorrectedReflectance_TrueColor/default/'
     + ayer + '/GoogleMapsCompatible_Level9/{z}/{y}/{x}.jpg',
     { maxNativeZoom: 9, maxZoom: 12, opacity: .85, zIndex: 440, attribution: 'Satélite: NASA EOSDIS GIBS (' + ayer + ')' }
-  ).addTo(map);
-  document.getElementById('satAttrib').classList.add('on');
+  );
+}
+function toggleSat(){
+  satOn = !satOn;
+  document.getElementById('btnSat').classList.toggle('act', satOn);
+  document.getElementById('satModeRow').classList.toggle('on', satOn);
+  if (!satOn){
+    if (satLayer){ map.removeLayer(satLayer); satLayer = null; }
+    document.getElementById('satAttrib').classList.remove('on');
+    document.getElementById('satGoesAviso').classList.remove('on');
+    return;
+  }
+  redrawSatLayer();
+}
+function redrawSatLayer(){
+  if (satLayer) map.removeLayer(satLayer);
+  satLayer = buildSatLayer().addTo(map);
+  document.getElementById('satAttrib').classList.toggle('on', satMode === 'viirs');
+  document.getElementById('satGoesAviso').classList.toggle('on', satMode === 'goes');
 }
 document.getElementById('btnSat').addEventListener('click', toggleSat);
+document.getElementById('satModeViirs').addEventListener('click', function(){
+  satMode = 'viirs';
+  document.getElementById('satModeViirs').classList.add('act');
+  document.getElementById('satModeGoes').classList.remove('act');
+  if (satOn) redrawSatLayer();
+});
+document.getElementById('satModeGoes').addEventListener('click', function(){
+  satMode = 'goes';
+  document.getElementById('satModeGoes').classList.add('act');
+  document.getElementById('satModeViirs').classList.remove('act');
+  if (satOn) redrawSatLayer();
+});
 
 /* ============================================================
- * CAPA DE VIENTO — muestreo de puntos con Open-Meteo
+ * REJILLA DE CONDICIONES — viento, nubosidad y convergencia
  * ------------------------------------------------------------
- * No existe un tile service gratuito y sin clave de streamlines
- * de viento continuas (eso requiere procesar campos GRIB en
- * WebGL, tipo Windy.com, con licencia). Alternativa honesta con
- * datos ya verificados: se muestrea el viento actual (mismo
- * endpoint /v1/forecast ya confirmado) en una rejilla de puntos
- * sobre el área visible, y se dibuja una flecha rotada por punto,
- * coloreada por velocidad. Se etiqueta como muestreo puntual, no
- * como animación continua.
+ * No existe un tile service gratuito y sin clave de streamlines de
+ * viento continuas ni de nubosidad en vivo (eso requiere procesar
+ * campos GRIB en WebGL, tipo Windy.com, con licencia). Alternativa
+ * honesta con datos ya verificados: se muestrea el punto actual
+ * (mismo endpoint /v1/forecast ya confirmado, un solo request por
+ * punto con viento+nubosidad+precipitación juntos) en una rejilla
+ * 4×4 sobre el área visible.
+ *
+ * CONVERGENCIA: se calcula de forma aproximada comparando los
+ * vectores de viento entre puntos vecinos de la rejilla (si el
+ * viento "entra" desde varios lados hacia un punto, ahí hay
+ * convergencia — asociada a mayor probabilidad de lluvia/tormenta).
+ * Esto NO es un análisis sinóptico oficial ni una zona de
+ * convergencia intertropical real — es una estimación gruesa a
+ * partir de 16 puntos muestreados. Se etiqueta como tal en todas
+ * partes donde aparece.
  * ============================================================ */
-var vientoOn = false, vientoLayer = null;
+var vientoOn = false, nubesOn = false, gridLayer = null;
+var GRID_N = 4;
 function windColor(kmh){
   if (kmh < 20) return '#3ec6a8';
   if (kmh < 40) return '#e8b23c';
   if (kmh < 65) return '#f07f3c';
   return '#e8484f';
 }
-function buildWindGrid(){
+function windUV(spd, dirFrom){
+  var rad = dirFrom * Math.PI / 180;
+  return { u: -spd * Math.sin(rad), v: -spd * Math.cos(rad) };
+}
+function buildGrid(){
   var b = map.getBounds();
-  var latStep = (b.getNorth() - b.getSouth()) / 4;
-  var lonStep = (b.getEast() - b.getWest()) / 4;
+  var latStep = (b.getNorth() - b.getSouth()) / (GRID_N + 1);
+  var lonStep = (b.getEast() - b.getWest()) / (GRID_N + 1);
+  var byKey = {};
   var pts = [];
-  for (var i = 1; i < 4; i++){
-    for (var j = 1; j < 4; j++){
-      pts.push({ lat: b.getSouth() + latStep * i, lon: b.getWest() + lonStep * j });
+  for (var i = 1; i <= GRID_N; i++){
+    for (var j = 1; j <= GRID_N; j++){
+      var p = { lat: b.getSouth() + latStep * i, lon: b.getWest() + lonStep * j, i: i, j: j };
+      pts.push(p);
+      byKey[i + ',' + j] = p;
     }
   }
+  pts._byKey = byKey;
   return pts;
 }
-function loadWindGrid(){
-  var pts = buildWindGrid();
-  vientoLayer.clearLayers();
+function loadGridConditions(){
+  if (!vientoOn && !nubesOn) return;
+  var pts = buildGrid();
+  var byKey = pts._byKey;
+  gridLayer.clearLayers();
+  var pending = pts.length;
   pts.forEach(function(p){
     var url = OM_FORECAST + '?latitude=' + p.lat.toFixed(3) + '&longitude=' + p.lon.toFixed(3) +
-      '&current=wind_speed_10m,wind_direction_10m';
+      '&current=wind_speed_10m,wind_direction_10m,cloud_cover';
     fetchJson(url).then(function(data){
-      if (!vientoOn || !data.current) return;
-      var spd = data.current.wind_speed_10m, dir = data.current.wind_direction_10m;
-      if (typeof spd !== 'number' || typeof dir !== 'number') return;
-      var color = windColor(spd);
-      var icon = L.divIcon({
-        className: '', html: '<div class="windArrow" style="color:'+color+';transform:rotate(' + dir + 'deg)">↑</div>',
-        iconSize: [20, 20], iconAnchor: [10, 10]
-      });
-      L.marker([p.lat, p.lon], { icon: icon, interactive: true })
-        .bindTooltip(Math.round(spd) + ' km/h')
-        .addTo(vientoLayer);
-    }).catch(function(err){ console.error('Error viento:', err); });
+      if (data.current){
+        p.spd = data.current.wind_speed_10m; p.dir = data.current.wind_direction_10m; p.cloud = data.current.cloud_cover;
+        renderGridPoint(p);
+      }
+    }).catch(function(err){ console.error('Error rejilla clima:', err); })
+      .then(function(){ pending--; if (pending === 0 && vientoOn) renderConvergence(byKey); });
   });
+}
+function renderGridPoint(p){
+  if (!vientoOn && !nubesOn) return;
+  if (nubesOn && typeof p.cloud === 'number'){
+    L.circleMarker([p.lat, p.lon], {
+      radius: 18, stroke: false, fillColor: '#9fb4c9', fillOpacity: Math.min(.55, p.cloud / 100 * .55)
+    }).bindTooltip(Math.round(p.cloud) + '% ' + t('nubosidadLower')).addTo(gridLayer);
+  }
+  if (vientoOn && typeof p.spd === 'number' && typeof p.dir === 'number'){
+    var color = windColor(p.spd);
+    var icon = L.divIcon({
+      className: '', html: '<div class="windArrow" style="color:'+color+';transform:rotate(' + p.dir + 'deg)">↑</div>',
+      iconSize: [20, 20], iconAnchor: [10, 10]
+    });
+    L.marker([p.lat, p.lon], { icon: icon, zIndexOffset: 100 }).bindTooltip(Math.round(p.spd) + ' km/h').addTo(gridLayer);
+  }
+}
+var CONVERGENCIA_UMBRAL = 14; // km/h combinados — umbral empírico, no un estándar meteorológico
+function renderConvergence(byKey){
+  for (var i = 2; i < GRID_N; i++){
+    for (var j = 2; j < GRID_N; j++){
+      var c = byKey[i+','+j], w = byKey[i+','+(j-1)], e = byKey[i+','+(j+1)], n = byKey[(i-1)+','+j], s = byKey[(i+1)+','+j];
+      if (![c,w,e,n,s].every(function(p){ return p && typeof p.spd === 'number' && typeof p.dir === 'number'; })) continue;
+      var uw = windUV(w.spd, w.dir).u, ue = windUV(e.spd, e.dir).u;
+      var vn = windUV(n.spd, n.dir).v, vs = windUV(s.spd, s.dir).v;
+      var conv = (uw - ue) + (vs - vn);
+      if (conv > CONVERGENCIA_UMBRAL){
+        L.circle([c.lat, c.lon], {
+          radius: 18000, color: '#e0c840', weight: 1.5, fillColor: '#e0c840', fillOpacity: .12, dashArray: '3,4'
+        }).bindTooltip(t('convergenciaTooltip')).addTo(gridLayer);
+      }
+    }
+  }
 }
 function toggleViento(){
   vientoOn = !vientoOn;
   document.getElementById('btnViento').classList.toggle('act', vientoOn);
   document.getElementById('vientoLeyenda').classList.toggle('on', vientoOn);
-  if (!vientoOn){
-    if (vientoLayer) vientoLayer.clearLayers();
-    return;
-  }
-  if (!vientoLayer) vientoLayer = L.layerGroup().addTo(map);
-  loadWindGrid();
+  if (!gridLayer) gridLayer = L.layerGroup().addTo(map);
+  loadGridConditions();
+}
+function toggleNubes(){
+  nubesOn = !nubesOn;
+  document.getElementById('btnNubes').classList.toggle('act', nubesOn);
+  document.getElementById('nubesLeyenda').classList.toggle('on', nubesOn);
+  if (!gridLayer) gridLayer = L.layerGroup().addTo(map);
+  loadGridConditions();
 }
 document.getElementById('btnViento').addEventListener('click', toggleViento);
-var vientoMoveTimer = null;
+document.getElementById('btnNubes').addEventListener('click', toggleNubes);
+var gridMoveTimer = null;
 map.on('moveend', function(){
-  if (!vientoOn) return;
-  clearTimeout(vientoMoveTimer);
-  vientoMoveTimer = setTimeout(loadWindGrid, 800);
+  if (!vientoOn && !nubesOn) return;
+  clearTimeout(gridMoveTimer);
+  gridMoveTimer = setTimeout(loadGridConditions, 800);
 });
 
 /* ============================================================
@@ -1899,6 +2032,16 @@ function renderLegend(){
   html += '<div class="legendRow"><span class="legendSwatch" style="background:#e8b23c"></span>20–40 km/h</div>';
   html += '<div class="legendRow"><span class="legendSwatch" style="background:#f07f3c"></span>40–65 km/h</div>';
   html += '<div class="legendRow"><span class="legendSwatch" style="background:#e8484f"></span>&gt; 65 km/h</div>';
+  html += '<div class="legendRow"><span class="legendDot" style="background:#e0c840;opacity:.6"></span>' + t('convergenciaTooltip') + '</div>';
+  html += '</div>';
+
+  html += '<div class="legendSection"><h3>' + t('capaNubes') + '</h3>';
+  html += '<div class="legendRow"><span style="color:var(--muted);font-size:11px">' + t('nubesAviso') + '</span></div>';
+  html += '</div>';
+
+  html += '<div class="legendSection"><h3>' + t('capaSatelite') + '</h3>';
+  html += '<div class="legendRow"><span style="color:var(--muted);font-size:11px">' + t('satAviso') + '</span></div>';
+  html += '<div class="legendRow"><span style="color:#e0b840;font-size:11px">' + t('satGoesAviso') + '</span></div>';
   html += '</div>';
 
   html += '<div class="legendSection"><h3>' + t('legSimbolos') + '</h3>';
