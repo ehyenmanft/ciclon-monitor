@@ -7,7 +7,7 @@
  *    viejos como frescos.
  * Al actualizar la web, sube también este archivo cambiando VERSION.
  */
-const VERSION = 'v2';
+const VERSION = 'v3';
 const CACHE = 'ciclon-monitor-' + VERSION;
 
 const PRECACHE = [
@@ -26,7 +26,9 @@ const DATOS_VIVOS = [
   'script.google.com',
   'script.googleusercontent.com',
   'open-meteo.com', // cubre también api./ensemble-api./geocoding-api./air-quality-api. (endsWith)
-  'basemaps.cartocdn.com'
+  'basemaps.cartocdn.com',
+  'rainviewer.com', // metadata JSON + teselas de radar (endsWith cubre tilecache.rainviewer.com)
+  'gibs.earthdata.nasa.gov' // teselas satelitales NASA
 ];
 
 self.addEventListener('install', e => {
