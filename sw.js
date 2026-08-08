@@ -7,7 +7,7 @@
  *    viejos como frescos.
  * Al actualizar la web, sube también este archivo cambiando VERSION.
  */
-const VERSION = 'v3';
+const VERSION = 'v4';
 const CACHE = 'ciclon-monitor-' + VERSION;
 
 const PRECACHE = [
@@ -28,7 +28,8 @@ const DATOS_VIVOS = [
   'open-meteo.com', // cubre también api./ensemble-api./geocoding-api./air-quality-api. (endsWith)
   'basemaps.cartocdn.com',
   'rainviewer.com', // metadata JSON + teselas de radar (endsWith cubre tilecache.rainviewer.com)
-  'gibs.earthdata.nasa.gov' // teselas satelitales NASA
+  'gibs.earthdata.nasa.gov', // teselas satelitales NASA
+  'mapservices.weather.noaa.gov' // GIS oficial del NHC: trayectoria y cono
 ];
 
 self.addEventListener('install', e => {

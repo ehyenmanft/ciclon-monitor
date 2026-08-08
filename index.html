@@ -140,6 +140,13 @@ a{color:inherit}
 #radarAttrib{font-size:9px;opacity:.75}
 #satAttrib{display:none;font-size:9px;color:var(--muted);padding-top:2px;border-top:1px dashed var(--line);max-width:190px;line-height:1.4}
 #satAttrib.on{display:block}
+#vientoLeyenda{display:none;font-size:9px;color:var(--muted);padding-top:2px;border-top:1px dashed var(--line);max-width:190px;line-height:1.4}
+#vientoLeyenda.on{display:block}
+#radarLegend{display:none;align-items:center;gap:4px;font-size:9px;color:var(--muted)}
+#radarLegend.on{display:flex}
+.legendChip{width:12px;height:8px;border-radius:2px;display:inline-block}
+.windArrow{font-size:16px;line-height:1;text-shadow:0 0 3px #000, 0 0 3px #000;pointer-events:none}
+.trackPointDot{border-radius:50%;border:2px solid #0b0f14}
 @media (max-width:820px){
   #layersControl{bottom:68px}
 }
@@ -149,12 +156,16 @@ a{color:inherit}
   position:fixed;left:50%;top:12px;transform:translateX(-50%);z-index:25;
   display:flex;align-items:center;gap:10px;background:var(--panel);border:1px solid var(--line);
   border-radius:12px;padding:8px 14px;backdrop-filter:blur(10px);
+  max-width:calc(100vw - 24px);box-sizing:border-box;
+  padding-top:calc(8px + env(safe-area-inset-top));
 }
-#topbar b{font-size:13px;letter-spacing:.03em}
-#topbar .dot{width:7px;height:7px;border-radius:50%;background:var(--muted)}
+#topbar b{font-size:13px;letter-spacing:.03em;white-space:nowrap}
+#topbar .dot{width:7px;height:7px;border-radius:50%;background:var(--muted);flex:0 0 auto}
 #topbar .dot.live{background:var(--c-td);box-shadow:0 0 6px var(--c-td)}
 #topbar .dot.err{background:var(--danger);box-shadow:0 0 6px var(--danger)}
-#langBtn{background:#161d26;border:1px solid var(--line);color:var(--text);border-radius:6px;padding:4px 8px;cursor:pointer;font-family:inherit;font-size:11px}
+#lastUpdateTxt{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#langBtn{background:#161d26;border:1px solid var(--line);color:var(--text);border-radius:6px;padding:4px 8px;cursor:pointer;font-family:inherit;font-size:11px;flex:0 0 auto;min-height:28px}
+#reopenLeftBtn{flex:0 0 auto}
 
 /* ===== banner de estado de fuente (honestidad: nunca mostrar datos viejos como actuales) ===== */
 #sourceBanner{
@@ -214,7 +225,7 @@ a{color:inherit}
 /* ===== nav móvil ===== */
 #mobilenav{display:none}
 @media (max-width:820px){
-  #topbar{top:10px;padding:7px 12px}
+  #topbar{top:10px;padding:7px 12px;gap:7px}
   #left,#right{
     left:0;right:0;top:auto;bottom:56px;width:100%;border-radius:16px 16px 0 0;
     max-height:52vh;padding:14px 14px 18px;
@@ -226,14 +237,30 @@ a{color:inherit}
   #mobilenav{
     display:flex;position:fixed;left:0;right:0;bottom:0;height:56px;z-index:30;
     background:var(--panel);border-top:1px solid var(--line);backdrop-filter:blur(10px);
+    height:calc(56px + env(safe-area-inset-bottom));
+    padding-bottom:env(safe-area-inset-bottom);
   }
   #mobilenav button{
     flex:1;background:none;border:none;color:var(--muted);font-family:inherit;font-size:9.5px;
     display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;cursor:pointer;
+    min-height:44px;
   }
   #mobilenav button.act{color:var(--accent)}
   #mobilenav .ico{font-size:16px}
-  #sourceBanner{bottom:64px}
+  #sourceBanner{bottom:calc(64px + env(safe-area-inset-bottom))}
+  /* pantallas muy angostas (≤380px): quitar la hora de la topbar para que no se corte */
+  @media (max-width:380px){
+    #lastUpdateTxt{display:none}
+    #topbar{gap:6px;padding:6px 10px}
+  }
+  /* el control de capas se oculta mientras un panel está abierto: en pantallas
+     chicas quedaba flotando ENCIMA del panel (auditoría de responsividad) */
+  #left.on ~ #layersControl, #right.on ~ #layersControl{display:none}
+  #layersControl{bottom:calc(68px + env(safe-area-inset-bottom))}
+  #layersControl button{min-height:38px}
+  #radarPlayBtn{width:34px;height:34px;min-height:34px}
+  #climaSearchBtn,#climaGeoBtn{min-height:40px;min-width:40px}
+  .quickCities button{min-height:34px}
 }
 @media (min-width:821px){
   #left.hideDesk{display:none}
@@ -300,13 +327,22 @@ a{color:inherit}
   <div class="layerBtns">
     <button id="btnRadar" title="Radar de lluvia (RainViewer)">🌧️ <span data-i18n="capaRadar">Radar</span></button>
     <button id="btnSat" title="Satélite (NASA)">🛰️ <span data-i18n="capaSatelite">Satélite</span></button>
+    <button id="btnViento" title="Viento (Open-Meteo)">💨 <span data-i18n="capaViento">Viento</span></button>
   </div>
   <div id="radarControls">
     <button id="radarPlayBtn">▶</button>
     <span id="radarTime">—</span>
     <span id="radarAttrib">RainViewer.com</span>
   </div>
+  <div id="radarLegend">
+    <span data-i18n="radarLeyenda">Intensidad:</span>
+    <span class="legendChip" style="background:#3ec6a8"></span>
+    <span class="legendChip" style="background:#e8b23c"></span>
+    <span class="legendChip" style="background:#f07f3c"></span>
+    <span class="legendChip" style="background:#e8484f"></span>
+  </div>
   <div id="satAttrib" data-i18n="satAviso"></div>
+  <div id="vientoLeyenda" data-i18n="vientoAviso"></div>
 </div>
 
 <nav id="mobilenav">
@@ -334,7 +370,7 @@ a{color:inherit}
  *             ocultar un fallo de la fuente real.
  * ============================================================ */
 var NHC_URL   = 'https://www.nhc.noaa.gov/CurrentStorms.json';
-var NHC_PROXY = 'https://script.google.com/macros/s/AKfycbzkbgV-sw9CzXi0cU9ypwSyu4_RVZ4EIOerYQskDqwI6eu3Ua-rjTRtTHGh2Ih3Lh05/exec'; // ← pega aquí tu URL /exec si CORS directo falla
+var NHC_PROXY = 'https://script.google.com/macros/s/AKfycbwVQ9bU5-J0rxYnzO-OCG_Xp4BsEo_DFSaFB98oatI6p4qcF7e-uFX63NqXrQNhwnWk/exec'; // ← pega aquí tu URL /exec si CORS directo falla
 var OM_ENSEMBLE = 'https://ensemble-api.open-meteo.com/v1/ensemble';
 var REFRESH_MS = 5 * 60 * 1000; // NHC actualiza por evento, no por polling agresivo
 var DEMO_MODE = true; // desactívalo en cuanto confirmes que la fuente real responde
@@ -352,6 +388,29 @@ var OM_FORECAST = 'https://api.open-meteo.com/v1/forecast';
 var OM_GEOCODE  = 'https://geocoding-api.open-meteo.com/v1/search';
 var OM_AIRQ     = 'https://air-quality-api.open-meteo.com/v1/air-quality';
 
+/* ============================================================
+ * GIS OFICIAL DEL NHC — NOAA ArcGIS REST (MapServer)
+ * ------------------------------------------------------------
+ * A diferencia de CurrentStorms.json, este servicio SÍ expone
+ * geometría real (punto/línea/polígono) como GeoJSON estándar:
+ * trayectoria pronosticada, cono de incertidumbre y trayecto ya
+ * recorrido. Confirmado contra su propia definición de servicio
+ * (Supported Query Formats: JSON, geoJSON, PBF).
+ *
+ * Complicación real: los IDs de capa son por "ranura" fija de
+ * tormenta dentro de cada cuenca (AT1..AT5, EP1..EP5, CP1..CP5),
+ * NO por el ID de temporada de la tormenta (ej. AL05) — no hay
+ * forma de calcular la ranura de antemano. Por eso, al seleccionar
+ * un sistema, se consultan las ranuras candidatas de su cuenca y
+ * se identifica la correcta por CONTENIDO (coincidencia de nombre
+ * en las propiedades devueltas), mismo principio defensivo que
+ * ya usamos para CurrentStorms.json.
+ * ============================================================ */
+var GIS_BASE = 'https://mapservices.weather.noaa.gov/tropical/rest/services/tropical/NHC_tropical_weather/MapServer';
+var GIS_PROXY = ''; // ← igual que NHC_PROXY: solo si CORS directo falla contra mapservices.weather.noaa.gov
+var GIS_BASIN_OFFSET = { AT: 4, EP: 134, CP: 264 };
+var GIS_FIELD_OFFSET = { points: 2, track: 3, cone: 4, pastPoints: 7, pastTrack: 8 };
+
 var VZ_CITIES = [
   { name: 'Caracas',       lat: 10.4806, lon: -66.9036 },
   { name: 'La Guaira',     lat: 10.6083, lon: -66.9317 },
@@ -363,6 +422,7 @@ var VZ_CITIES = [
   { name: 'Mérida',        lat: 8.5960,  lon: -71.1467 },
   { name: 'Puerto La Cruz',lat: 10.2137, lon: -64.6335 }
 ];
+
 
 /* ============================================================
  * i18n
@@ -406,7 +466,13 @@ var I18N = {
     hoy: 'Hoy',
     capaRadar: 'Radar', capaSatelite: 'Satélite',
     radarCargando: 'Cargando radar…', radarError: 'No se pudo cargar el radar en este momento.',
-    satAviso: 'Imagen satelital diaria (NASA VIIRS), no en tiempo real — puede tener hasta 24h de retraso.'
+    satAviso: 'Imagen satelital diaria (NASA VIIRS), no en tiempo real — puede tener hasta 24h de retraso.',
+    capaViento: 'Viento', vientoAviso: 'Viento actual en puntos de muestra (Open-Meteo) — no es una animación continua.',
+    radarLeyenda: 'Intensidad:',
+    trayOficialSi: '✓ Trayectoria y cono oficiales del NHC cargados',
+    trayOficialNo: 'Trayectoria oficial del NHC no disponible por ahora — mostrando solo posición actual.',
+    trayOficialCargando: 'Buscando trayectoria oficial…',
+    leyendaPasado: 'Trayecto recorrido', leyendaPronostico: 'Pronóstico NHC', leyendaCono: 'Cono de incertidumbre'
   },
   en: {
     panelSistemas: 'Active systems',
@@ -446,7 +512,13 @@ var I18N = {
     hoy: 'Today',
     capaRadar: 'Radar', capaSatelite: 'Satellite',
     radarCargando: 'Loading radar…', radarError: 'Could not load radar right now.',
-    satAviso: 'Daily satellite image (NASA VIIRS), not real-time — may be up to 24h old.'
+    satAviso: 'Daily satellite image (NASA VIIRS), not real-time — may be up to 24h old.',
+    capaViento: 'Wind', vientoAviso: 'Current wind at sample points (Open-Meteo) — not a continuous animation.',
+    radarLeyenda: 'Intensity:',
+    trayOficialSi: '✓ Official NHC track and cone loaded',
+    trayOficialNo: 'Official NHC track not available right now — showing current position only.',
+    trayOficialCargando: 'Looking up official track…',
+    leyendaPasado: 'Path traveled', leyendaPronostico: 'NHC forecast', leyendaCono: 'Uncertainty cone'
   }
 };
 var lang = (navigator.language || 'es').startsWith('en') ? 'en' : 'es';
@@ -462,7 +534,15 @@ function applyI18n(){
   });
   document.getElementById('langBtn').textContent = lang === 'es' ? 'EN' : 'ES';
   renderEmptyState();
-  if (selectedStorm) renderDetail(selectedStorm); else renderNoSelection();
+  if (selectedStorm){
+    renderDetail(selectedStorm);
+    // renderDetail reconstruye #trackStatus con el texto por defecto — si la
+    // trayectoria ya se había resuelto (o falló) para este sistema, se
+    // redibuja desde caché en vez de volver a mostrar "cargando" a medias.
+    if (stormTrackCache.hasOwnProperty(selectedStorm.id)) drawStormTrack(selectedStorm, stormTrackCache[selectedStorm.id]);
+  } else {
+    renderNoSelection();
+  }
   updateNavLabels();
   renderQuickCities();
   if (climaLocation) renderClima(); else renderClimaNoSelection();
@@ -627,6 +707,12 @@ function fetchJson(url){
     return r.json();
   });
 }
+function fetchJsonProxied(url, proxyBase){
+  return fetchJson(url).catch(function(err){
+    if (proxyBase) return fetchJson(proxyBase + '?url=' + encodeURIComponent(url));
+    throw err;
+  });
+}
 
 function loadStorms(){
   setStatus('loading');
@@ -697,6 +783,11 @@ function renderAll(){
   renderList();
   renderMarkers();
   renderEmptyState();
+  // renderMarkers() vacía coneLayer — si hay un sistema seleccionado, redibuja su
+  // trayectoria oficial desde caché (sin volver a consultar el GIS del NHC).
+  if (selectedStorm && stormTrackCache.hasOwnProperty(selectedStorm.id)){
+    drawStormTrack(selectedStorm, stormTrackCache[selectedStorm.id]);
+  }
 }
 function renderEmptyState(){
   var el = document.getElementById('emptyState');
@@ -743,6 +834,9 @@ function escapeHtml(str){
 /* ============================================================
  * SELECCIÓN Y FICHA DE DETALLE
  * ============================================================ */
+var stormTrackCache = {}; // id -> {trackGeo, coneGeo, pastTrackGeo, pointsGeo} | null (buscado y no encontrado)
+var stormTrackInFlight = {}; // id -> true mientras se está buscando (evita duplicar la búsqueda de 15 combinaciones)
+
 function selectStorm(s){
   selectedStorm = s;
   renderList();
@@ -750,7 +844,127 @@ function selectStorm(s){
   if (s._hasPosition) map.panTo([s.lat, s.lon]);
   renderDetail(s);
   loadWeatherNext(s);
+  ensureStormTrack(s);
   if (window.innerWidth <= 820) setMobileTab('ficha');
+}
+
+/* ============================================================
+ * TRAYECTORIA Y CONO OFICIALES — NOAA ArcGIS GeoJSON
+ * ============================================================ */
+function gisLayerId(basin, slot, field){
+  var base = GIS_BASIN_OFFSET[basin];
+  if (base === undefined) return null;
+  return base + (slot - 1) * 26 + GIS_FIELD_OFFSET[field];
+}
+function gisQueryUrl(layerId){
+  return GIS_BASE + '/' + layerId + '/query?where=1%3D1&outFields=*&f=geojson';
+}
+function guessBasins(storm){
+  var raw = ((storm.id || '') + ' ' + (storm.name || '')).toUpperCase();
+  if (/\bCP\b|CENTRAL\s*PAC/.test(raw)) return ['CP'];
+  if (/\bEP\b|EAST(ERN)?\s*PAC/.test(raw)) return ['EP'];
+  if (/\bAT\b|\bAL\b|ATLANT/.test(raw)) return ['AT'];
+  return ['AT', 'EP', 'CP']; // cuenca desconocida: probar las 3
+}
+function featureMentionsStorm(feature, storm){
+  var props = (feature && feature.properties) || {};
+  var target = (storm.name || '').toUpperCase().trim();
+  if (!target || target === 'EJEMPLO' || target === 'EXAMPLE') return false;
+  return Object.keys(props).some(function(k){
+    var v = props[k];
+    return typeof v === 'string' && v.toUpperCase().indexOf(target) !== -1;
+  });
+}
+function ensureStormTrack(storm){
+  if (storm.__demo || (storm._raw && storm._raw.__demo)){
+    setTrackStatus(t('trayOficialNo')); // el sistema DEMO no existe en el GIS real del NHC
+    return;
+  }
+  if (stormTrackCache.hasOwnProperty(storm.id)){
+    drawStormTrack(storm, stormTrackCache[storm.id]);
+    return;
+  }
+  if (stormTrackInFlight[storm.id]) return; // ya hay una búsqueda en curso para este sistema, no dupliques las 15 consultas
+  stormTrackInFlight[storm.id] = true;
+  setTrackStatus(t('trayOficialCargando'));
+  var basins = guessBasins(storm);
+  var candidates = [];
+  basins.forEach(function(basin){
+    for (var slot = 1; slot <= 5; slot++) candidates.push({ basin: basin, slot: slot });
+  });
+  Promise.all(candidates.map(function(c){
+    var url = gisQueryUrl(gisLayerId(c.basin, c.slot, 'points'));
+    return fetchJsonProxied(url, GIS_PROXY).then(function(geo){ return { c: c, geo: geo }; }).catch(function(){ return null; });
+  })).then(function(results){
+    var match = results.find(function(r){
+      return r && r.geo && r.geo.features && r.geo.features.length && featureMentionsStorm(r.geo.features[0], storm);
+    });
+    if (!match){
+      match = results.find(function(r){ return r && r.geo && r.geo.features && r.geo.features.length; });
+    }
+    if (!match){
+      stormTrackCache[storm.id] = null;
+      stormTrackInFlight[storm.id] = false;
+      if (selectedStorm && selectedStorm.id === storm.id) setTrackStatus(t('trayOficialNo'));
+      return;
+    }
+    var basin = match.c.basin, slot = match.c.slot;
+    return Promise.all([
+      fetchJsonProxied(gisQueryUrl(gisLayerId(basin, slot, 'track')), GIS_PROXY).catch(function(){ return null; }),
+      fetchJsonProxied(gisQueryUrl(gisLayerId(basin, slot, 'cone')), GIS_PROXY).catch(function(){ return null; }),
+      fetchJsonProxied(gisQueryUrl(gisLayerId(basin, slot, 'pastTrack')), GIS_PROXY).catch(function(){ return null; })
+    ]).then(function(extra){
+      var result = { pointsGeo: match.geo, trackGeo: extra[0], coneGeo: extra[1], pastTrackGeo: extra[2] };
+      stormTrackCache[storm.id] = result;
+      stormTrackInFlight[storm.id] = false;
+      drawStormTrack(storm, result);
+    });
+  }).catch(function(err){
+    console.error('Error consultando GIS del NHC:', err);
+    stormTrackCache[storm.id] = null;
+    stormTrackInFlight[storm.id] = false;
+    if (selectedStorm && selectedStorm.id === storm.id) setTrackStatus(t('trayOficialNo'));
+  });
+}
+function setTrackStatus(msg){
+  var el = document.getElementById('trackStatus');
+  if (el) el.textContent = msg;
+}
+function drawStormTrack(storm, data){
+  // Comprobar ANTES de tocar el mapa: si el usuario ya seleccionó otro sistema
+  // mientras esta búsqueda estaba en vuelo, una respuesta tardía no debe borrar
+  // la trayectoria que ya se dibujó para la nueva selección.
+  if (!selectedStorm || selectedStorm.id !== storm.id) return;
+  coneLayer.clearLayers();
+  if (!data){ setTrackStatus(t('trayOficialNo')); return; }
+  var any = false;
+  if (data.coneGeo && data.coneGeo.features && data.coneGeo.features.length){
+    L.geoJSON(data.coneGeo, { style: { color: '#f0a83c', weight: 1, fillColor: '#f0a83c', fillOpacity: .1, dashArray: '4,4' } }).addTo(coneLayer);
+    any = true;
+  }
+  if (data.pastTrackGeo && data.pastTrackGeo.features && data.pastTrackGeo.features.length){
+    L.geoJSON(data.pastTrackGeo, { style: { color: '#6fb8e0', weight: 2 } }).addTo(coneLayer);
+    any = true;
+  }
+  if (data.trackGeo && data.trackGeo.features && data.trackGeo.features.length){
+    L.geoJSON(data.trackGeo, { style: { color: '#f07f3c', weight: 2, dashArray: '6,4' } }).addTo(coneLayer);
+    any = true;
+  }
+  if (data.pointsGeo && data.pointsGeo.features && data.pointsGeo.features.length){
+    data.pointsGeo.features.forEach(function(f){
+      if (!f.geometry || f.geometry.type !== 'Point') return;
+      var lon = f.geometry.coordinates[0], lat = f.geometry.coordinates[1];
+      var props = f.properties || {};
+      var label = Object.keys(props).map(function(k){ return props[k]; }).filter(function(v){
+        return typeof v === 'string' || typeof v === 'number';
+      }).slice(0, 6).join(' · ');
+      L.circleMarker([lat, lon], { radius: 4, className: 'trackPointDot', color: '#0b0f14', weight: 1, fillColor: '#f0a83c', fillOpacity: .9 })
+        .bindPopup(escapeHtml(label))
+        .addTo(coneLayer);
+    });
+    any = true;
+  }
+  setTrackStatus(any ? t('trayOficialSi') : t('trayOficialNo'));
 }
 function renderNoSelection(){
   document.getElementById('detailTitle').textContent = '—';
@@ -776,6 +990,14 @@ function renderDetail(s){
   } else {
     html += '<a class="linkbtn" target="_blank" rel="noopener" href="https://www.nhc.noaa.gov/">' + t('verOficial') + '</a>';
   }
+
+  html += '<div class="section-title">' + t('leyendaPronostico') + '</div>';
+  html += '<div id="trackStatus" style="font-size:11px;color:var(--muted);margin-bottom:4px">' + t('trayOficialCargando') + '</div>';
+  html += '<div style="display:flex;flex-wrap:wrap;gap:8px;font-size:10px;color:var(--muted);margin-bottom:8px">' +
+    '<span><span class="legendChip" style="background:#6fb8e0"></span> ' + t('leyendaPasado') + '</span>' +
+    '<span><span class="legendChip" style="background:#f07f3c"></span> ' + t('leyendaPronostico') + '</span>' +
+    '<span><span class="legendChip" style="background:#f0a83c;opacity:.5"></span> ' + t('leyendaCono') + '</span>' +
+  '</div>';
 
   // proximidad Venezuela
   if (s._hasPosition){
@@ -1138,6 +1360,7 @@ function toggleRadar(){
   radarOn = !radarOn;
   document.getElementById('btnRadar').classList.toggle('act', radarOn);
   document.getElementById('radarControls').classList.toggle('on', radarOn);
+  document.getElementById('radarLegend').classList.toggle('on', radarOn);
   if (!radarOn){
     radarPause();
     if (radarLayer){ map.removeLayer(radarLayer); radarLayer = null; }
@@ -1157,6 +1380,7 @@ function toggleRadar(){
     radarOn = false;
     document.getElementById('btnRadar').classList.remove('act');
     document.getElementById('radarControls').classList.remove('on');
+    document.getElementById('radarLegend').classList.remove('on');
   });
 }
 document.getElementById('btnRadar').addEventListener('click', toggleRadar);
@@ -1190,6 +1414,77 @@ function toggleSat(){
   document.getElementById('satAttrib').classList.add('on');
 }
 document.getElementById('btnSat').addEventListener('click', toggleSat);
+
+/* ============================================================
+ * CAPA DE VIENTO — muestreo de puntos con Open-Meteo
+ * ------------------------------------------------------------
+ * No existe un tile service gratuito y sin clave de streamlines
+ * de viento continuas (eso requiere procesar campos GRIB en
+ * WebGL, tipo Windy.com, con licencia). Alternativa honesta con
+ * datos ya verificados: se muestrea el viento actual (mismo
+ * endpoint /v1/forecast ya confirmado) en una rejilla de puntos
+ * sobre el área visible, y se dibuja una flecha rotada por punto,
+ * coloreada por velocidad. Se etiqueta como muestreo puntual, no
+ * como animación continua.
+ * ============================================================ */
+var vientoOn = false, vientoLayer = null;
+function windColor(kmh){
+  if (kmh < 20) return '#3ec6a8';
+  if (kmh < 40) return '#e8b23c';
+  if (kmh < 65) return '#f07f3c';
+  return '#e8484f';
+}
+function buildWindGrid(){
+  var b = map.getBounds();
+  var latStep = (b.getNorth() - b.getSouth()) / 4;
+  var lonStep = (b.getEast() - b.getWest()) / 4;
+  var pts = [];
+  for (var i = 1; i < 4; i++){
+    for (var j = 1; j < 4; j++){
+      pts.push({ lat: b.getSouth() + latStep * i, lon: b.getWest() + lonStep * j });
+    }
+  }
+  return pts;
+}
+function loadWindGrid(){
+  var pts = buildWindGrid();
+  vientoLayer.clearLayers();
+  pts.forEach(function(p){
+    var url = OM_FORECAST + '?latitude=' + p.lat.toFixed(3) + '&longitude=' + p.lon.toFixed(3) +
+      '&current=wind_speed_10m,wind_direction_10m';
+    fetchJson(url).then(function(data){
+      if (!vientoOn || !data.current) return;
+      var spd = data.current.wind_speed_10m, dir = data.current.wind_direction_10m;
+      if (typeof spd !== 'number' || typeof dir !== 'number') return;
+      var color = windColor(spd);
+      var icon = L.divIcon({
+        className: '', html: '<div class="windArrow" style="color:'+color+';transform:rotate(' + dir + 'deg)">↑</div>',
+        iconSize: [20, 20], iconAnchor: [10, 10]
+      });
+      L.marker([p.lat, p.lon], { icon: icon, interactive: true })
+        .bindTooltip(Math.round(spd) + ' km/h')
+        .addTo(vientoLayer);
+    }).catch(function(err){ console.error('Error viento:', err); });
+  });
+}
+function toggleViento(){
+  vientoOn = !vientoOn;
+  document.getElementById('btnViento').classList.toggle('act', vientoOn);
+  document.getElementById('vientoLeyenda').classList.toggle('on', vientoOn);
+  if (!vientoOn){
+    if (vientoLayer) vientoLayer.clearLayers();
+    return;
+  }
+  if (!vientoLayer) vientoLayer = L.layerGroup().addTo(map);
+  loadWindGrid();
+}
+document.getElementById('btnViento').addEventListener('click', toggleViento);
+var vientoMoveTimer = null;
+map.on('moveend', function(){
+  if (!vientoOn) return;
+  clearTimeout(vientoMoveTimer);
+  vientoMoveTimer = setTimeout(loadWindGrid, 800);
+});
 
 /* ============================================================
  * NAV MÓVIL

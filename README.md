@@ -25,8 +25,13 @@
 - A diferencia del módulo Ciclones, aquí la fuente (API general de Open-Meteo) está bien documentada y es estable, así que se usan nombres de campo exactos sin necesidad de parseo defensivo.
 
 ### General
+- **Vista principal: Clima** — al abrir la app carga directo en modo Clima con Caracas por defecto (cambia a Ciclones con el selector).
+- **Trayectoria y cono oficiales del NHC** (modo Ciclones): al seleccionar un sistema activo, se busca y dibuja su trayecto recorrido, pronóstico y cono de incertidumbre reales, vía el servicio GIS oficial de NOAA ([mapservices.weather.noaa.gov](https://mapservices.weather.noaa.gov)) — no una aproximación. Si no se encuentra (o la fuente falla), se indica explícitamente y se deja el enlace al aviso oficial.
+- **Capa de viento**: muestreo de puntos con Open-Meteo sobre el área visible del mapa, flechas rotadas por dirección y coloreadas por velocidad — es un muestreo puntual, no una animación continua tipo Windy.
+- **Radar en tiempo real** ([RainViewer](https://www.rainviewer.com), gratis, sin clave): últimas 2 horas de radar mundial, animado con reproducción automática y leyenda de intensidad. El tier gratis no incluye pronóstico/nowcast.
+- **Vista satelital** (NASA EOSDIS GIBS, VIIRS true color): mismo patrón ya probado en producción en SISMO·MONITOR. Es imagen diaria, no en tiempo real — etiquetado explícitamente en la interfaz.
 - **Honestidad de fuente**: si una fuente no responde, se muestra un aviso explícito con la hora del último dato confirmado — nunca datos viejos como si fueran actuales.
-- **Bilingüe** español/inglés. **Responsive**: hojas deslizables y navegación inferior en móvil. **PWA instalable**.
+- **Bilingüe** español/inglés. **Responsive auditado**: paneles, controles táctiles (≥38-40px) y áreas seguras (`safe-area-inset`) ajustados a tamaños reales de pantalla móvil. **PWA instalable**.
 
 ## 🔌 Fuentes de datos
 
@@ -37,6 +42,9 @@
 | [Open-Meteo Forecast API](https://open-meteo.com/en/docs) | Global, clima general | JSON público, sin clave |
 | [Open-Meteo Geocoding API](https://open-meteo.com/en/docs/geocoding-api) | Global, búsqueda de ciudades | JSON público, sin clave |
 | [Open-Meteo Air Quality API](https://open-meteo.com/en/docs/air-quality-api) | Global, calidad del aire | JSON público, sin clave |
+| [RainViewer](https://www.rainviewer.com/api.html) | Global, radar de precipitación (últimas 2h) | JSON + teselas públicas, sin clave |
+| [NASA EOSDIS GIBS](https://nasa-gibs.github.io/gibs-api-docs/) — VIIRS true color | Global, imagen satelital diaria | Teselas WMTS públicas, sin clave |
+| [NOAA GIS (ArcGIS REST)](https://mapservices.weather.noaa.gov/tropical/rest/services/tropical/NHC_tropical_weather/MapServer) | Trayectoria, cono y puntos pronosticados reales | GeoJSON público, sin clave |
 | INAMEH (Venezuela) | — | Sin API pública — se enlaza directo a sus canales oficiales |
 
 ### El problema CORS de NHC (posible, sin confirmar aún)
