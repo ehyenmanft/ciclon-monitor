@@ -24,6 +24,9 @@
 - **Próximas 24 horas** y **pronóstico de 7 días**, más **calidad del aire** (AQI europeo/EE.UU.).
 
 ### Herramientas para equipos de monitoreo / Protección Civil
+- **Leyenda explicada** (❓): modal con todos los colores y símbolos del mapa traducidos a lenguaje simple — categorías de sistema, líneas de trayectoria, tipos de aviso costero, intensidad de radar, escala de viento. Pensado para alguien sin formación meteorológica.
+- **Compartir ubicación** (📍): toma tu GPS (o el centro del mapa si no hay permiso) y genera un enlace a Google Maps + mensaje de WhatsApp listo para enviar — para reportar una posición exacta en campo sin dictar coordenadas por radio.
+- **Escala de distancia y lector de coordenadas** en el mapa.
 - **Notificaciones del navegador** (🔔): aviso con sonido cuando aparece un sistema nuevo o Venezuela entra en zona de watch/warning — pensado para un panel desatendido en sala de situación.
 - **Reporte de situación** (🖨️): resumen imprimible de todos los sistemas activos + estado de alerta, en un clic.
 - **Persistencia local**: si la página se recarga durante un corte de conexión, muestra el último dato confirmado guardado en el navegador (con su hora real) en vez de una pantalla vacía.
