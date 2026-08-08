@@ -153,18 +153,20 @@ a{color:inherit}
 
 /* ===== topbar ===== */
 #topbar{
-  position:fixed;left:50%;top:12px;transform:translateX(-50%);z-index:25;
+  position:fixed;left:50%;top:calc(12px + var(--vzbanner-h, 0px));transform:translateX(-50%);z-index:25;
   display:flex;align-items:center;gap:10px;background:var(--panel);border:1px solid var(--line);
   border-radius:12px;padding:8px 14px;backdrop-filter:blur(10px);
   max-width:calc(100vw - 24px);box-sizing:border-box;
   padding-top:calc(8px + env(safe-area-inset-top));
+  transition:top .2s;
 }
 #topbar b{font-size:13px;letter-spacing:.03em;white-space:nowrap}
 #topbar .dot{width:7px;height:7px;border-radius:50%;background:var(--muted);flex:0 0 auto}
 #topbar .dot.live{background:var(--c-td);box-shadow:0 0 6px var(--c-td)}
 #topbar .dot.err{background:var(--danger);box-shadow:0 0 6px var(--danger)}
 #lastUpdateTxt{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-#langBtn{background:#161d26;border:1px solid var(--line);color:var(--text);border-radius:6px;padding:4px 8px;cursor:pointer;font-family:inherit;font-size:11px;flex:0 0 auto;min-height:28px}
+#langBtn,#notifBtn,#printBtn{background:#161d26;border:1px solid var(--line);color:var(--text);border-radius:6px;padding:4px 8px;cursor:pointer;font-family:inherit;font-size:11px;flex:0 0 auto;min-height:28px}
+#notifBtn.act{border-color:#3ec6a8;color:#3ec6a8}
 #reopenLeftBtn{flex:0 0 auto}
 
 /* ===== banner de estado de fuente (honestidad: nunca mostrar datos viejos como actuales) ===== */
@@ -174,6 +176,17 @@ a{color:inherit}
   font-size:12px;text-align:center;max-width:min(560px,92vw);
 }
 #sourceBanner.on{display:block}
+
+/* ===== banner de alerta Venezuela (watch/warning oficial o llegada de vientos) ===== */
+#vzAlertBanner{
+  display:none;position:fixed;left:0;right:0;top:0;z-index:40;
+  padding:9px 14px;padding-top:calc(9px + env(safe-area-inset-top));text-align:center;font-size:12px;font-weight:600;color:#fff;
+}
+#vzAlertBanner.on{display:block}
+#vzAlertBanner.warning{background:#8a1a20;animation:vzPulse 2s infinite}
+#vzAlertBanner.arrival{background:#8a5a12}
+#vzAlertBanner a{color:#fff;text-decoration:underline}
+@keyframes vzPulse{0%,100%{background:#8a1a20}50%{background:#b0232a}}
 
 /* ===== lista de sistemas ===== */
 .stormCard{
@@ -248,10 +261,15 @@ a{color:inherit}
   #mobilenav button.act{color:var(--accent)}
   #mobilenav .ico{font-size:16px}
   #sourceBanner{bottom:calc(64px + env(safe-area-inset-bottom))}
-  /* pantallas muy angostas (≤380px): quitar la hora de la topbar para que no se corte */
+  /* pantallas muy angostas (≤380px): ahora hay 4 botones en la topbar (notif,
+     print, reopen, lang) además del título — sin esto se corta el borde derecho */
   @media (max-width:380px){
     #lastUpdateTxt{display:none}
-    #topbar{gap:6px;padding:6px 10px}
+    #topbar{gap:5px;padding:6px 9px}
+    #notifBtn,#printBtn{padding:4px 6px}
+  }
+  @media (max-width:340px){
+    #printBtn{display:none} /* imprimir es la función menos crítica en un teléfono muy chico */
   }
   /* el control de capas se oculta mientras un panel está abierto: en pantallas
      chicas quedaba flotando ENCIMA del panel (auditoría de responsividad) */
@@ -266,16 +284,35 @@ a{color:inherit}
   #left.hideDesk{display:none}
 }
 [data-i18n]{}
+
+/* ===== reporte de impresión: oculto en pantalla, único contenido visible al imprimir ===== */
+#printReport{display:none}
+@media print{
+  body *{visibility:hidden}
+  #map, #map *{display:none !important}
+  #printReport, #printReport *{visibility:visible}
+  #printReport{display:block;position:absolute;left:0;top:0;width:100%;color:#000;background:#fff;font-family:Arial,sans-serif}
+  #printReport h1{font-size:18px;margin-bottom:4px}
+  #printReport h2{font-size:14px;margin:14px 0 4px;border-bottom:1px solid #999}
+  #printReport ul{margin:0 0 8px;padding-left:18px;font-size:12px}
+  #printReport .printAlert{background:#fde;padding:6px;border:1px solid #c33;font-weight:bold}
+  #printReport .printFoot{font-size:10px;color:#555;margin-top:20px;border-top:1px solid #ccc;padding-top:8px}
+}
 </style>
 </head>
 <body>
 
 <div id="map"></div>
 
+<div id="vzAlertBanner"></div>
+<div id="printReport"></div>
+
 <div id="topbar">
   <span class="dot" id="statusDot"></span>
   <b>CICLÓN·MONITOR</b>
   <span id="lastUpdateTxt" style="color:var(--muted);font-size:11px"></span>
+  <button id="notifBtn" title="Alertas del navegador">🔔</button>
+  <button id="printBtn" title="Reporte de situación">🖨️</button>
   <button id="reopenLeftBtn" style="display:none">☰</button>
   <button id="langBtn">EN</button>
 </div>
@@ -370,7 +407,7 @@ a{color:inherit}
  *             ocultar un fallo de la fuente real.
  * ============================================================ */
 var NHC_URL   = 'https://www.nhc.noaa.gov/CurrentStorms.json';
-var NHC_PROXY = 'https://script.google.com/macros/s/AKfycbwVQ9bU5-J0rxYnzO-OCG_Xp4BsEo_DFSaFB98oatI6p4qcF7e-uFX63NqXrQNhwnWk/exec'; // ← pega aquí tu URL /exec si CORS directo falla
+var NHC_PROXY = 'https://script.google.com/macros/s/AKfycbz9SzBf-Aw5HE9hjgXh0LKKbFNm1VQkyjVTX_wke45eXYNFb0dDo6_XoPwW-4lslroP/exec'; // ← pega aquí tu URL /exec si CORS directo falla
 var OM_ENSEMBLE = 'https://ensemble-api.open-meteo.com/v1/ensemble';
 var REFRESH_MS = 5 * 60 * 1000; // NHC actualiza por evento, no por polling agresivo
 var DEMO_MODE = true; // desactívalo en cuanto confirmes que la fuente real responde
@@ -409,7 +446,10 @@ var OM_AIRQ     = 'https://air-quality-api.open-meteo.com/v1/air-quality';
 var GIS_BASE = 'https://mapservices.weather.noaa.gov/tropical/rest/services/tropical/NHC_tropical_weather/MapServer';
 var GIS_PROXY = ''; // ← igual que NHC_PROXY: solo si CORS directo falla contra mapservices.weather.noaa.gov
 var GIS_BASIN_OFFSET = { AT: 4, EP: 134, CP: 264 };
-var GIS_FIELD_OFFSET = { points: 2, track: 3, cone: 4, pastPoints: 7, pastTrack: 8 };
+var GIS_FIELD_OFFSET = { points: 2, track: 3, cone: 4, watchWarning: 5, pastPoints: 7, pastTrack: 8, arrivalEarliest: 15, arrivalMostLikely: 16 };
+// Bounding box aproximado de Venezuela continental + insular, para cruzar contra la
+// geometría oficial de Watch-Warning (más confiable que solo distancia al centro).
+var VZ_BBOX = { south: 0.6, north: 12.3, west: -73.4, east: -59.5 };
 
 var VZ_CITIES = [
   { name: 'Caracas',       lat: 10.4806, lon: -66.9036 },
@@ -472,7 +512,11 @@ var I18N = {
     trayOficialSi: '✓ Trayectoria y cono oficiales del NHC cargados',
     trayOficialNo: 'Trayectoria oficial del NHC no disponible por ahora — mostrando solo posición actual.',
     trayOficialCargando: 'Buscando trayectoria oficial…',
-    leyendaPasado: 'Trayecto recorrido', leyendaPronostico: 'Pronóstico NHC', leyendaCono: 'Cono de incertidumbre'
+    leyendaPasado: 'Trayecto recorrido', leyendaPronostico: 'Pronóstico NHC', leyendaCono: 'Cono de incertidumbre',
+    vzBannerAviso: '⚠ VENEZUELA EN ZONA DE AVISO/ALERTA OFICIAL', vzBannerLlegada: 'ℹ Vientos de tormenta podrían llegar a Venezuela',
+    notifVzTitulo: 'Alerta Venezuela', notifVzAviso: 'zona bajo watch/warning oficial del NHC', notifVzLlegada: 'posible llegada de vientos de tormenta',
+    notifNuevoTitulo: 'Nuevo sistema activo',
+    reporteTitulo: 'Reporte de situación'
   },
   en: {
     panelSistemas: 'Active systems',
@@ -518,7 +562,11 @@ var I18N = {
     trayOficialSi: '✓ Official NHC track and cone loaded',
     trayOficialNo: 'Official NHC track not available right now — showing current position only.',
     trayOficialCargando: 'Looking up official track…',
-    leyendaPasado: 'Path traveled', leyendaPronostico: 'NHC forecast', leyendaCono: 'Uncertainty cone'
+    leyendaPasado: 'Path traveled', leyendaPronostico: 'NHC forecast', leyendaCono: 'Uncertainty cone',
+    vzBannerAviso: '⚠ VENEZUELA UNDER OFFICIAL WATCH/WARNING', vzBannerLlegada: 'ℹ Storm winds could reach Venezuela',
+    notifVzTitulo: 'Venezuela alert', notifVzAviso: 'area under official NHC watch/warning', notifVzLlegada: 'possible arrival of storm-force winds',
+    notifNuevoTitulo: 'New active system',
+    reporteTitulo: 'Situation report'
   }
 };
 var lang = (navigator.language || 'es').startsWith('en') ? 'en' : 'es';
@@ -729,11 +777,24 @@ function loadStorms(){
     hideSourceBanner();
     setStatus('live');
     renderAll();
+    persistLastGood();
+    notifyNewStorms(storms);
+    // Precarga automática de trayectoria/cono/watch-warning para TODOS los
+    // sistemas activos (no solo el seleccionado): un panel de monitoreo no
+    // puede depender de que alguien haga clic para detectar una alerta.
+    storms.forEach(function(s){ ensureStormTrack(s); });
   }).catch(function(err){
     console.error('Error leyendo NHC:', err);
+    var persisted = lastGoodStorms ? null : loadPersistedLastGood();
     if (lastGoodStorms){
       storms = lastGoodStorms;
       showSourceBanner(t('fuenteError') + ' (' + fmtTime(lastGoodAt) + ')');
+    } else if (persisted){
+      // Recarga de página en medio de un corte: usar el último dato confirmado
+      // que quedó guardado en este navegador antes de recurrir al modo DEMO.
+      storms = persisted.storms;
+      lastGoodStorms = persisted.storms; lastGoodAt = persisted.at;
+      showSourceBanner(t('fuenteError') + ' (' + fmtTime(persisted.at) + ')');
     } else if (DEMO_MODE){
       storms = [normalizeStorm(demoStorm())];
       showSourceBanner('[DEMO] ' + t('fuenteErrorSinDatos'));
@@ -886,7 +947,10 @@ function ensureStormTrack(storm){
   }
   if (stormTrackInFlight[storm.id]) return; // ya hay una búsqueda en curso para este sistema, no dupliques las 15 consultas
   stormTrackInFlight[storm.id] = true;
-  setTrackStatus(t('trayOficialCargando'));
+  // Solo tocar el texto de estado si este sistema es el que se está viendo —
+  // si esto es una precarga en segundo plano de OTRO sistema (ver loadStorms),
+  // no debe pisar el estado del que el usuario tiene abierto en pantalla.
+  if (selectedStorm && selectedStorm.id === storm.id) setTrackStatus(t('trayOficialCargando'));
   var basins = guessBasins(storm);
   var candidates = [];
   basins.forEach(function(basin){
@@ -912,12 +976,19 @@ function ensureStormTrack(storm){
     return Promise.all([
       fetchJsonProxied(gisQueryUrl(gisLayerId(basin, slot, 'track')), GIS_PROXY).catch(function(){ return null; }),
       fetchJsonProxied(gisQueryUrl(gisLayerId(basin, slot, 'cone')), GIS_PROXY).catch(function(){ return null; }),
-      fetchJsonProxied(gisQueryUrl(gisLayerId(basin, slot, 'pastTrack')), GIS_PROXY).catch(function(){ return null; })
+      fetchJsonProxied(gisQueryUrl(gisLayerId(basin, slot, 'pastTrack')), GIS_PROXY).catch(function(){ return null; }),
+      fetchJsonProxied(gisQueryUrl(gisLayerId(basin, slot, 'watchWarning')), GIS_PROXY).catch(function(){ return null; }),
+      fetchJsonProxied(gisQueryUrl(gisLayerId(basin, slot, 'arrivalEarliest')), GIS_PROXY).catch(function(){ return null; }),
+      fetchJsonProxied(gisQueryUrl(gisLayerId(basin, slot, 'arrivalMostLikely')), GIS_PROXY).catch(function(){ return null; })
     ]).then(function(extra){
-      var result = { pointsGeo: match.geo, trackGeo: extra[0], coneGeo: extra[1], pastTrackGeo: extra[2] };
+      var result = {
+        pointsGeo: match.geo, trackGeo: extra[0], coneGeo: extra[1], pastTrackGeo: extra[2],
+        watchWarningGeo: extra[3], arrivalEarliestGeo: extra[4], arrivalMostLikelyGeo: extra[5]
+      };
       stormTrackCache[storm.id] = result;
       stormTrackInFlight[storm.id] = false;
       drawStormTrack(storm, result);
+      checkVenezuelaUnderWarning(storm, result);
     });
   }).catch(function(err){
     console.error('Error consultando GIS del NHC:', err);
@@ -926,9 +997,210 @@ function ensureStormTrack(storm){
     if (selectedStorm && selectedStorm.id === storm.id) setTrackStatus(t('trayOficialNo'));
   });
 }
+/* ============================================================
+ * ALERTA VENEZUELA — cruce con geometría oficial de watch/warning
+ * ------------------------------------------------------------
+ * Más confiable que solo "distancia al centro del sistema": revisa
+ * si algún punto de la geometría oficial de watch/warning (o, en
+ * su defecto, del área de llegada de vientos) cae dentro del
+ * bounding box de Venezuela. Sigue sin ser un aviso oficial en sí
+ * — solo decide si mostrar el banner que apunta al aviso real.
+ * ============================================================ */
+var vzAlerts = {}; // storm.id -> 'warning' | 'watch' | 'arrival' | null
+function pointInVzBbox(lon, lat){
+  return lat >= VZ_BBOX.south && lat <= VZ_BBOX.north && lon >= VZ_BBOX.west && lon <= VZ_BBOX.east;
+}
+function geometryTouchesVenezuela(geo){
+  if (!geo || !geo.features) return false;
+  return geo.features.some(function(f){
+    if (!f.geometry) return false;
+    return coordsTouchVenezuela(f.geometry.coordinates);
+  });
+}
+function coordsTouchVenezuela(coords){
+  if (!Array.isArray(coords)) return false;
+  if (typeof coords[0] === 'number' && typeof coords[1] === 'number'){
+    return pointInVzBbox(coords[0], coords[1]);
+  }
+  return coords.some(coordsTouchVenezuela);
+}
+function checkVenezuelaUnderWarning(storm, data){
+  var level = null;
+  if (geometryTouchesVenezuela(data.watchWarningGeo)) level = 'warning';
+  else if (geometryTouchesVenezuela(data.arrivalEarliestGeo) || geometryTouchesVenezuela(data.arrivalMostLikelyGeo)) level = 'arrival';
+  vzAlerts[storm.id] = level;
+  renderVzAlertBanner();
+  if (level) notifyIfEnabled(t('notifVzTitulo'), storm.name + ' — ' + (level === 'warning' ? t('notifVzAviso') : t('notifVzLlegada')));
+}
+function renderVzAlertBanner(){
+  var banner = document.getElementById('vzAlertBanner');
+  var active = Object.keys(vzAlerts).filter(function(id){ return vzAlerts[id]; });
+  if (!active.length){
+    banner.classList.remove('on');
+    document.documentElement.style.setProperty('--vzbanner-h', '0px');
+    return;
+  }
+  var worst = active.some(function(id){ return vzAlerts[id] === 'warning'; }) ? 'warning' : 'arrival';
+  var names = active.map(function(id){
+    var s = storms.find(function(x){ return x.id === id; });
+    return s ? s.name : id;
+  }).join(', ');
+  banner.className = 'on ' + worst;
+  banner.innerHTML =
+    '<b>' + (worst === 'warning' ? t('vzBannerAviso') : t('vzBannerLlegada')) + '</b> — ' + escapeHtml(names) +
+    ' · <a href="https://www.nhc.noaa.gov/" target="_blank" rel="noopener">' + t('verOficial') + '</a>' +
+    ' · <a href="https://www.gestionderiesgo.gob.ve/" target="_blank" rel="noopener">' + t('proteccion') + '</a>';
+  requestAnimationFrame(function(){
+    document.documentElement.style.setProperty('--vzbanner-h', banner.offsetHeight + 'px');
+  });
+}
+
+/* ============================================================
+ * NOTIFICACIONES DEL NAVEGADOR
+ * ------------------------------------------------------------
+ * Pensado para un panel desatendido (sala de situación): avisa
+ * con notificación del navegador + sonido corto cuando aparece un
+ * sistema nuevo o Venezuela entra en zona de watch/warning. Pedir
+ * permiso es una acción explícita del usuario (botón), nunca
+ * automática al cargar la página.
+ * ============================================================ */
+var notifEnabled = false;
+var knownStormIds = {};
+function beep(){
+  try{
+    var ctx = new (window.AudioContext || window.webkitAudioContext)();
+    var osc = ctx.createOscillator(), gain = ctx.createGain();
+    osc.connect(gain); gain.connect(ctx.destination);
+    osc.frequency.value = 880; gain.gain.value = .1;
+    osc.start(); osc.stop(ctx.currentTime + .18);
+  } catch(e){ /* audio no disponible, se ignora */ }
+}
+function notifyIfEnabled(title, body){
+  if (!notifEnabled) return;
+  beep();
+  if ('Notification' in window && Notification.permission === 'granted'){
+    try{ new Notification(title, { body: body, icon: 'icon-192.png' }); } catch(e){}
+  }
+}
+function toggleNotif(){
+  if (!notifEnabled){
+    if ('Notification' in window && Notification.permission !== 'granted'){
+      Notification.requestPermission().then(function(perm){
+        notifEnabled = (perm === 'granted');
+        document.getElementById('notifBtn').classList.toggle('act', notifEnabled);
+        if (notifEnabled) localStorage.setItem('ciclon_notif', '1');
+      });
+      return;
+    }
+    notifEnabled = true;
+    localStorage.setItem('ciclon_notif', '1');
+  } else {
+    notifEnabled = false;
+    localStorage.removeItem('ciclon_notif');
+  }
+  document.getElementById('notifBtn').classList.toggle('act', notifEnabled);
+}
+document.getElementById('notifBtn').addEventListener('click', toggleNotif);
+
+/* ============================================================
+ * REPORTE DE SITUACIÓN (impresión)
+ * ------------------------------------------------------------
+ * Genera un resumen imprimible en texto plano de todos los
+ * sistemas activos + estado de alerta Venezuela, para minutas de
+ * sala de situación. Usa un elemento oculto que solo se muestra
+ * en @media print (ver CSS), en vez de abrir una ventana nueva.
+ * ============================================================ */
+function buildPrintReport(){
+  var html = '<h1>CICLÓN·MONITOR — ' + t('reporteTitulo') + '</h1>';
+  html += '<p>' + t('actualizado') + ': ' + (lastGoodAt ? fmtTime(lastGoodAt) : '—') + ' · ' + new Date().toLocaleString(lang==='es'?'es-VE':'en-US') + '</p>';
+  var vzActive = Object.keys(vzAlerts).filter(function(id){ return vzAlerts[id]; });
+  if (vzActive.length){
+    html += '<p class="printAlert"><b>' + t('vzBannerAviso') + '</b>: ' + vzActive.map(function(id){
+      var s = storms.find(function(x){ return x.id === id; }); return s ? s.name : id;
+    }).join(', ') + '</p>';
+  }
+  if (!storms.length){
+    html += '<p>' + t('sinSistemas') + '</p>';
+  } else {
+    storms.forEach(function(s){
+      html += '<div class="printStorm"><h2>' + escapeHtml(s.name) + ' — ' + escapeHtml(kindLabel(s.classification)) + '</h2><ul>' +
+        '<li>' + t('vientos') + ': ' + (typeof s.windKt==='number' ? Math.round(s.windKt)+' kt' : '—') + '</li>' +
+        '<li>' + t('presion') + ': ' + (typeof s.pressureMb==='number' ? Math.round(s.pressureMb)+' hPa' : '—') + '</li>' +
+        '<li>' + t('movimiento') + ': ' + (typeof s.moveSpeed==='number' ? Math.round(s.moveSpeed)+' kt' : '—') + '</li>' +
+        '<li>' + t('actualizado') + ': ' + (s.lastUpdate ? fmtTime(s.lastUpdate) : '—') + '</li>' +
+        '</ul></div>';
+    });
+  }
+  if (climaLocation && lastClimaData){
+    var c = lastClimaData.forecast.current || {};
+    html += '<div class="printStorm"><h2>' + escapeHtml(climaLocation.name) + '</h2><ul>' +
+      '<li>' + Math.round(c.temperature_2m) + '°C — ' + escapeHtml(wmoDesc(c.weather_code)) + '</li>' +
+      '<li>' + t('viento') + ': ' + Math.round(c.wind_speed_10m) + ' km/h</li>' +
+      '</ul></div>';
+  }
+  html += '<p class="printFoot">' + t('disclaimerGlobal') + '</p>';
+  document.getElementById('printReport').innerHTML = html;
+}
+document.getElementById('printBtn').addEventListener('click', function(){
+  buildPrintReport();
+  window.print();
+});
+try {
+  if (localStorage.getItem('ciclon_notif') === '1' && 'Notification' in window && Notification.permission === 'granted'){
+    notifEnabled = true;
+    document.getElementById('notifBtn').classList.add('act');
+  }
+} catch(e){ /* localStorage no disponible (modo privado, etc.) */ }
+
+var stormsSeenOnce = false; // evita notificar todos los sistemas que ya estaban activos justo al abrir la página
+function notifyNewStorms(list){
+  list.forEach(function(s){
+    if (s.__demo || (s._raw && s._raw.__demo)) return;
+    if (!knownStormIds[s.id]){
+      if (stormsSeenOnce) notifyIfEnabled(t('notifNuevoTitulo'), s.name + ' — ' + kindLabel(s.classification));
+      knownStormIds[s.id] = true;
+    }
+  });
+  stormsSeenOnce = true;
+}
+
+/* ============================================================
+ * PERSISTENCIA — último estado confirmado (localStorage)
+ * ------------------------------------------------------------
+ * Nota: esto NO es un artifact de Claude, es un sitio real
+ * desplegado en GitHub Pages, así que localStorage es apropiado
+ * aquí (a diferencia de artifacts embebidos en el chat). Objetivo:
+ * si la página se recarga durante un corte de conexión, mostrar
+ * el último dato confirmado con su hora real, en vez de una
+ * pantalla vacía o un error, sin fingir que es un dato actual.
+ * ============================================================ */
+function persistLastGood(){
+  try{
+    localStorage.setItem('ciclon_lastgood', JSON.stringify({ storms: (lastGoodStorms || []).map(function(s){ return s._raw; }), at: lastGoodAt.toISOString() }));
+  } catch(e){ /* localStorage lleno o no disponible: se ignora, no es crítico */ }
+}
+function loadPersistedLastGood(){
+  try{
+    var raw = localStorage.getItem('ciclon_lastgood');
+    if (!raw) return null;
+    var parsed = JSON.parse(raw);
+    return { storms: (parsed.storms || []).map(normalizeStorm), at: new Date(parsed.at) };
+  } catch(e){ return null; }
+}
+
 function setTrackStatus(msg){
   var el = document.getElementById('trackStatus');
   if (el) el.textContent = msg;
+}
+function watchWarningStyle(feature){
+  var props = (feature && feature.properties) || {};
+  var text = Object.keys(props).map(function(k){ return props[k]; }).filter(function(v){ return typeof v === 'string'; }).join(' ').toUpperCase();
+  var color = '#e8b23c'; // por defecto: algún tipo de watch/warning sin clasificar
+  if (text.indexOf('HURRICANE WARNING') !== -1 || text.indexOf('HU WARNING') !== -1) color = '#e8484f';
+  else if (text.indexOf('HURRICANE WATCH') !== -1 || text.indexOf('HU WATCH') !== -1) color = '#e05fd0';
+  else if (text.indexOf('STORM WARNING') !== -1 || text.indexOf('TS WARNING') !== -1) color = '#f07f3c';
+  else if (text.indexOf('STORM WATCH') !== -1 || text.indexOf('TS WATCH') !== -1) color = '#e8b23c';
+  return { color: color, weight: 4, opacity: .85 };
 }
 function drawStormTrack(storm, data){
   // Comprobar ANTES de tocar el mapa: si el usuario ya seleccionó otro sistema
@@ -940,6 +1212,10 @@ function drawStormTrack(storm, data){
   var any = false;
   if (data.coneGeo && data.coneGeo.features && data.coneGeo.features.length){
     L.geoJSON(data.coneGeo, { style: { color: '#f0a83c', weight: 1, fillColor: '#f0a83c', fillOpacity: .1, dashArray: '4,4' } }).addTo(coneLayer);
+    any = true;
+  }
+  if (data.watchWarningGeo && data.watchWarningGeo.features && data.watchWarningGeo.features.length){
+    L.geoJSON(data.watchWarningGeo, { style: watchWarningStyle }).addTo(coneLayer);
     any = true;
   }
   if (data.pastTrackGeo && data.pastTrackGeo.features && data.pastTrackGeo.features.length){

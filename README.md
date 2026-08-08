@@ -10,26 +10,28 @@
 
 ### Modo Ciclones
 - **Mapa oscuro** (Leaflet + teselas CARTO): sistemas activos con color por categoría Saffir-Simpson.
+- **Trayectoria y cono oficiales del NHC**: trayecto recorrido, pronóstico y cono de incertidumbre reales, vía el GIS oficial de NOAA (ArcGIS REST) — no una aproximación.
+- **Watch/Warning oficiales**: tramos de costa bajo aviso o alerta de tormenta tropical/huracán, coloreados por tipo.
+- **Alerta destacada Venezuela**: banner permanente en la parte superior si algún sistema activo pone a Venezuela bajo watch/warning oficial o llegada probable de vientos de tormenta — con enlaces directos al NHC y a Protección Civil Venezuela.
 - **Ficha por sistema**: categoría, vientos máximos, presión central, movimiento, hora de última actualización, enlace directo al aviso oficial del NHC.
 - **Parseo defensivo**: valida los campos del JSON de NHC por contenido (rango numérico + pista en el nombre), no por nombre exacto de campo — para sobrevivir a cambios de formato sin aviso.
 - **Capa experimental WeatherNext** (Google DeepMind, vía Open-Meteo): dispersión del ensamble de 64 miembros de viento/presión en el punto del sistema. Etiquetada explícitamente como experimental — nunca se usa como fuente de la posición del ciclón.
-- **Proximidad a Venezuela**: distancia calculada al sistema, con enlaces directos a INAMEH y Protección Civil (no hay integración de datos porque INAMEH no publica API).
 - **Modo demo**: sistema de ejemplo, claramente etiquetado, para probar la interfaz cuando no hay ciclones activos reales.
 
 ### Modo Clima
-- **Búsqueda global** (geocoding Open-Meteo) + **geolocalización del navegador** + acceso rápido a 8 ciudades de Venezuela.
+- **Búsqueda global** (geocoding Open-Meteo) + **geolocalización del navegador** + acceso rápido a 9 ciudades de Venezuela.
 - **Condiciones actuales**: temperatura, sensación térmica, humedad, viento, ráfagas, presión, nubosidad, precipitación.
-- **Próximas 24 horas**: franja horaria con ícono, temperatura y probabilidad de precipitación.
-- **Pronóstico de 7 días**: máx/mín, ícono y probabilidad de lluvia por día.
-- **Calidad del aire**: AQI europeo y de EE.UU. en tiempo real.
-- A diferencia del módulo Ciclones, aquí la fuente (API general de Open-Meteo) está bien documentada y es estable, así que se usan nombres de campo exactos sin necesidad de parseo defensivo.
+- **Próximas 24 horas** y **pronóstico de 7 días**, más **calidad del aire** (AQI europeo/EE.UU.).
+
+### Herramientas para equipos de monitoreo / Protección Civil
+- **Notificaciones del navegador** (🔔): aviso con sonido cuando aparece un sistema nuevo o Venezuela entra en zona de watch/warning — pensado para un panel desatendido en sala de situación.
+- **Reporte de situación** (🖨️): resumen imprimible de todos los sistemas activos + estado de alerta, en un clic.
+- **Persistencia local**: si la página se recarga durante un corte de conexión, muestra el último dato confirmado guardado en el navegador (con su hora real) en vez de una pantalla vacía.
+- **Capa de viento**: muestreo de puntos con Open-Meteo sobre el área visible, flechas rotadas por dirección y coloreadas por velocidad.
+- **Radar en tiempo real** ([RainViewer](https://www.rainviewer.com)) con leyenda de intensidad, y **vista satelital diaria** (NASA GIBS).
 
 ### General
-- **Vista principal: Clima** — al abrir la app carga directo en modo Clima con Caracas por defecto (cambia a Ciclones con el selector).
-- **Trayectoria y cono oficiales del NHC** (modo Ciclones): al seleccionar un sistema activo, se busca y dibuja su trayecto recorrido, pronóstico y cono de incertidumbre reales, vía el servicio GIS oficial de NOAA ([mapservices.weather.noaa.gov](https://mapservices.weather.noaa.gov)) — no una aproximación. Si no se encuentra (o la fuente falla), se indica explícitamente y se deja el enlace al aviso oficial.
-- **Capa de viento**: muestreo de puntos con Open-Meteo sobre el área visible del mapa, flechas rotadas por dirección y coloreadas por velocidad — es un muestreo puntual, no una animación continua tipo Windy.
-- **Radar en tiempo real** ([RainViewer](https://www.rainviewer.com), gratis, sin clave): últimas 2 horas de radar mundial, animado con reproducción automática y leyenda de intensidad. El tier gratis no incluye pronóstico/nowcast.
-- **Vista satelital** (NASA EOSDIS GIBS, VIIRS true color): mismo patrón ya probado en producción en SISMO·MONITOR. Es imagen diaria, no en tiempo real — etiquetado explícitamente en la interfaz.
+- **Vista principal: Clima** por defecto, con Caracas precargada.
 - **Honestidad de fuente**: si una fuente no responde, se muestra un aviso explícito con la hora del último dato confirmado — nunca datos viejos como si fueran actuales.
 - **Bilingüe** español/inglés. **Responsive auditado**: paneles, controles táctiles (≥38-40px) y áreas seguras (`safe-area-inset`) ajustados a tamaños reales de pantalla móvil. **PWA instalable**.
 
@@ -78,8 +80,9 @@ Primera versión funcional (MVP). Pendiente de validar en vivo: comportamiento r
 
 ## 🗺 Hoja de ruta
 
-- [ ] Confirmar CORS directo a NHC (o activar proxy)
+- [ ] Confirmar CORS directo a NHC y al GIS de NOAA (o activar los proxys)
 - [ ] Confirmar esquema real de campos con un sistema activo
-- [ ] Cono de incertidumbre oficial (geometría GIS del NHC), no solo el punto
 - [ ] Íconos PWA definitivos (los actuales son un placeholder generado)
-- [ ] Modo kiosko / vista satelital (como SISMO·MONITOR)
+- [ ] Modo kiosko para pantalla de sala de situación (auto-rotación entre sistemas, sin interacción)
+- [ ] Archivo histórico de eventos (Google Sheets + Telegram, como en SISMO·MONITOR) — requiere decidir infraestructura nueva antes de construirlo
+- [ ] Capas de inundación/marejada ciclónica del NHC (Inundation, Tidal Mask) si se necesitan para uso costero
