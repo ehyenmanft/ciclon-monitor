@@ -166,8 +166,12 @@ a{color:inherit}
 /* ===== barra de zoom con límites visibles ===== */
 /* A la IZQUIERDA, junto al panel de capas: a la derecha quedaba aplastada
  * contra el panel de clima y medio tapada. */
+/* A la derecha de los paneles de la izquierda (que miden 300px + 12px de
+ * margen) y bien antes del centro. --zoombar-left lo ajusta el JS: si el panel
+ * izquierdo se oculta, la barra se recoge al borde para no quedar flotando. */
 #zoomBar{
-  position:fixed;left:12px;top:50%;transform:translateY(-50%);z-index:24;
+  position:fixed;left:var(--zoombar-left, 328px);top:50%;transform:translateY(-50%);z-index:24;
+  transition:left .18s;
   background:var(--panel);border:1px solid var(--line);border-radius:12px;
   backdrop-filter:blur(10px);padding:9px 7px;
   display:flex;flex-direction:column;align-items:center;gap:7px;
@@ -258,8 +262,9 @@ a{color:inherit}
 #topbar .dot.live{background:var(--c-td);box-shadow:0 0 6px var(--c-td)}
 #topbar .dot.err{background:var(--danger);box-shadow:0 0 6px var(--danger)}
 #lastUpdateTxt{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-#langBtn,#notifBtn,#printBtn{background:#161d26;border:1px solid var(--line);color:var(--text);border-radius:6px;padding:4px 8px;cursor:pointer;font-family:inherit;font-size:11px;flex:0 0 auto;min-height:28px}
+#langBtn,#notifBtn,#printBtn,#hideAllBtn{background:#161d26;border:1px solid var(--line);color:var(--text);border-radius:6px;padding:4px 8px;cursor:pointer;font-family:inherit;font-size:11px;flex:0 0 auto;min-height:28px}
 #notifBtn.act{border-color:#3ec6a8;color:#3ec6a8}
+#hideAllBtn.act{border-color:#6fb8e0;color:#6fb8e0}
 #reopenLeftBtn{flex:0 0 auto}
 
 /* ===== banner de estado de fuente (honestidad: nunca mostrar datos viejos como actuales) ===== */
@@ -393,6 +398,7 @@ a{color:inherit}
   border-radius:10px;padding:6px 8px;backdrop-filter:blur(10px);
 }
 #restoreBar.on{display:flex}
+.panel.hiddenAll,#layersControl.hiddenAll{display:none !important}
 #restoreBar button{
   background:#161d26;border:1px solid var(--line);color:var(--text);border-radius:7px;
   padding:6px 10px;font-family:inherit;font-size:11px;cursor:pointer;
@@ -431,6 +437,7 @@ a{color:inherit}
   <span class="dot" id="statusDot"></span>
   <b>CICLÓN·MONITOR</b>
   <span id="lastUpdateTxt" style="color:var(--muted);font-size:11px"></span>
+  <button id="hideAllBtn" title="Ocultar/mostrar todos los paneles">👁</button>
   <button id="notifBtn" title="Alertas del navegador">🔔</button>
   <button id="printBtn" title="Reporte de situación">🖨️</button>
   <button id="reopenLeftBtn" style="display:none">☰</button>
@@ -531,6 +538,7 @@ a{color:inherit}
 <div id="restoreBar">
   <button id="restoreLeftBtn" data-i18n="mostrarIzq">Mostrar panel izquierdo</button>
   <button id="restoreRightBtn" data-i18n="mostrarDer">Mostrar ficha</button>
+  <button id="restoreAllBtn" data-i18n="restablecerPaneles">Restablecer paneles</button>
 </div>
 
 <div id="zoomBar">
@@ -579,7 +587,7 @@ a{color:inherit}
  *             ocultar un fallo de la fuente real.
  * ============================================================ */
 var NHC_URL   = 'https://www.nhc.noaa.gov/CurrentStorms.json';
-var NHC_PROXY = 'https://script.google.com/macros/s/AKfycbyNPO-6-4znRIAa1U5k9lO5bEYZpJvu2hhACZ481h8Dz4kOijjJZnE5605cz4WFx3hkdQ/exec'; // ← pega aquí tu URL /exec si CORS directo falla
+var NHC_PROXY = 'https://script.google.com/macros/s/AKfycbxtUYUKWznHwQaGyp-CuHPpY1dpv9U-kazfzQSaKR_nAe3VVO3zPYs58GrvyosTV6EJ/exec'; // ← pega aquí tu URL /exec si CORS directo falla
 var OM_ENSEMBLE = 'https://ensemble-api.open-meteo.com/v1/ensemble';
 var REFRESH_MS = 5 * 60 * 1000; // NHC actualiza por evento, no por polling agresivo
 var DEMO_MODE = true; // desactívalo en cuanto confirmes que la fuente real responde
@@ -753,6 +761,7 @@ var I18N = {
     legHospital: 'Hospital o centro de salud', legBomberos: 'Estación de bomberos',
     legPolicia: 'Policía', legRefugio: 'Refugio',
     mostrarIzq: 'Mostrar panel izquierdo', mostrarDer: 'Mostrar ficha',
+    restablecerPaneles: 'Restablecer paneles',
     riesgoTitulo: 'Indicadores de riesgo', capeLabel: 'Potencial de tormenta (CAPE)',
     capeBajo: 'bajo', capeModerado: 'moderado', capeAlto: 'alto', capeMuyAlto: 'muy alto',
     sueloLabel: 'Humedad del suelo', sueloSeco: 'seco', sueloNormal: 'normal', sueloSaturado: 'saturado',
@@ -843,6 +852,7 @@ var I18N = {
     legHospital: 'Hospital or health centre', legBomberos: 'Fire station',
     legPolicia: 'Police', legRefugio: 'Shelter',
     mostrarIzq: 'Show left panel', mostrarDer: 'Show details',
+    restablecerPaneles: 'Reset panels',
     riesgoTitulo: 'Risk indicators', capeLabel: 'Storm potential (CAPE)',
     capeBajo: 'low', capeModerado: 'moderate', capeAlto: 'high', capeMuyAlto: 'very high',
     sueloLabel: 'Soil moisture', sueloSeco: 'dry', sueloNormal: 'normal', sueloSaturado: 'saturated',
@@ -943,6 +953,7 @@ document.getElementById('layersCollapseBtn').addEventListener('click', function(
   var body = document.getElementById('layersControlBody');
   var collapsed = body.classList.toggle('collapsed');
   this.style.transform = collapsed ? 'rotate(-90deg)' : 'rotate(0deg)';
+  updateZoomBarPos();
 });
 
 var markersLayer = L.layerGroup().addTo(map);
@@ -2484,7 +2495,10 @@ function makeDraggable(panelId, handleSel){
     nt = Math.max(0, Math.min(window.innerHeight - 44, nt));
     panel.style.left = nl + 'px'; panel.style.top = nt + 'px';
   }
-  function onUp(){ dragging = false; panel.classList.remove('dragging'); }
+  function onUp(){
+    if (dragging) updateZoomBarPos();
+    dragging = false; panel.classList.remove('dragging');
+  }
 
   panel.addEventListener('mousedown', onDown);
   document.addEventListener('mousemove', onMove);
@@ -2509,13 +2523,99 @@ function toggleFullscreen(panelId){
 document.getElementById('leftFull').addEventListener('click', function(e){ e.stopPropagation(); toggleFullscreen('left'); });
 document.getElementById('rightFull').addEventListener('click', function(e){ e.stopPropagation(); toggleFullscreen('right'); });
 
+/* ============================================================
+ * POSICIÓN DE LA BARRA DE ZOOM
+ * ------------------------------------------------------------
+ * Se mide el borde derecho real del panel izquierdo (o del panel
+ * de capas, el que sobresalga más) y se coloca la barra justo
+ * después, para que nunca solape ni quede solapada — incluso si
+ * el usuario arrastró alguno de esos paneles.
+ * ============================================================ */
+function updateZoomBarPos(){
+  if (window.innerWidth <= 820){
+    document.documentElement.style.setProperty('--zoombar-left', 'auto');
+    return;
+  }
+  var maxRight = 0;
+  ['left','layersControl'].forEach(function(id){
+    var el = document.getElementById(id);
+    if (!el) return;
+    if (el.classList.contains('hiddenAll') || el.classList.contains('hideDesk')) return;
+    // OJO: no usar offsetParent para detectar visibilidad — estos paneles son
+    // position:fixed y offsetParent es null incluso cuando están a la vista.
+    if (getComputedStyle(el).display === 'none') return;
+    var r = el.getBoundingClientRect();
+    if (r.width === 0) return;
+    if (r.left < window.innerWidth / 2 && r.right > maxRight) maxRight = r.right;
+  });
+  var left = maxRight > 0 ? maxRight + 16 : 12;
+  left = Math.min(left, Math.round(window.innerWidth / 2) - 60); // nunca pasar del centro
+  document.documentElement.style.setProperty('--zoombar-left', left + 'px');
+}
+window.addEventListener('resize', updateZoomBarPos);
+
+/* ============================================================
+ * MODO OCULTAR / RESTABLECER TODOS LOS PANELES
+ * ------------------------------------------------------------
+ * Para ver el mapa limpio (útil en pantalla de sala de situación
+ * o al revisar el radar). Recuerda qué paneles estaban visibles
+ * antes de ocultar, así "mostrar" devuelve el estado exacto y no
+ * abre paneles que el usuario ya tenía cerrados.
+ * ============================================================ */
+var allPanelsHidden = false;
+var panelStateBeforeHide = null;
+var HIDEABLES = ['left','right','layersControl'];
+function toggleAllPanels(){
+  allPanelsHidden = !allPanelsHidden;
+  document.getElementById('hideAllBtn').classList.toggle('act', allPanelsHidden);
+  if (allPanelsHidden){
+    panelStateBeforeHide = {
+      right: document.getElementById('right').classList.contains('on'),
+      leftHidden: document.getElementById('left').classList.contains('hideDesk')
+    };
+    HIDEABLES.forEach(function(id){ document.getElementById(id).classList.add('hiddenAll'); });
+    document.getElementById('restoreBar').classList.remove('on');
+  } else {
+    HIDEABLES.forEach(function(id){ document.getElementById(id).classList.remove('hiddenAll'); });
+    if (panelStateBeforeHide){
+      document.getElementById('right').classList.toggle('on', panelStateBeforeHide.right);
+      document.getElementById('left').classList.toggle('hideDesk', panelStateBeforeHide.leftHidden);
+    }
+    updateRestoreBar();
+  }
+  updateZoomBarPos();
+  setTimeout(function(){ map.invalidateSize(); }, 60);
+}
+document.getElementById('hideAllBtn').addEventListener('click', toggleAllPanels);
+
+/* Restablecer: devuelve TODOS los paneles a su posición y estado original,
+ * deshaciendo también cualquier arrastre o pantalla completa. */
+document.getElementById('restoreAllBtn').addEventListener('click', function(){
+  allPanelsHidden = false;
+  document.getElementById('hideAllBtn').classList.remove('act');
+  HIDEABLES.forEach(function(id){
+    var el = document.getElementById(id);
+    el.classList.remove('hiddenAll', 'fullscreen', 'hideDesk');
+    el.style.left = ''; el.style.top = ''; el.style.right = ''; el.style.bottom = '';
+  });
+  document.getElementById('right').classList.add('on');
+  document.getElementById('reopenLeftBtn').style.display = 'none';
+  document.getElementById('layersControlBody').classList.remove('collapsed');
+  document.getElementById('layersCollapseBtn').style.transform = 'rotate(0deg)';
+  updateRestoreBar();
+  updateZoomBarPos();
+  setTimeout(function(){ map.invalidateSize(); }, 60);
+});
+
 function updateRestoreBar(){
   if (window.innerWidth <= 820){ document.getElementById('restoreBar').classList.remove('on'); return; }
   var leftHidden = document.getElementById('left').classList.contains('hideDesk');
   var rightHidden = !document.getElementById('right').classList.contains('on');
   document.getElementById('restoreLeftBtn').style.display = leftHidden ? '' : 'none';
   document.getElementById('restoreRightBtn').style.display = rightHidden ? '' : 'none';
+  document.getElementById('restoreAllBtn').style.display = (leftHidden || rightHidden) ? '' : 'none';
   document.getElementById('restoreBar').classList.toggle('on', leftHidden || rightHidden);
+  updateZoomBarPos();
 }
 document.getElementById('restoreLeftBtn').addEventListener('click', function(){
   var p = document.getElementById('left');
@@ -2721,6 +2821,7 @@ renderNoSelection();
 setMode('clima');
 selectClimaLocation(VZ_CITIES[0].lat, VZ_CITIES[0].lon, VZ_CITIES[0].name, true); // Caracas por defecto, sin forzar el tab en móvil
 toggleRadar(); // radar encendido de entrada: es la capa que muestra los eventos en vivo
+updateZoomBarPos();
 loadStorms();
 setInterval(loadStorms, REFRESH_MS);
 
