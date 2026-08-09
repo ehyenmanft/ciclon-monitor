@@ -148,15 +148,53 @@ a{color:inherit}
   width:26px;height:26px;cursor:pointer;font-size:11px;flex:0 0 auto}
 #radarTime{min-width:44px}
 #radarAttrib{font-size:9px;opacity:.75}
-#satAttrib,#satGoesAviso,#vientoLeyenda,#nubesLeyenda{display:none;font-size:9px;color:var(--muted);padding-top:2px;border-top:1px dashed var(--line);max-width:190px;line-height:1.4}
-#satAttrib.on,#satGoesAviso.on,#vientoLeyenda.on,#nubesLeyenda.on{display:block}
+#satAttrib,#satGoesAviso,#vientoLeyenda,#nubesLeyenda,#gdacsLeyenda,#recursosLeyenda{display:none;font-size:9px;color:var(--muted);padding-top:2px;border-top:1px dashed var(--line);max-width:190px;line-height:1.4}
+#satAttrib.on,#satGoesAviso.on,#vientoLeyenda.on,#nubesLeyenda.on,#gdacsLeyenda.on,#recursosLeyenda.on{display:block}
 #satGoesAviso{color:#e0b840}
 #radarLegend{display:none;align-items:center;gap:4px;font-size:9px;color:var(--muted);flex-wrap:wrap}
 #radarLegend.on{display:flex}
 .legendChip{width:12px;height:8px;border-radius:2px;display:inline-block}
+
+/* ===== barra de zoom con límites visibles ===== */
+#zoomBar{
+  position:fixed;right:12px;bottom:78px;z-index:23;
+  background:var(--panel);border:1px solid var(--line);border-radius:12px;
+  backdrop-filter:blur(10px);padding:8px 6px;
+  display:flex;flex-direction:column;align-items:center;gap:6px;
+}
+#zoomBar button{
+  background:#161d26;border:1px solid var(--line);color:var(--text);border-radius:7px;
+  width:30px;height:30px;cursor:pointer;font-family:inherit;font-size:14px;line-height:1;
+  display:flex;align-items:center;justify-content:center;
+}
+#zoomBar button:hover{border-color:var(--accent)}
+#zoomBar button:disabled{opacity:.35;cursor:not-allowed}
+#zoomSlider{
+  -webkit-appearance:slider-vertical;appearance:slider-vertical;
+  writing-mode:vertical-lr;direction:rtl;
+  width:22px;height:96px;accent-color:#6fb8e0;cursor:pointer;background:transparent;
+}
+#zoomLabel{font-size:9.5px;color:var(--muted);font-variant-numeric:tabular-nums}
+@media (max-width:820px){
+  #zoomBar{bottom:calc(78px + env(safe-area-inset-bottom));right:10px;padding:6px 5px}
+  #zoomSlider{height:76px}
+  #zoomBar button{width:34px;height:34px}
+  #left.on ~ #zoomBar, #right.on ~ #zoomBar{display:none}
+}
 .legendItem{display:inline-flex;align-items:center;gap:3px}
 .windArrow{font-size:16px;line-height:1;text-shadow:0 0 3px #000, 0 0 3px #000;pointer-events:none}
 .trackPointDot{border-radius:50%;border:2px solid #0b0f14}
+.gdacsPin{
+  width:26px;height:26px;border-radius:50%;border:2px solid;background:#10151ce6;
+  display:flex;align-items:center;justify-content:center;font-size:13px;
+}
+.recursoPin{
+  width:22px;height:22px;border-radius:50%;border:1px solid var(--line);background:#10151ce6;
+  display:flex;align-items:center;justify-content:center;font-size:11px;
+}
+.riverBox{border:1px solid #2a3b4a;background:#0d1a22;border-radius:8px;padding:9px;margin-top:8px;font-size:11.5px;line-height:1.6}
+.riverBox .riverVal{font-size:17px;font-weight:700;color:#6fb8e0}
+.marineGrid{display:grid;grid-template-columns:1fr 1fr;gap:6px 12px;margin-top:4px}
 #coordsReadout{font-size:9.5px;color:var(--muted);padding-top:2px;border-top:1px dashed var(--line);font-variant-numeric:tabular-nums}
 
 /* ===== barra de escala de Leaflet, adaptada al tema oscuro ===== */
@@ -419,6 +457,10 @@ a{color:inherit}
       <button id="btnNubes" title="Nubosidad (Open-Meteo)">☁️ <span data-i18n="capaNubes">Nubes</span></button>
     </div>
     <div class="layerBtns">
+      <button id="btnGdacs" title="Alertas multi-amenaza (GDACS)">🚨 <span data-i18n="capaAlertas">Alertas</span></button>
+      <button id="btnRecursos" title="Hospitales, refugios, bomberos (OpenStreetMap)">🏥 <span data-i18n="capaRecursos">Recursos</span></button>
+    </div>
+    <div class="layerBtns">
       <button id="btnLegend" title="Leyenda / cómo leer el mapa">❓ <span data-i18n="verLeyenda">Leyenda</span></button>
       <button id="btnShareLoc" title="Compartir ubicación">📍 <span data-i18n="compartirUbi">Compartir</span></button>
     </div>
@@ -442,8 +484,17 @@ a{color:inherit}
     <div id="satGoesAviso" data-i18n="satGoesAviso"></div>
     <div id="vientoLeyenda" data-i18n="vientoAviso"></div>
     <div id="nubesLeyenda" data-i18n="nubesAviso"></div>
+    <div id="gdacsLeyenda"></div>
+    <div id="recursosLeyenda"></div>
     <div id="coordsReadout">— , —</div>
   </div>
+</div>
+
+<div id="zoomBar">
+  <button id="zoomInBtn" title="Acercar">＋</button>
+  <input id="zoomSlider" type="range" orient="vertical" min="2" max="12" step="1" value="4">
+  <button id="zoomOutBtn" title="Alejar">－</button>
+  <div id="zoomLabel">z4</div>
 </div>
 
 <div id="legendModal">
@@ -485,7 +536,7 @@ a{color:inherit}
  *             ocultar un fallo de la fuente real.
  * ============================================================ */
 var NHC_URL   = 'https://www.nhc.noaa.gov/CurrentStorms.json';
-var NHC_PROXY = 'https://script.google.com/macros/s/AKfycbwXMqLQHESSqgPzgATOnsESxLBIt18RtT4scTsfJNw3wJa7mjtCyS8KdaeKuC7enMuh/exec'; // ← pega aquí tu URL /exec si CORS directo falla
+var NHC_PROXY = 'https://script.google.com/macros/s/AKfycbxtUYUKWznHwQaGyp-CuHPpY1dpv9U-kazfzQSaKR_nAe3VVO3zPYs58GrvyosTV6EJ/exec'; // ← pega aquí tu URL /exec si CORS directo falla
 var OM_ENSEMBLE = 'https://ensemble-api.open-meteo.com/v1/ensemble';
 var REFRESH_MS = 5 * 60 * 1000; // NHC actualiza por evento, no por polling agresivo
 var DEMO_MODE = true; // desactívalo en cuanto confirmes que la fuente real responde
@@ -502,6 +553,29 @@ var VZ_REF = { lat: 10.5, lon: -66.9, name: 'Venezuela (referencia central)' };
 var OM_FORECAST = 'https://api.open-meteo.com/v1/forecast';
 var OM_GEOCODE  = 'https://geocoding-api.open-meteo.com/v1/search';
 var OM_AIRQ     = 'https://air-quality-api.open-meteo.com/v1/air-quality';
+
+/* ============================================================
+ * FUENTES ADICIONALES (verificadas, gratuitas, sin clave)
+ * ------------------------------------------------------------
+ * GDACS   — Alertas multi-amenaza de la Comisión Europea/ONU.
+ *           Cubre ciclones, INUNDACIONES, sequías, incendios y
+ *           volcanes, con nivel de alerta calculado por población
+ *           expuesta. Es la única fuente aquí que ve eventos que
+ *           el NHC no cubre (ej. inundaciones en Venezuela).
+ *           Formato GeoJSON. Esquema confirmado parcialmente vía
+ *           un servicio espejo, así que se parsea DEFENSIVAMENTE.
+ * FLOOD   — GloFAS vía Open-Meteo: caudal simulado del río más
+ *           cercano. OJO: resolución de 5 km, el río más cercano
+ *           puede no ser el correcto — se advierte en la interfaz.
+ * MARINE  — Oleaje y temperatura del mar (costa venezolana).
+ * OVERPASS— OpenStreetMap: hospitales, refugios, bomberos y
+ *           policía cercanos. Para saber qué recursos hay dentro
+ *           de la zona de riesgo, no solo dónde está el riesgo.
+ * ============================================================ */
+var GDACS_API   = 'https://www.gdacs.org/gdacsapi/api/events/geteventlist/SEARCH';
+var OM_FLOOD    = 'https://flood-api.open-meteo.com/v1/flood';
+var OM_MARINE   = 'https://marine-api.open-meteo.com/v1/marine';
+var OVERPASS_API = 'https://overpass-api.de/api/interpreter';
 
 /* ============================================================
  * GIS OFICIAL DEL NHC — NOAA ArcGIS REST (MapServer)
@@ -521,8 +595,7 @@ var OM_AIRQ     = 'https://air-quality-api.open-meteo.com/v1/air-quality';
  * en las propiedades devueltas), mismo principio defensivo que
  * ya usamos para CurrentStorms.json.
  * ============================================================ */
-var GIS_BASE = 'https://mapservices.weather.noaa.gov/tropical/rest/services/tropical/NHC_tropical_weather/MapServer';
-var GIS_PROXY = ''; // ← igual que NHC_PROXY: solo si CORS directo falla contra mapservices.weather.noaa.gov
+var GIS_BASE = 'https://mapservices.weather.noaa.gov/tropical/rest/services/tropical/NHC_tropical_weather/MapServer';var GIS_PROXY = ''; // ← igual que NHC_PROXY: solo si CORS directo falla contra mapservices.weather.noaa.gov
 var GIS_BASIN_OFFSET = { AT: 4, EP: 134, CP: 264 };
 var GIS_FIELD_OFFSET = { points: 2, track: 3, cone: 4, watchWarning: 5, pastPoints: 7, pastTrack: 8, arrivalEarliest: 15, arrivalMostLikely: 16 };
 // Bounding box aproximado de Venezuela continental + insular, para cruzar contra la
@@ -613,7 +686,22 @@ var I18N = {
     satGoesAviso: '⚠ Experimental: imagen del satélite GOES-East cada ~10-15 min. Si no se ve nada, aún no está confirmado el ajuste técnico exacto de esta capa — usa "Diario" mientras tanto.',
     nubosidadLower: 'nubosidad',
     nubesAviso: 'Nubosidad muestreada en 16 puntos del área visible (Open-Meteo) — no es una imagen satelital continua.',
-    convergenciaTooltip: '⚠ Convergencia aproximada (estimación entre puntos muestreados, no es un análisis sinóptico oficial)'
+    convergenciaTooltip: '⚠ Convergencia aproximada (estimación entre puntos muestreados, no es un análisis sinóptico oficial)',
+    capaAlertas: 'Alertas', capaRecursos: 'Recursos',
+    gdacsCargando: 'Consultando GDACS…', gdacsSinEventos: 'Sin alertas naranja/roja en los últimos 30 días.',
+    gdacsEventos: 'alertas activas (GDACS)', gdacsError: 'No se pudo consultar GDACS.',
+    recursosCargando: 'Buscando recursos…', recursosEncontrados: 'recursos (OpenStreetMap)',
+    recursosError: 'No se pudo consultar OpenStreetMap.', recursosZoom: 'Acércate más para ver recursos cercanos.',
+    recursoSinNombre: 'Sin nombre',
+    marTitulo: 'Estado del mar', olaAltura: 'Altura de ola', olaPeriodo: 'Período', tempMar: 'Temp. del mar', olaDireccion: 'Dirección',
+    rioTitulo: 'Caudal del río más cercano', rioHoy: 'hoy', rioMax7d: 'Máximo previsto (7 días)',
+    rioSubiendo: 'crecida prevista',
+    rioAviso: 'Modelo GloFAS con resolución de 5 km — el río detectado puede no ser el correcto. No sustituye avisos de INAMEH ni de Protección Civil.',
+    legAlertaRoja: 'Alerta roja — impacto humanitario alto esperado',
+    legAlertaNaranja: 'Alerta naranja — impacto moderado esperado',
+    legTiposGdacs: 'Ciclón · Inundación · Sismo · Volcán · Incendio · Sequía',
+    legHospital: 'Hospital o centro de salud', legBomberos: 'Estación de bomberos',
+    legPolicia: 'Policía', legRefugio: 'Refugio'
   },
   en: {
     panelSistemas: 'Active systems',
@@ -682,7 +770,22 @@ var I18N = {
     satGoesAviso: '⚠ Experimental: GOES-East satellite image every ~10-15 min. If nothing shows up, the exact technical setting for this layer is not yet confirmed — use "Daily" in the meantime.',
     nubosidadLower: 'cloud cover',
     nubesAviso: 'Cloud cover sampled at 16 points across the visible area (Open-Meteo) — not a continuous satellite image.',
-    convergenciaTooltip: '⚠ Approximate convergence (estimate between sampled points, not an official synoptic analysis)'
+    convergenciaTooltip: '⚠ Approximate convergence (estimate between sampled points, not an official synoptic analysis)',
+    capaAlertas: 'Alerts', capaRecursos: 'Resources',
+    gdacsCargando: 'Querying GDACS…', gdacsSinEventos: 'No orange/red alerts in the last 30 days.',
+    gdacsEventos: 'active alerts (GDACS)', gdacsError: 'Could not query GDACS.',
+    recursosCargando: 'Searching resources…', recursosEncontrados: 'resources (OpenStreetMap)',
+    recursosError: 'Could not query OpenStreetMap.', recursosZoom: 'Zoom in further to see nearby resources.',
+    recursoSinNombre: 'Unnamed',
+    marTitulo: 'Sea state', olaAltura: 'Wave height', olaPeriodo: 'Period', tempMar: 'Sea temp.', olaDireccion: 'Direction',
+    rioTitulo: 'Nearest river discharge', rioHoy: 'today', rioMax7d: 'Forecast maximum (7 days)',
+    rioSubiendo: 'rise expected',
+    rioAviso: 'GloFAS model at 5 km resolution — the detected river may not be the correct one. Does not replace INAMEH or Civil Protection advisories.',
+    legAlertaRoja: 'Red alert — high humanitarian impact expected',
+    legAlertaNaranja: 'Orange alert — moderate impact expected',
+    legTiposGdacs: 'Cyclone · Flood · Earthquake · Volcano · Wildfire · Drought',
+    legHospital: 'Hospital or health centre', legBomberos: 'Fire station',
+    legPolicia: 'Police', legRefugio: 'Shelter'
   }
 };
 var lang = (navigator.language || 'es').startsWith('en') ? 'en' : 'es';
@@ -718,13 +821,22 @@ document.getElementById('langBtn').addEventListener('click', function(){
 
 /* ============================================================
  * MAPA (Leaflet, teselas oscuras, sin clave)
+ * ------------------------------------------------------------
+ * Límites de zoom: minZoom 2 (evita ver el mundo repetido en
+ * miniatura) y maxZoom 12. El tope de 12 es deliberado: por encima
+ * de eso, las capas meteorológicas (radar a z8, satélite a z7-9)
+ * ya solo muestran píxeles reescalados y el mapa daría una falsa
+ * sensación de precisión que los datos no tienen.
  * ============================================================ */
-var map = L.map('map', { zoomControl: false, worldCopyJump: true }).setView([18, -65], 4);
+var MAP_MIN_ZOOM = 2, MAP_MAX_ZOOM = 12;
+var map = L.map('map', {
+  zoomControl: false, worldCopyJump: true,
+  minZoom: MAP_MIN_ZOOM, maxZoom: MAP_MAX_ZOOM
+}).setView([18, -65], 4);
 L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
   attribution: '© OpenStreetMap, © CARTO',
-  subdomains: 'abcd', maxZoom: 10
+  subdomains: 'abcd', maxNativeZoom: 10, maxZoom: MAP_MAX_ZOOM, minZoom: MAP_MIN_ZOOM
 }).addTo(map);
-L.control.zoom({ position: 'bottomright' }).addTo(map);
 L.control.scale({ position: 'bottomright', metric: true, imperial: false, maxWidth: 120 }).addTo(map);
 
 /* Lector de coordenadas del centro del mapa — referencia rápida para
@@ -736,6 +848,29 @@ function updateCoordsReadout(){
 }
 map.on('moveend', updateCoordsReadout);
 updateCoordsReadout();
+
+/* ============================================================
+ * BARRA DE ZOOM — con límites explícitos
+ * ------------------------------------------------------------
+ * Sustituye al control por defecto de Leaflet para que el usuario
+ * vea de un vistazo en qué nivel está y cuál es el rango permitido,
+ * y para que no pueda pasarse del tope donde las capas
+ * meteorológicas ya no tienen datos reales.
+ * ============================================================ */
+function syncZoomBar(){
+  var z = Math.round(map.getZoom());
+  document.getElementById('zoomSlider').value = z;
+  document.getElementById('zoomLabel').textContent = 'z' + z;
+  document.getElementById('zoomInBtn').disabled = z >= MAP_MAX_ZOOM;
+  document.getElementById('zoomOutBtn').disabled = z <= MAP_MIN_ZOOM;
+}
+document.getElementById('zoomSlider').addEventListener('input', function(){
+  map.setZoom(parseInt(this.value, 10));
+});
+document.getElementById('zoomInBtn').addEventListener('click', function(){ map.zoomIn(); });
+document.getElementById('zoomOutBtn').addEventListener('click', function(){ map.zoomOut(); });
+map.on('zoomend', syncZoomBar);
+syncZoomBar();
 
 /* Panel de capas colapsable — con tantos controles acumulados, en
  * pantallas chicas conviene poder reducirlo a solo el encabezado. */
@@ -1632,9 +1767,19 @@ function loadClima(){
   var aUrl = OM_AIRQ + '?latitude=' + climaLocation.lat.toFixed(4) + '&longitude=' + climaLocation.lon.toFixed(4) +
     '&current=european_aqi,us_aqi,pm2_5,pm10,uv_index&timezone=auto';
 
-  Promise.all([ fetchJson(fUrl), fetchJson(aUrl).catch(function(){ return null; }) ])
+  var flUrl = OM_FLOOD + '?latitude=' + climaLocation.lat.toFixed(4) + '&longitude=' + climaLocation.lon.toFixed(4) +
+    '&daily=river_discharge&forecast_days=7';
+  var mUrl = OM_MARINE + '?latitude=' + climaLocation.lat.toFixed(4) + '&longitude=' + climaLocation.lon.toFixed(4) +
+    '&current=wave_height,wave_direction,wave_period,sea_surface_temperature&forecast_days=1';
+
+  Promise.all([
+    fetchJson(fUrl),
+    fetchJson(aUrl).catch(function(){ return null; }),
+    fetchJson(flUrl).catch(function(){ return null; }),  // sin río cercano → simplemente no se muestra
+    fetchJson(mUrl).catch(function(){ return null; })    // punto interior (no costero) → no se muestra
+  ])
     .then(function(results){
-      lastClimaData = { forecast: results[0], air: results[1] };
+      lastClimaData = { forecast: results[0], air: results[1], flood: results[2], marine: results[3] };
       renderClima();
     })
     .catch(function(err){
@@ -1723,6 +1868,33 @@ function renderClima(){
     html += '</div>';
   }
 
+  var mar = lastClimaData.marine;
+  if (mar && mar.current && typeof mar.current.wave_height === 'number'){
+    html += '<div class="section-title">' + t('marTitulo') + '</div>';
+    html += '<div class="marineGrid">';
+    html += kvRow(t('olaAltura'), mar.current.wave_height.toFixed(1) + ' m');
+    if (typeof mar.current.wave_period === 'number') html += kvRow(t('olaPeriodo'), Math.round(mar.current.wave_period) + ' s');
+    if (typeof mar.current.sea_surface_temperature === 'number') html += kvRow(t('tempMar'), Math.round(mar.current.sea_surface_temperature) + '°C');
+    if (typeof mar.current.wave_direction === 'number') html += kvRow(t('olaDireccion'), Math.round(mar.current.wave_direction) + '°');
+    html += '</div>';
+  }
+
+  var fl = lastClimaData.flood;
+  if (fl && fl.daily && fl.daily.river_discharge){
+    var vals = fl.daily.river_discharge.filter(function(v){ return typeof v === 'number'; });
+    if (vals.length){
+      var hoyQ = vals[0], maxQ = Math.max.apply(null, vals);
+      var subiendo = maxQ > hoyQ * 1.5;
+      html += '<div class="section-title">' + t('rioTitulo') + '</div>';
+      html += '<div class="riverBox">';
+      html += '<div><span class="riverVal">' + hoyQ.toFixed(1) + '</span> m³/s — ' + t('rioHoy') + '</div>';
+      html += '<div style="color:' + (subiendo ? 'var(--danger)' : 'var(--muted)') + '">' +
+        t('rioMax7d') + ': ' + maxQ.toFixed(1) + ' m³/s' + (subiendo ? ' ⚠ ' + t('rioSubiendo') : '') + '</div>';
+      html += '<div style="font-size:10px;color:var(--muted);margin-top:5px;line-height:1.4">' + t('rioAviso') + '</div>';
+      html += '</div>';
+    }
+  }
+
   html += '<div class="warnbox" style="margin-top:12px">' + t('fuenteClima') + '</div>';
 
   var body = document.getElementById('climaBody');
@@ -1752,7 +1924,14 @@ function showRadarFrame(i){
   radarIdx = ((i % radarFrames.length) + radarFrames.length) % radarFrames.length;
   var frame = radarFrames[radarIdx];
   var prev = radarLayer;
-  radarLayer = L.tileLayer(radarTileUrl(frame), { opacity: .65, zIndex: 450 }).addTo(map);
+  radarLayer = L.tileLayer(radarTileUrl(frame), {
+    opacity: .65, zIndex: 450,
+    // RainViewer (tier gratuito) no sirve teselas por encima de z8: devuelve una
+    // imagen que dice "Zoom Level Not Supported" en vez de un error HTTP, así que
+    // errorTileUrl no sirve. maxNativeZoom hace que Leaflet reescale la última
+    // tesela válida en lugar de pedir uno que no existe.
+    maxNativeZoom: 8, maxZoom: 12
+  }).addTo(map);
   if (prev) map.removeLayer(prev);
   var el = document.getElementById('radarTime');
   if (el) el.textContent = new Date(frame.time * 1000).toLocaleTimeString(lang==='es'?'es-VE':'en-US', {hour:'2-digit', minute:'2-digit'});
@@ -1987,6 +2166,168 @@ map.on('moveend', function(){
 });
 
 /* ============================================================
+ * CAPA GDACS — alertas multi-amenaza (Comisión Europea / ONU)
+ * ------------------------------------------------------------
+ * A diferencia del NHC (solo ciclones), GDACS ve inundaciones,
+ * sequías, incendios y volcanes. Devuelve GeoJSON con un nivel de
+ * alerta calculado por población expuesta. El esquema exacto solo
+ * se pudo confirmar parcialmente (vía un servicio espejo), así que
+ * se parsea DEFENSIVAMENTE por alias + escaneo de contenido, mismo
+ * principio que ya usamos con CurrentStorms.json.
+ * ============================================================ */
+var gdacsOn = false, gdacsLayer = null;
+var GDACS_TIPOS = { TC: '🌀', FL: '🌊', EQ: '⛰️', VO: '🌋', WF: '🔥', DR: '☀️' };
+function gdacsAlertColor(level){
+  var l = String(level || '').toLowerCase();
+  if (l.indexOf('red') !== -1) return '#e8484f';
+  if (l.indexOf('orange') !== -1) return '#f07f3c';
+  if (l.indexOf('green') !== -1) return '#3ec6a8';
+  return '#e8b23c';
+}
+function gdacsProp(props, aliases){
+  for (var i = 0; i < aliases.length; i++){
+    var keys = Object.keys(props);
+    for (var j = 0; j < keys.length; j++){
+      if (keys[j].toLowerCase() === aliases[i]) {
+        var v = props[keys[j]];
+        if (v !== null && v !== undefined && v !== '') return v;
+      }
+    }
+  }
+  return undefined;
+}
+function loadGdacs(){
+  var hoy = new Date();
+  var desde = new Date(hoy.getTime() - 30 * 86400000); // últimos 30 días
+  var url = GDACS_API + '?eventlist=TC;FL;EQ;VO;WF;DR' +
+    '&fromdate=' + desde.toISOString().slice(0,10) +
+    '&todate=' + hoy.toISOString().slice(0,10) +
+    '&alertlevel=orange;red';
+  document.getElementById('gdacsLeyenda').textContent = t('gdacsCargando');
+  fetchJsonProxied(url, GIS_PROXY).then(function(geo){
+    gdacsLayer.clearLayers();
+    var feats = (geo && geo.features) || [];
+    if (!feats.length){
+      document.getElementById('gdacsLeyenda').textContent = t('gdacsSinEventos');
+      return;
+    }
+    var shown = 0;
+    feats.forEach(function(f){
+      if (!f.geometry || f.geometry.type !== 'Point') return;
+      var lon = f.geometry.coordinates[0], lat = f.geometry.coordinates[1];
+      if (typeof lat !== 'number' || typeof lon !== 'number') return;
+      var props = f.properties || {};
+      var tipo = gdacsProp(props, ['eventtype']) || '';
+      var nivel = gdacsProp(props, ['alertlevel']) || '';
+      var nombre = gdacsProp(props, ['eventname','name','title']) || tipo;
+      var pais = gdacsProp(props, ['country','countryname']) || '';
+      var desc = gdacsProp(props, ['description','htmldescription']) || '';
+      var enlace = gdacsProp(props, ['url','link']);
+      if (enlace && typeof enlace === 'object') enlace = enlace.report || enlace.details || null;
+      var color = gdacsAlertColor(nivel);
+      var emoji = GDACS_TIPOS[tipo] || '⚠️';
+      var icon = L.divIcon({
+        className: '',
+        html: '<div class="gdacsPin" style="border-color:'+color+'">' + emoji + '</div>',
+        iconSize: [26, 26], iconAnchor: [13, 13]
+      });
+      var popup = '<b>' + emoji + ' ' + escapeHtml(String(nombre)) + '</b><br>' +
+        (pais ? escapeHtml(String(pais)) + '<br>' : '') +
+        '<span style="color:'+color+'">' + escapeHtml(String(nivel).toUpperCase()) + '</span>' +
+        (desc ? '<br>' + escapeHtml(String(desc).replace(/<[^>]*>/g, '').slice(0, 160)) : '') +
+        (typeof enlace === 'string' ? '<br><a href="'+enlace+'" target="_blank" rel="noopener">GDACS →</a>' : '');
+      L.marker([lat, lon], { icon: icon }).bindPopup(popup).addTo(gdacsLayer);
+      shown++;
+    });
+    document.getElementById('gdacsLeyenda').textContent = shown + ' ' + t('gdacsEventos');
+  }).catch(function(err){
+    console.error('Error GDACS:', err);
+    document.getElementById('gdacsLeyenda').textContent = t('gdacsError');
+  });
+}
+function toggleGdacs(){
+  gdacsOn = !gdacsOn;
+  document.getElementById('btnGdacs').classList.toggle('act', gdacsOn);
+  document.getElementById('gdacsLeyenda').classList.toggle('on', gdacsOn);
+  if (!gdacsLayer) gdacsLayer = L.layerGroup().addTo(map);
+  if (!gdacsOn){ gdacsLayer.clearLayers(); return; }
+  loadGdacs();
+}
+document.getElementById('btnGdacs').addEventListener('click', toggleGdacs);
+
+/* ============================================================
+ * CAPA RECURSOS — OpenStreetMap vía Overpass
+ * ------------------------------------------------------------
+ * Hospitales, bomberos, policía y refugios dentro del área visible.
+ * Para un equipo de respuesta, saber QUÉ hay dentro de la zona de
+ * riesgo importa tanto como dónde está el riesgo.
+ * Overpass es un servicio comunitario gratuito: se consulta solo
+ * bajo demanda (nunca en bucle) y con timeout corto, para no
+ * abusar de su infraestructura.
+ * ============================================================ */
+var recursosOn = false, recursosLayer = null;
+var RECURSOS_ICON = { hospital: '🏥', clinic: '🏥', fire_station: '🚒', police: '🚓', shelter: '🏠' };
+function loadRecursos(){
+  var b = map.getBounds();
+  if (map.getZoom() < 8){
+    document.getElementById('recursosLeyenda').textContent = t('recursosZoom');
+    if (recursosLayer) recursosLayer.clearLayers();
+    return;
+  }
+  var bbox = b.getSouth().toFixed(4) + ',' + b.getWest().toFixed(4) + ',' + b.getNorth().toFixed(4) + ',' + b.getEast().toFixed(4);
+  var q = '[out:json][timeout:20];(' +
+    'node["amenity"~"hospital|clinic|fire_station|police"](' + bbox + ');' +
+    'node["emergency"="shelter"](' + bbox + ');' +
+    'way["amenity"~"hospital|fire_station|police"](' + bbox + ');' +
+    ');out center 120;';
+  document.getElementById('recursosLeyenda').textContent = t('recursosCargando');
+  fetch(OVERPASS_API, { method: 'POST', body: 'data=' + encodeURIComponent(q) })
+    .then(function(r){ if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
+    .then(function(data){
+      recursosLayer.clearLayers();
+      var els = (data && data.elements) || [];
+      var shown = 0;
+      els.forEach(function(el){
+        var lat = el.lat !== undefined ? el.lat : (el.center && el.center.lat);
+        var lon = el.lon !== undefined ? el.lon : (el.center && el.center.lon);
+        if (typeof lat !== 'number' || typeof lon !== 'number') return;
+        var tags = el.tags || {};
+        var tipo = tags.amenity || tags.emergency || '';
+        var emoji = RECURSOS_ICON[tipo] || '📍';
+        var nombre = tags.name || t('recursoSinNombre');
+        var icon = L.divIcon({
+          className: '', html: '<div class="recursoPin">' + emoji + '</div>',
+          iconSize: [22, 22], iconAnchor: [11, 11]
+        });
+        L.marker([lat, lon], { icon: icon })
+          .bindPopup('<b>' + emoji + ' ' + escapeHtml(nombre) + '</b><br>' + escapeHtml(tipo) +
+            (tags.phone ? '<br>📞 ' + escapeHtml(tags.phone) : ''))
+          .addTo(recursosLayer);
+        shown++;
+      });
+      document.getElementById('recursosLeyenda').textContent = shown + ' ' + t('recursosEncontrados');
+    }).catch(function(err){
+      console.error('Error Overpass:', err);
+      document.getElementById('recursosLeyenda').textContent = t('recursosError');
+    });
+}
+function toggleRecursos(){
+  recursosOn = !recursosOn;
+  document.getElementById('btnRecursos').classList.toggle('act', recursosOn);
+  document.getElementById('recursosLeyenda').classList.toggle('on', recursosOn);
+  if (!recursosLayer) recursosLayer = L.layerGroup().addTo(map);
+  if (!recursosOn){ recursosLayer.clearLayers(); return; }
+  loadRecursos();
+}
+document.getElementById('btnRecursos').addEventListener('click', toggleRecursos);
+var recursosMoveTimer = null;
+map.on('moveend', function(){
+  if (!recursosOn) return;
+  clearTimeout(recursosMoveTimer);
+  recursosMoveTimer = setTimeout(loadRecursos, 1200); // Overpass es comunitario: debounce generoso
+});
+
+/* ============================================================
  * LEYENDA — cómo leer el mapa
  * ------------------------------------------------------------
  * Pensado para que alguien sin formación meteorológica (bombero,
@@ -2042,6 +2383,19 @@ function renderLegend(){
   html += '<div class="legendSection"><h3>' + t('capaSatelite') + '</h3>';
   html += '<div class="legendRow"><span style="color:var(--muted);font-size:11px">' + t('satAviso') + '</span></div>';
   html += '<div class="legendRow"><span style="color:#e0b840;font-size:11px">' + t('satGoesAviso') + '</span></div>';
+  html += '</div>';
+
+  html += '<div class="legendSection"><h3>' + t('capaAlertas') + ' (GDACS)</h3>';
+  html += '<div class="legendRow"><span class="legendSwatch" style="background:#e8484f"></span>' + t('legAlertaRoja') + '</div>';
+  html += '<div class="legendRow"><span class="legendSwatch" style="background:#f07f3c"></span>' + t('legAlertaNaranja') + '</div>';
+  html += '<div class="legendRow"><span style="font-size:12px">🌀 🌊 ⛰️ 🌋 🔥 ☀️</span> ' + t('legTiposGdacs') + '</div>';
+  html += '</div>';
+
+  html += '<div class="legendSection"><h3>' + t('capaRecursos') + '</h3>';
+  html += '<div class="legendRow"><span style="font-size:12px">🏥</span> ' + t('legHospital') + '</div>';
+  html += '<div class="legendRow"><span style="font-size:12px">🚒</span> ' + t('legBomberos') + '</div>';
+  html += '<div class="legendRow"><span style="font-size:12px">🚓</span> ' + t('legPolicia') + '</div>';
+  html += '<div class="legendRow"><span style="font-size:12px">🏠</span> ' + t('legRefugio') + '</div>';
   html += '</div>';
 
   html += '<div class="legendSection"><h3>' + t('legSimbolos') + '</h3>';

@@ -7,7 +7,7 @@
  *    viejos como frescos.
  * Al actualizar la web, sube también este archivo cambiando VERSION.
  */
-const VERSION = 'v7';
+const VERSION = 'v8';
 const CACHE = 'ciclon-monitor-' + VERSION;
 
 const PRECACHE = [
@@ -29,7 +29,9 @@ const DATOS_VIVOS = [
   'basemaps.cartocdn.com',
   'rainviewer.com', // metadata JSON + teselas de radar (endsWith cubre tilecache.rainviewer.com)
   'gibs.earthdata.nasa.gov', // teselas satelitales NASA
-  'mapservices.weather.noaa.gov' // GIS oficial del NHC: trayectoria y cono
+  'mapservices.weather.noaa.gov', // GIS oficial del NHC: trayectoria y cono
+  'gdacs.org', // alertas multi-amenaza
+  'overpass-api.de' // OpenStreetMap: hospitales, refugios, bomberos
 ];
 
 self.addEventListener('install', e => {
