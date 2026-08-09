@@ -18,6 +18,20 @@
 - **Capa experimental WeatherNext** (Google DeepMind, vía Open-Meteo): dispersión del ensamble de 64 miembros de viento/presión en el punto del sistema. Etiquetada explícitamente como experimental — nunca se usa como fuente de la posición del ciclón.
 - **Modo demo**: sistema de ejemplo, claramente etiquetado, para probar la interfaz cuando no hay ciclones activos reales.
 
+### Análisis de condiciones (sin IA, deliberadamente)
+En la ficha de cada ubicación aparece un resumen que cruza los datos ya obtenidos y señala lo que merece atención — por ejemplo, *"suelo saturado con más lluvia prevista → riesgo de deslizamiento (45%)"*, que combina humedad del suelo y probabilidad de precipitación.
+
+**Es determinista, no un modelo de lenguaje.** Cada línea muestra al lado el dato que la respalda, así que se puede verificar de un vistazo de dónde sale la afirmación. Esta decisión es deliberada: un LLM podría inventar un pronóstico, y en una herramienta que informa sobre riesgo para la vida eso es inaceptable. Además funciona sin conexión, sin cuota y sin costo.
+
+No pronostica: solo describe y relaciona lo que las fuentes ya dijeron. Los pronósticos y avisos siguen siendo del NHC, INAMEH y Protección Civil. Hay un botón para copiar el análisis en texto, útil para minutas de situación.
+
+Los umbrales están todos agrupados en la constante `UMBRALES` dentro de `index.html`, para poder ajustarlos en un solo sitio. `test.js` los ejecuta contra siete escenarios simulados, así que un cambio accidental de umbral se detecta antes de subirlo.
+
+### Clima por ciudad sobre el mapa
+- **Capa Ciudades** (🏙️, activa por defecto): icono de la condición actual (☀️ ⛅ 🌧️ ⛈️) y temperatura sobre cada ciudad — 28 de Venezuela (una por estado más las principales) y 20 del Caribe insular y costas cercanas.
+- Al tocar una ciudad: condición descrita, máxima/mínima de hoy, **pronóstico de mañana** y acceso a su ficha completa.
+- **Coste: una sola petición de red para todas las ciudades.** Open-Meteo acepta listas de coordenadas (hasta 1000 puntos) y devuelve un array, así que el mapa completo cuesta una llamada, no una por ciudad. Con caché de 10 min y filtrado por zoom y por área visible.
+
 ### Modo Clima
 - **Búsqueda global** (geocoding Open-Meteo) + **geolocalización del navegador** + acceso rápido a 9 ciudades de Venezuela.
 - **Condiciones actuales**: temperatura, sensación térmica, humedad, viento, ráfagas, presión, nubosidad, precipitación.

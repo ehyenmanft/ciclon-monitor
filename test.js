@@ -185,6 +185,97 @@ ok('los sismos duplicados se descartan entre redes', js.includes('function merge
 ok('se informa qué fuente sísmica no respondió', js.includes('sinRespuesta'));
 ok('FUNVISIS se parsea por contenido, no por nombre de campo', js.includes('esMag') && js.includes('esCoord'));
 
+seccion('Capa de ciudades');
+// el objetivo es una sola petición para todas las ciudades: si alguien la
+// convierte en un bucle de fetch por ciudad, el consumo de datos se dispara
+ok('las ciudades se piden en UNA sola llamada (lista de coordenadas)',
+   js.includes("'?latitude=' + lats + '&longitude=' + lons"));
+ok('la respuesta multi-punto se normaliza (array u objeto)', js.includes('Array.isArray(data) ? data : [data]'));
+ok('hay caché para no repetir al mover el mapa', js.includes('ciudadesCache'));
+ok('el modo bajo consumo reduce las ciudades', /lowDataMode[\s\S]{0,200}c\.vz/.test(js));
+ok('cada ciudad usa el icono WMO de su condición', js.includes('wmoIcon(code)'));
+
+
+// ---------------------------------------------------------------
+// El análisis de condiciones es la única pieza con lógica de decisión
+// propia: se ejecuta de verdad contra escenarios simulados, no basta
+// con comprobar que compila. Si alguien cambia un umbral sin querer,
+// estos escenarios lo detectan.
+const umbralesSrc = js.match(/var UMBRALES = \{[\s\S]*?\};/);
+function extraerFuncion(nombre){
+  const i = js.indexOf('function ' + nombre);
+  if (i < 0) return null;
+  let d = 0;
+  for (let k = js.indexOf('{', i); k < js.length; k++){
+    if (js[k] === '{') d++;
+    else if (js[k] === '}'){ d--; if (d === 0) return js.slice(i, k + 1); }
+  }
+  return null;
+}
+const fnAnalisis = extraerFuncion('analizarCondiciones');
+const ctxAn = { lastClimaData: null, lang: 'es', t: k => k,
+                fmtVientoKmh: v => Math.round(v) + ' km/h', findNowIndex: () => 0, console };
+if (umbralesSrc && fnAnalisis){
+  vm.createContext(ctxAn);
+  vm.runInContext(umbralesSrc[0] + '\n' + fnAnalisis, ctxAn);
+
+function caso(nombre, datos, esperados, nivelEsperado){
+  ctxAn.lastClimaData = datos;
+  const r = ctxAn.analizarCondiciones();
+  const textos = r ? r.hallazgos.map(x => x.texto) : [];
+  // los textos pueden llevar detalle añadido (ej. la hora pico): prefijo, no igualdad
+  const faltan = esperados.filter(e => !textos.some(x => x.indexOf(e) === 0));
+  const nivelOk = !nivelEsperado || (r && r.resumen === nivelEsperado) || (!r && nivelEsperado === null);
+  ok(nombre, faltan.length === 0 && nivelOk,
+     (faltan.length ? 'faltan: ' + faltan.join(', ') + ' · ' : '') +
+     (!nivelOk ? 'nivel esperado ' + nivelEsperado + ', obtenido ' + (r && r.resumen) + ' · ' : '') +
+     'obtenidos: ' + textos.join(' | '));
+}
+
+seccion('Lógica del análisis de condiciones');
+
+caso('día tranquilo → sin hallazgos',
+  { forecast:{ current:{temperature_2m:26,apparent_temperature:27,wind_gusts_10m:15,cape:200,soil_moisture_0_to_1cm:0.15,visibility:20000},
+    daily:{precipitation_probability_max:[10,20,15],precipitation_sum:[0,1,0],uv_index_max:[5]},
+    hourly:{time:[new Date().toISOString()],precipitation_probability:[10]} } }, [], 'ok');
+
+caso('suelo saturado + lluvia → riesgo de deslizamiento (ALERTA)',
+  { forecast:{ current:{temperature_2m:24,apparent_temperature:25,soil_moisture_0_to_1cm:0.45,wind_gusts_10m:20},
+    daily:{precipitation_probability_max:[95,90,85],precipitation_sum:[30,25,20],uv_index_max:[4]},
+    hourly:{time:[new Date().toISOString()],precipitation_probability:[95]} } },
+  ['anSueloLluvia','anLluvia','anLluviaPersistente','anAcumulado'], 'alerta');
+
+caso('ráfagas fuertes → alerta',
+  { forecast:{ current:{temperature_2m:28,apparent_temperature:30,wind_gusts_10m:85,soil_moisture_0_to_1cm:0.1},
+    daily:{precipitation_probability_max:[20],precipitation_sum:[1],uv_index_max:[6]},
+    hourly:{time:[new Date().toISOString()],precipitation_probability:[20]} } },
+  ['anRafagaFuerte'], 'alerta');
+
+caso('crecida de río detectada',
+  { forecast:{ current:{temperature_2m:26,apparent_temperature:27,wind_gusts_10m:10,soil_moisture_0_to_1cm:0.1},
+    daily:{precipitation_probability_max:[30],precipitation_sum:[2],uv_index_max:[5]},
+    hourly:{time:[new Date().toISOString()],precipitation_probability:[30]} },
+    flood:{ daily:{ river_discharge:[2.0, 3.5, 8.0] } } },
+  ['anRio'], 'atencion');
+
+caso('golpe de calor por sensación térmica',
+  { forecast:{ current:{temperature_2m:34,apparent_temperature:41,wind_gusts_10m:10,soil_moisture_0_to_1cm:0.1},
+    daily:{precipitation_probability_max:[10],precipitation_sum:[0],uv_index_max:[11]},
+    hourly:{time:[new Date().toISOString()],precipitation_probability:[10]} } },
+  ['anCalor','anUV'], 'alerta');
+
+caso('oleaje y aire, fuentes opcionales',
+  { forecast:{ current:{temperature_2m:27,apparent_temperature:28,wind_gusts_10m:20,soil_moisture_0_to_1cm:0.1},
+    daily:{precipitation_probability_max:[20],precipitation_sum:[0],uv_index_max:[5]},
+    hourly:{time:[new Date().toISOString()],precipitation_probability:[20]} },
+    air:{ current:{ european_aqi: 75 } }, marine:{ current:{ wave_height: 3.4 } } },
+  ['anAire','anOleaje'], 'alerta');
+
+caso('sin datos de clima → null seguro', null, [], null);
+
+}
+else { ok('se pudo extraer analizarCondiciones para probarla', false); }
+
 // ---------------------------------------------------------------
 seccion('Mantenibilidad');
 // ---------------------------------------------------------------

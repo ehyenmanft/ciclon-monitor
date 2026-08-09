@@ -39,7 +39,22 @@ html[data-theme="light"] #geoTopBtn{background:#f4f7fa;color:#0d1720}
 html[data-theme="light"] .warnbox{background:#fff4d6;border-color:#c99a2e;color:#4a3708}
 html[data-theme="light"] .wnBox{background:#eaf3f9;border-color:#9dc0d6}
 html[data-theme="light"] .hourCard,html[data-theme="light"] .aqiCell,
-html[data-theme="light"] .riverBox{background:#f4f7fa}
+html[data-theme="light"] /* Análisis de condiciones: cada línea muestra el dato que la respalda,
+ * para que se pueda verificar de un vistazo de dónde sale la afirmación. */
+.anResumen{border-radius:8px;padding:8px 10px;font-size:12px;font-weight:700;margin-bottom:7px}
+.anResumen.an-alerta{background:#3a1518;border:1px solid #8a2a30;color:#ffd9db}
+.anResumen.an-atencion{background:#2a230e;border:1px solid #6a5a1a;color:#f0d9a8}
+.anResumen.an-info,.anResumen.an-ok{background:#0d1a22;border:1px solid #2a3b4a;color:#bcd6e6}
+.anItem{display:flex;align-items:flex-start;gap:7px;padding:5px 0;border-bottom:1px dashed var(--line);font-size:11.5px;line-height:1.45}
+.anItem:last-of-type{border-bottom:none}
+.anIco{flex:0 0 auto;font-size:10px;margin-top:1px}
+.anTexto{flex:1}
+.anDato{flex:0 0 auto;font-weight:700;color:var(--text);font-variant-numeric:tabular-nums;white-space:nowrap}
+.anItem.an-alerta .anDato{color:var(--danger)}
+.anItem.an-atencion .anDato{color:var(--accent)}
+.anNota{font-size:10px;color:var(--muted);line-height:1.45;margin-top:7px;padding-top:6px;border-top:1px dashed var(--line)}
+
+.riverBox{background:#f4f7fa}
 html[data-theme="light"] .gdacsPin,html[data-theme="light"] .recursoPin{background:#ffffffee}
 html[data-theme="light"] .windArrow{text-shadow:0 0 3px #fff, 0 0 3px #fff}
 html[data-theme="light"] .stormCard.sel{background:#dce8f2}
@@ -192,8 +207,8 @@ a{color:inherit}
   width:26px;height:26px;cursor:pointer;font-size:11px;flex:0 0 auto}
 #radarTime{min-width:44px}
 #radarAttrib{font-size:10px;opacity:.85}
-#satAttrib,#satGoesAviso,#vientoLeyenda,#nubesLeyenda,#gdacsLeyenda,#recursosLeyenda,#sismosLeyenda{display:none;font-size:10.5px;color:#8fa3b8;padding-top:4px;border-top:1px dashed var(--line);max-width:210px;line-height:1.5}
-#satAttrib.on,#satGoesAviso.on,#vientoLeyenda.on,#nubesLeyenda.on,#gdacsLeyenda.on,#recursosLeyenda.on,#sismosLeyenda.on{display:block}
+#satAttrib,#satGoesAviso,#vientoLeyenda,#nubesLeyenda,#gdacsLeyenda,#recursosLeyenda,#sismosLeyenda,#ciudadesLeyenda{display:none;font-size:10.5px;color:#8fa3b8;padding-top:4px;border-top:1px dashed var(--line);max-width:210px;line-height:1.5}
+#satAttrib.on,#satGoesAviso.on,#vientoLeyenda.on,#nubesLeyenda.on,#gdacsLeyenda.on,#recursosLeyenda.on,#sismosLeyenda.on,#ciudadesLeyenda.on{display:block}
 #satGoesAviso{color:#e0b840}
 #radarLegend{display:none;align-items:center;gap:5px;font-size:10.5px;color:#8fa3b8;flex-wrap:wrap}
 #radarLegend.on{display:flex}
@@ -237,6 +252,21 @@ a{color:inherit}
 .legendItem{display:inline-flex;align-items:center;gap:3px}
 .windArrow{font-size:16px;line-height:1;text-shadow:0 0 3px #000, 0 0 3px #000;pointer-events:none}
 .trackPointDot{border-radius:50%;border:2px solid #0b0f14}
+/* Marcador de ciudad: icono de condición + temperatura + nombre.
+ * Fondo semitransparente para que se lea sobre radar y satélite. */
+.cityWx{
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  width:64px;line-height:1;pointer-events:auto;cursor:pointer;
+  text-shadow:0 0 3px var(--bg),0 0 3px var(--bg),0 0 5px var(--bg);
+}
+.cityWxIcon{font-size:19px;filter:drop-shadow(0 1px 2px #000a)}
+.cityWxTemp{font-size:12px;font-weight:700;color:var(--text);margin-top:1px}
+.cityWxName{font-size:8.5px;color:var(--muted);margin-top:1px;white-space:nowrap;max-width:64px;overflow:hidden;text-overflow:ellipsis}
+.cityWxVz .cityWxTemp{color:#6fb8e0}
+.cityWx:hover .cityWxName{color:var(--text)}
+html[data-theme="light"] .cityWx{text-shadow:0 0 3px #fff,0 0 3px #fff,0 0 5px #fff}
+.cityWxLink{color:#6fb8e0}
+
 .gdacsPin{
   width:26px;height:26px;border-radius:50%;border:2px solid;background:#10151ce6;
   display:flex;align-items:center;justify-content:center;font-size:13px;
@@ -245,6 +275,21 @@ a{color:inherit}
   width:22px;height:22px;border-radius:50%;border:1px solid var(--line);background:#10151ce6;
   display:flex;align-items:center;justify-content:center;font-size:11px;
 }
+/* Análisis de condiciones: cada línea muestra el dato que la respalda,
+ * para que se pueda verificar de un vistazo de dónde sale la afirmación. */
+.anResumen{border-radius:8px;padding:8px 10px;font-size:12px;font-weight:700;margin-bottom:7px}
+.anResumen.an-alerta{background:#3a1518;border:1px solid #8a2a30;color:#ffd9db}
+.anResumen.an-atencion{background:#2a230e;border:1px solid #6a5a1a;color:#f0d9a8}
+.anResumen.an-info,.anResumen.an-ok{background:#0d1a22;border:1px solid #2a3b4a;color:#bcd6e6}
+.anItem{display:flex;align-items:flex-start;gap:7px;padding:5px 0;border-bottom:1px dashed var(--line);font-size:11.5px;line-height:1.45}
+.anItem:last-of-type{border-bottom:none}
+.anIco{flex:0 0 auto;font-size:10px;margin-top:1px}
+.anTexto{flex:1}
+.anDato{flex:0 0 auto;font-weight:700;color:var(--text);font-variant-numeric:tabular-nums;white-space:nowrap}
+.anItem.an-alerta .anDato{color:var(--danger)}
+.anItem.an-atencion .anDato{color:var(--accent)}
+.anNota{font-size:10px;color:var(--muted);line-height:1.45;margin-top:7px;padding-top:6px;border-top:1px dashed var(--line)}
+
 .riverBox{border:1px solid #2a3b4a;background:#0d1a22;border-radius:8px;padding:9px;margin-top:8px;font-size:11.5px;line-height:1.6}
 .riverBox .riverVal{font-size:17px;font-weight:700;color:#6fb8e0}
 .marineGrid{display:grid;grid-template-columns:1fr 1fr;gap:6px 12px;margin-top:4px}
@@ -589,6 +634,7 @@ body.kiosko #kioskoHint{display:block}
     </div>
     <div class="layerBtns">
       <button id="btnSismos" title="Sismos 24h y placas tectónicas (SISMO·MONITOR)">🌋 <span data-i18n="capaSismos">Sismos</span></button>
+      <button id="btnCiudades" title="Condición climática por ciudad">🏙️ <span data-i18n="capaCiudades">Ciudades</span></button>
     </div>
     <div class="layerBtns">
       <button id="btnLegend" title="Leyenda / cómo leer el mapa">❓ <span data-i18n="verLeyenda">Leyenda</span></button>
@@ -624,6 +670,7 @@ body.kiosko #kioskoHint{display:block}
     <div id="gdacsLeyenda"></div>
     <div id="recursosLeyenda"></div>
     <div id="sismosLeyenda"></div>
+    <div id="ciudadesLeyenda"></div>
     <div id="ajustesRow">
       <span id="unidadLabel">⚙</span>
       <button class="unidadBtn" data-u="kmh">km/h</button>
@@ -713,6 +760,8 @@ body.kiosko #kioskoHint{display:block}
  *    CAPA SATELITAL           NASA GIBS (diario y casi en vivo)
  *    REJILLA DE CONDICIONES   viento, nubes, convergencia
  *    CAPA GDACS               alertas multi-amenaza
+ *    ANÁLISIS DE CONDICIONES  hallazgos por reglas, sin IA
+ *    CAPA CIUDADES            condición climática por ciudad
  *    CAPA SÍSMICA             sismos 24h + placas (SISMO·MONITOR)
  *    CAPA RECURSOS            hospitales, bomberos, refugios
  *    COMPARTIR VISTA          enlace con estado del mapa
@@ -801,6 +850,67 @@ var EMSC_FEED = 'https://www.seismicportal.eu/fdsnws/event/1/query?format=json&l
 var FUNVISIS_PROXY = 'https://script.google.com/macros/s/AKfycbyNPO-6-4znRIAa1U5k9lO5bEYZpJvu2hhACZ481h8Dz4kOijjJZnE5605cz4WFx3hkdQ/exec';
 var FUNVISIS_MIRROR = 'https://sismosve.rafnixg.dev/api/sismos';
 var SISMO_MONITOR_URL = 'https://ehyenmanft.github.io/monitor-sismico/';
+
+/* ============================================================
+ * CIUDADES CON CONDICIÓN CLIMÁTICA EN EL MAPA
+ * ------------------------------------------------------------
+ * Venezuela completa (una por estado, más las principales) y las
+ * capitales del Caribe insular, que es la zona por donde entran
+ * los sistemas. Se consultan TODAS en una sola petición:
+ * Open-Meteo acepta listas de coordenadas separadas por comas
+ * (hasta 1000 puntos) y devuelve un array de resultados — así el
+ * mapa entero cuesta una sola llamada de red, no una por ciudad.
+ * ============================================================ */
+var CIUDADES_MAPA = [
+  // Venezuela
+  { n:'Caracas', lat:10.4806, lon:-66.9036, vz:true },
+  { n:'La Guaira', lat:10.6083, lon:-66.9317, vz:true },
+  { n:'Maracaibo', lat:10.6666, lon:-71.6124, vz:true },
+  { n:'Valencia', lat:10.1621, lon:-68.0077, vz:true },
+  { n:'Barquisimeto', lat:10.0678, lon:-69.3474, vz:true },
+  { n:'Maracay', lat:10.2469, lon:-67.5959, vz:true },
+  { n:'Ciudad Guayana', lat:8.3533, lon:-62.6417, vz:true },
+  { n:'Mérida', lat:8.5960, lon:-71.1467, vz:true },
+  { n:'Puerto La Cruz', lat:10.2137, lon:-64.6335, vz:true },
+  { n:'Cumaná', lat:10.4540, lon:-64.1770, vz:true },
+  { n:'Porlamar', lat:10.9577, lon:-63.8480, vz:true },
+  { n:'Barcelona', lat:10.1340, lon:-64.6960, vz:true },
+  { n:'Coro', lat:11.4045, lon:-69.6734, vz:true },
+  { n:'Punto Fijo', lat:11.6947, lon:-70.1994, vz:true },
+  { n:'San Cristóbal', lat:7.7669, lon:-72.2250, vz:true },
+  { n:'Barinas', lat:8.6226, lon:-70.2075, vz:true },
+  { n:'Ciudad Bolívar', lat:8.1222, lon:-63.5497, vz:true },
+  { n:'Maturín', lat:9.7457, lon:-63.1832, vz:true },
+  { n:'Puerto Ayacucho', lat:5.6639, lon:-67.6236, vz:true },
+  { n:'Tucupita', lat:9.0586, lon:-62.0500, vz:true },
+  { n:'San Fernando de Apure', lat:7.8939, lon:-67.4730, vz:true },
+  { n:'Valera', lat:9.3167, lon:-70.6036, vz:true },
+  { n:'Acarigua', lat:9.5597, lon:-69.2019, vz:true },
+  { n:'Guanare', lat:9.0433, lon:-69.7419, vz:true },
+  { n:'San Carlos', lat:9.6614, lon:-68.5867, vz:true },
+  { n:'San Juan de los Morros', lat:9.9075, lon:-67.3547, vz:true },
+  { n:'Trujillo', lat:9.3667, lon:-70.4333, vz:true },
+  { n:'La Asunción', lat:11.0333, lon:-63.8628, vz:true },
+  // Caribe insular y costas cercanas
+  { n:'Willemstad', lat:12.1091, lon:-68.9316 },
+  { n:'Oranjestad', lat:12.5240, lon:-70.0270 },
+  { n:'Puerto España', lat:10.6596, lon:-61.5019 },
+  { n:'Bridgetown', lat:13.0975, lon:-59.6167 },
+  { n:'Castries', lat:14.0101, lon:-60.9875 },
+  { n:'Fort-de-France', lat:14.6161, lon:-61.0588 },
+  { n:'Roseau', lat:15.3092, lon:-61.3790 },
+  { n:'Basseterre', lat:17.3026, lon:-62.7177 },
+  { n:'San Juan', lat:18.4655, lon:-66.1057 },
+  { n:'Santo Domingo', lat:18.4861, lon:-69.9312 },
+  { n:'Puerto Príncipe', lat:18.5944, lon:-72.3074 },
+  { n:'Kingston', lat:17.9714, lon:-76.7931 },
+  { n:'La Habana', lat:23.1136, lon:-82.3666 },
+  { n:'Nassau', lat:25.0480, lon:-77.3554 },
+  { n:'Cartagena', lat:10.3910, lon:-75.4794 },
+  { n:'Barranquilla', lat:10.9685, lon:-74.7813 },
+  { n:'Panamá', lat:8.9824, lon:-79.5199 },
+  { n:'Miami', lat:25.7617, lon:-80.1918 }
+];
 var PLATES_CARIBE = [[-29.8,39.4,-29.3,39.3,-29.2,39.3,-29.1,39.3,-29.0,39.3,-29.0,39.4,-28.9,39.4,-28.8,39.3,-28.7,39.3,-28.7,39.2,-28.6,39.1,-28.5,39.2,-28.5,39.1,-28.4,39.1,-28.4,39.0,-28.3,39.0,-28.3,38.9,-28.2,39.0,-28.1,39.0,-28.0,39.0,-27.8,39.0,-27.7,38.9,-27.6,38.9,-27.6,38.8,-27.5,38.8,-27.2,38.8,-27.2,38.7,-27.1,38.6,-27.0,38.5,-26.9,38.4,-26.8,38.3,-26.7,38.4,-26.6,38.4,-26.6,38.3,-26.5,38.3,-26.5,38.2,-26.4,38.1,-26.3,38.0,-26.2,38.0,-26.1,38.0,-26.0,37.9,-25.9,37.8,-25.8,37.9,-25.7,37.8,-25.6,37.7,-25.5,37.8,-25.4,37.7,-25.3,37.8,-25.1,37.6,-25.0,37.6,-24.9,37.6,-24.8,37.6,-24.8,37.5,-24.7,37.5,-24.7,37.4,-24.7,37.3,-24.7,37.2,-24.7,37.1,-24.6,37.1,-24.6,37.0,-24.5,37.0,-24.4,36.9,-24.3,36.8,-24.1,36.8,-24.0,36.8,-23.6,36.6,-22.9,36.7,-22.2,36.8,-21.5,36.8,-20.8,36.9,-20.2,37.0,-19.7,37.0,-18.6,37.3,-18.1,37.5,-17.6,37.5,-16.7,37.4,-15.8,37.3,-15.4,37.2,-15.1,37.0,-14.4,37.2,-13.7,37.4,-12.9,36.9,-12.1,36.3,-11.6,35.9,-10.9,36.1,-10.4,36.4,-10.0,36.7,-9.5,36.4,-8.8,36.1,-8.0,35.7,-7.2,35.3,-6.7,35.1,-6.1,34.8,-6.0,34.5,-6.0,34.3,-5.8,34.0,-5.4,34.0,-5.1,34.1,-4.7,34.1,-4.1,34.2,-3.8,35.0,-3.7,35.6,-3.3,35.9,-2.9,36.0,-2.6,36.1,-2.0,35.9,-1.5,35.8,-0.7,35.8,0.0,35.9,0.7,36.1,1.2,36.3,2.0,36.5,2.4,36.6,3.5,36.9,4.3,37.0,5.1,37.1,6.0,37.2,6.8,37.3],[-46.8,15.5,-46.6,16.0,-46.5,16.6,-46.6,16.6,-46.5,17.1,-46.4,17.6,-46.5,17.6,-46.4,18.4,-46.3,18.4,-46.2,18.9,-46.1,19.4,-46.0,19.8,-45.9,19.8,-45.8,20.6,-45.6,20.6,-45.4,21.2,-45.5,21.2,-45.4,21.8,-45.2,21.8,-45.2,22.4,-45.1,23.0,-45.0,23.0,-44.9,23.6,-45.7,23.8,-46.5,23.9,-46.2,24.6,-46.1,24.6,-45.8,25.3,-45.5,25.2,-45.3,25.6,-45.1,26.1,-44.9,26.1,-44.8,26.3,-44.9,26.3,-44.7,26.8,-44.5,27.3,-44.4,27.2,-44.2,27.7,-44.0,28.1,-43.9,28.1,-43.6,28.8,-43.5,28.8,-43.1,29.5,-43.0,29.5,-42.7,30.1,-42.1,30.0,-41.8,30.6,-41.4,31.2,-41.2,31.2,-40.7,31.8,-40.6,31.8,-40.1,32.4,-39.7,33.1,-39.6,33.1,-39.4,33.8,-38.6,33.6,-37.8,33.5,-37.7,33.7,-37.5,33.7,-37.3,34.1,-37.2,34.1,-37.0,34.6,-36.9,34.6,-36.8,34.7,-36.6,34.7,-36.4,35.3,-35.6,35.1,-34.7,35.0,-34.5,35.6,-34.3,35.6,-34.1,36.1,-34.0,36.2,-33.8,36.2,-33.6,36.7,-33.3,36.7,-33.2,36.9,-33.0,36.9,-32.9,37.1,-32.7,37.0,-32.6,37.2,-32.4,37.1,-32.3,37.4,-31.5,37.3,-31.4,37.7,-31.1,37.7,-30.6,38.4,-30.4,38.4,-30.2,38.9,-29.9,39.4,-29.8,39.4],[-46.8,15.5,-45.9,15.4,-45.1,15.3,-45.1,14.6,-45.1,14.0,-45.0,13.3,-45.0,12.7,-44.3,12.6,-44.3,12.1,-43.9,12.1,-43.9,11.5,-43.9,10.9,-43.4,10.9,-43.0,10.9,-42.5,10.9,-42.0,10.8,-41.6,10.8,-41.1,10.8,-41.1,10.0,-40.9,10.0,-40.9,9.4,-40.6,9.4,-40.7,8.8,-40.1,8.8,-40.1,8.2,-39.7,8.2,-39.2,8.2,-38.7,8.2,-38.2,8.1,-38.2,7.7,-37.5,7.7,-36.9,7.7,-36.9,7.4,-36.1,7.4,-36.0,7.0,-35.4,6.9,-35.4,6.6,-34.5,6.6,-33.6,6.6,-33.6,6.1,-33.5,6.1,-33.5,5.6,-33.0,5.6,-32.9,4.8,-32.9,4.0,-32.4,4.0,-31.9,4.0,-31.4,4.0,-31.0,4.1,-30.9,3.3,-30.8,2.4,-30.7,1.6,-30.0,1.6,-29.9,0.8,-29.2,0.8,-28.3,1.0,-27.8,1.0,-27.3,1.1,-26.5,1.2,-26.3,0.5,-25.7,0.6,-25.0,0.6,-24.8,-0.2,-24.6,-1.1,-24.1,-1.0,-23.5,-1.0,-22.9,-0.9,-22.4,-0.8,-21.5,-0.7,-21.0,-0.6,-20.5,-0.5,-19.7,-0.3,-18.8,-0.2,-18.4,-0.1,-17.9,0.0,-17.3,0.1,-16.8,0.3,-16.5,0.3,-16.3,-0.6,-16.0,-0.5,-15.8,-1.1,-15.6,-1.1,-15.4,-1.5,-14.7,-1.3,-13.9,-1.1,-13.2,-0.9,-12.9,-1.5,-12.7,-2.1,-12.2,-1.9,-12.0,-2.4,-11.8,-2.9,-12.0,-3.0,-11.9,-3.5,-11.8,-4.0,-12.1,-4.1,-12.0,-4.6,-12.1,-4.6,-12.0,-5.0,-11.6,-4.9,-11.5,-5.4,-11.2,-5.4,-11.0,-5.9,-11.3,-6.0,-11.2,-6.8,-12.0,-7.0,-12.8,-7.2,-13.6,-7.4,-13.5,-7.9,-13.4,-8.4,-13.2,-8.4,-13.0,-9.2,-13.2,-9.3,-13.2,-9.8,-13.3,-9.8,-13.2,-10.6,-13.0,-11.4,-13.5,-11.5,-14.0,-11.7,-14.5,-11.8,-15.0,-11.9,-14.9,-12.3,-14.8,-12.7,-14.6,-12.6,-14.4,-13.2,-14.6,-13.3,-14.5,-13.7,-14.5,-14.2,-13.6,-14.0,-13.4,-14.8,-13.2,-15.7,-13.4,-15.7,-13.2,-16.2,-13.8,-16.3,-14.3,-16.4,-14.2,-16.8,-14.4,-16.8,-14.2,-17.4,-14.1,-18.0,-13.5,-17.9,-13.0,-17.8,-12.9,-18.3,-12.8,-18.8,-12.5,-18.7,-12.4,-19.3,-12.3,-19.9,-11.9,-19.8,-11.9,-20.3,-12.0,-20.3,-11.8,-21.2,-12.0,-21.2,-11.8,-21.7,-11.9,-21.8,-11.8,-22.2,-12.4,-22.3,-12.9,-22.4,-12.9,-22.6,-13.3,-22.7,-13.8,-22.8,-13.7,-23.5,-13.6,-23.5,-13.4,-24.1,-13.3,-24.8,-13.8,-24.9,-13.7,-25.6,-14.0,-25.7,-13.8,-26.6,-13.7,-26.6,-13.5,-27.4,-13.3,-28.3,-12.7,-28.2,-12.5,-28.9],[-61.6,19.0,-62.2,19.3,-62.8,19.6,-63.4,19.7,-63.8,19.7,-64.3,19.8,-65.1,19.8,-65.7,19.8,-66.3,19.8,-67.0,19.8,-67.5,19.7,-68.0,19.7,-68.9,19.6,-69.4,19.7,-70.0,19.8,-70.6,20.0,-71.3,20.2,-71.8,20.3,-72.3,20.3,-73.2,20.3,-74.0,20.2,-74.7,20.0,-75.2,20.0,-75.7,19.9,-76.4,19.8,-77.0,19.7,-77.7,19.6,-78.4,19.5,-79.0,19.4,-79.7,19.3,-80.2,19.2,-80.8,19.1,-81.3,19.0,-81.8,18.9,-81.7,18.3,-81.6,17.8,-82.2,17.7,-82.9,17.6,-83.7,17.5,-84.2,17.3,-84.9,17.1,-85.7,16.9,-86.3,16.7,-87.0,16.5,-87.7,16.3,-88.4,16.0,-88.9,15.6,-89.4,15.2,-89.7,14.8,-90.0,14.4,-90.4,13.9,-90.8,13.4,-90.9,12.6],[-90.9,12.6,-90.3,12.5,-89.6,12.3,-88.9,12.0,-88.3,11.7,-87.9,11.4,-87.5,11.1,-87.0,10.5,-86.6,10.2],[-63.9,10.5,-63.2,10.5,-62.6,10.5,-62.2,10.5,-61.5,10.4,-60.9,10.4,-60.5,10.3,-60.0,10.3,-59.1,10.2,-58.6,10.2,-58.2,10.2],[-58.2,10.2,-57.8,10.6,-57.5,11.1,-57.4,11.7,-57.5,12.4,-57.6,13.1,-57.7,13.9,-57.8,14.5,-57.9,14.9,-58.3,15.2,-58.5,15.3,-58.7,15.4,-58.7,15.8,-58.8,16.0,-58.8,16.4,-59.1,16.9,-59.5,17.2,-59.8,17.5,-60.1,17.8,-60.3,18.2,-60.5,18.5,-60.7,18.6,-60.9,18.9,-61.6,19.0],[-90.9,12.6,-91.3,12.8,-91.7,13.1,-92.1,13.3,-92.3,13.2,-92.6,13.5,-93.0,13.7,-93.3,13.8,-93.7,14.0,-94.1,14.2,-94.5,14.5,-94.9,14.7,-95.1,14.9,-95.5,15.1,-95.8,15.3,-96.2,15.4,-96.7,15.4,-97.2,15.4,-97.7,15.5,-98.2,15.6,-98.6,15.8,-99.0,15.9,-99.4,16.1,-99.8,16.3,-100.3,16.4,-100.9,16.6,-101.7,17.0,-102.4,17.3,-103.2,17.6,-103.8,17.9,-104.2,18.1,-104.4,18.2,-104.7,18.4,-105.0,18.6,-105.2,18.8],[-105.6,17.9,-105.4,17.8,-105.4,17.0,-105.4,16.3,-105.4,15.6,-105.3,15.1,-104.7,15.3,-104.6,14.7,-104.4,14.1,-104.2,13.3,-103.9,12.6,-103.8,11.9,-103.9,11.9,-103.8,11.4,-103.7,10.9,-103.6,10.3,-103.6,10.1,-104.3,10.0,-104.3,9.2,-104.3,8.5,-104.2,8.3,-103.6,8.4,-103.0,8.4,-102.8,7.8,-102.7,7.2,-102.6,6.4,-102.5,5.5,-102.3,4.7,-102.2,3.8,-102.3,3.8,-102.2,3.5,-102.2,3.2],[-99.7,2.3,-99.7,2.2,-98.9,2.1,-98.9,2.2,-98.4,2.1,-97.8,2.1,-97.6,2.1,-97.6,1.9,-96.9,1.9,-96.2,1.9,-96.1,2.2,-95.2,2.2,-95.2,2.5,-94.4,2.4,-93.6,2.4,-92.9,2.3,-92.2,2.2,-92.1,2.2,-92.1,2.0,-91.5,2.0,-91.6,1.8,-90.7,1.7,-90.7,1.1,-89.8,1.1,-88.9,1.0,-88.0,1.0,-87.1,0.9,-86.3,0.9,-85.4,0.8,-85.3,1.6,-84.6,1.6,-84.6,2.1,-84.6,2.5,-84.5,3.1,-83.9,3.1,-83.4,3.2,-82.8,3.1,-82.9,3.6,-82.9,4.1,-82.9,4.6,-82.9,5.1,-82.9,5.8,-82.9,6.6,-82.9,7.1,-82.9,7.4],[-29.8,39.4,-29.6,40.0,-29.6,40.1,-29.7,40.1,-29.6,40.2,-29.6,40.3,-29.6,40.4,-29.6,40.5,-29.6,40.6,-29.3,40.6,-29.3,40.7,-29.3,40.9,-29.3,41.0,-29.2,41.1,-29.2,41.2,-29.3,41.2,-29.3,41.4,-29.2,41.5,-29.2,41.7,-29.2,41.8,-29.2,41.9,-29.3,41.9,-29.2,42.1,-29.2,42.2,-29.2,42.3,-29.4,42.3,-29.4,42.4,-29.4,42.5,-29.3,42.6,-29.3,42.7,-29.4,42.7,-29.3,42.8,-29.3,43.0,-29.3,43.1,-29.2,43.1,-29.1,43.2,-29.0,43.4,-28.9,43.5,-28.9,43.6,-28.8,43.7,-28.8,43.8,-28.5,43.8,-28.5,43.9,-28.5,44.0,-28.5,44.1,-28.4,44.1,-28.4,44.2,-28.3,44.3,-28.3,44.4,-28.3,44.5,-28.2,44.6,-28.2,44.8,-28.1,44.8,-28.1,44.9,-28.2,44.9,-28.1,45.0,-28.1,45.1,-28.0,45.1,-28.0,45.2,-28.0,45.3,-27.9,45.3,-27.9,45.4,-27.9,45.5,-27.8,45.5,-27.8,45.6,-27.8,45.7,-27.8,45.8,-27.7,45.9,-27.7,46.0,-27.6,46.0,-27.6,46.1,-27.6,46.2,-27.5,46.2,-27.5,46.3,-27.5,46.4,-27.5,46.5,-27.4,46.6,-27.4,46.7,-27.4,46.8,-27.3,46.9,-27.3,47.0,-27.4,47.1,-27.4,47.2,-27.5,47.3,-27.5,47.4,-27.5,47.5,-27.4,47.5,-27.4,47.6,-27.5,47.7,-27.6,47.7,-27.6,47.8,-27.6,47.9,-27.6,48.0,-27.7,48.1,-27.7,48.2,-27.7,48.3,-27.7,48.4,-27.7,48.5,-27.8,48.6,-27.9,48.6,-28.0,48.6,-28.0,48.7,-28.1,48.8,-28.2,48.9,-28.2,49.0,-28.3,49.1,-28.3,49.2,-28.4,49.2,-28.4,49.3,-28.5,49.4,-28.5,49.5,-28.5,49.6,-28.6,49.6,-28.7,49.7,-28.8,49.7,-28.9,49.7,-28.9,49.8,-29.0,49.9,-29.0,50.0,-29.0,50.1,-29.0,50.2,-29.1,50.2,-29.2,50.2,-29.3,50.3,-29.4,50.4,-29.5,50.5,-29.7,50.6,-29.8,50.7,-29.9,50.8,-29.9,50.9,-30.0,51.0,-30.0,51.1,-30.0,51.3,-30.0,51.4,-30.0,51.6,-30.0,51.8,-30.0,51.9,-30.0,52.0,-30.4,52.1,-30.8,52.1,-31.1,52.1,-31.3,52.1,-31.3,52.3,-31.3,52.4,-31.6,52.5,-31.9,52.5,-32.1,52.5,-32.4,52.6,-32.6,52.6,-32.9,52.6,-33.0,52.6,-33.3,52.6,-33.7,52.6,-34.2,52.7,-34.6,52.7,-34.9,52.7,-35.0,52.7,-35.1,52.7,-35.2,52.9,-35.2,53.0,-35.2,53.1,-35.2,53.2,-35.3,53.2,-35.3,53.4,-35.3,53.5,-35.2,53.5,-35.5,53.5,-35.4,53.7,-35.3,53.8,-35.3,54.0,-35.2,54.1,-35.1,54.2,-35.1,54.3,-35.3,54.3,-35.5,54.3,-35.4,54.5,-35.4,54.7,-35.3,54.8,-35.3,54.9,-35.2,55.0,-35.3,55.0,-35.3,55.1,-35.2,55.3,-35.1,55.5,-35.0,55.7,-34.9,55.8,-34.6,55.8,-34.6,55.9,-34.6,56.1,-34.5,56.2,-34.5,56.3,-34.5,56.4,-34.4,56.5,-34.3,56.5,-34.3,56.6,-34.2,56.7,-34.1,56.7,-34.0,56.8,-34.0,56.9,-33.8,56.9,-33.7,56.9,-33.6,56.9,-33.6,57.0,-33.5,57.1,-33.5,57.2,-33.5,57.3,-33.4,57.3,-33.2,57.3,-33.1,57.5,-33.0,57.5,-33.0,57.6,-32.9,57.7,-32.8,57.6,-32.7,57.8,-32.6,57.9,-32.5,58.0,-32.3,58.0,-32.1,58.1,-32.0,58.2,-31.9,58.3,-31.8,58.4,-31.7,58.5,-31.6,58.4,-31.4,58.6,-31.3,58.7,-31.2,58.8,-31.0,58.9,-31.0,59.0,-30.8,58.9,-30.6,59.1,-30.5,59.2,-30.3,59.4,-30.2,59.5,-30.0,59.6,-29.8,59.8,-29.6,59.9,-29.5,60.0,-29.4,60.1],[-124.7,40.3,-125.5,40.4,-126.2,40.4,-126.9,40.4,-127.6,40.5,-127.7,40.6,-127.6,41.1,-127.6,41.6,-127.4,41.6,-127.2,41.7,-127.0,42.4,-126.6,43.0,-127.6,43.4,-128.5,43.8,-129.5,44.2,-130.5,44.6,-130.4,44.9,-130.1,45.3,-130.2,45.4,-129.9,45.7,-129.9,45.9,-130.1,45.9,-130.1,46.2,-129.9,46.2,-129.8,46.4,-129.6,46.4,-129.3,47.1,-128.9,47.7,-129.2,47.8,-128.9,48.3,-129.1,48.5,-128.9,48.9,-129.7,49.2,-130.5,49.5,-130.2,50.0,-130.3,50.1,-130.2,50.2,-130.3,50.3,-130.3,50.5,-130.8,50.9,-131.1,51.2,-130.8,51.6],[-124.7,40.3,-125.0,40.6,-124.9,40.9,-125.1,41.1,-125.2,41.4,-125.3,41.7,-125.3,41.8,-125.3,42.0,-125.3,42.1,-125.3,42.3,-125.2,42.4,-125.2,42.5,-125.3,42.6,-125.3,42.9,-125.3,43.1,-125.4,43.3,-125.5,43.4,-125.5,43.7,-125.5,43.9,-125.4,44.0,-125.4,44.1,-125.4,44.3,-125.4,44.5,-125.4,44.7,-125.4,44.9,-125.4,45.1,-125.5,45.5,-125.7,45.9,-125.8,46.3,-125.9,46.6,-126.0,47.0,-126.1,47.4,-126.4,47.7,-126.5,48.0,-126.7,48.3,-127.0,48.6,-127.4,48.8,-127.6,48.9,-127.8,49.1,-127.9,49.5,-128.0,49.8,-128.3,49.9,-128.4,50.1,-128.7,50.3,-129.0,50.5,-129.5,50.6,-129.7,50.8,-130.0,51.1,-130.2,51.3,-130.5,51.4,-130.8,51.6],[-124.7,40.3,-124.4,40.3,-124.2,39.9,-123.9,39.4,-123.6,39.0,-123.3,38.5,-122.7,37.9,-122.4,37.5,-122.0,37.2,-121.3,36.7,-120.9,36.3,-120.4,35.9,-119.9,35.5,-119.3,35.0,-118.9,34.8,-118.4,34.7,-118.1,34.6,-117.7,34.4,-117.5,34.3,-117.2,34.2,-116.7,34.0,-116.2,33.8,-115.8,33.4],[-115.8,33.4,-115.6,33.2,-115.7,33.1,-115.6,33.0,-115.5,33.0,-115.6,32.9,-115.4,32.7,-115.2,32.5,-115.3,32.4,-115.1,32.2,-114.8,32.0,-114.5,31.8,-114.3,31.6,-114.2,31.5,-114.1,31.4,-114.3,31.2,-114.4,31.1,-114.3,30.9,-114.1,30.7,-114.0,30.5,-113.8,30.3,-114.0,30.1,-113.9,30.0,-113.8,29.8,-113.9,29.7,-114.0,29.6,-113.8,29.4,-113.5,29.2,-113.3,29.0,-113.3,28.9,-113.1,28.7,-112.8,28.5,-112.6,28.3,-112.3,28.1,-112.0,27.9,-111.7,27.7,-111.5,27.6,-111.4,27.5,-111.6,27.2,-111.4,27.1,-111.5,26.9,-111.2,26.7,-111.0,26.5,-110.8,26.4,-110.7,26.4,-110.8,26.2,-110.6,26.1,-110.3,25.9,-110.0,25.7,-109.9,25.6,-109.8,25.6,-110.0,25.3,-109.8,25.2,-109.6,25.0,-109.3,24.9,-109.2,24.7,-109.1,24.7,-109.3,24.4,-109.0,24.2,-108.8,24.0,-108.6,23.8,-108.4,23.7,-108.4,23.6,-108.7,23.2,-108.4,23.1,-108.0,23.0,-108.2,22.7],[-61.6,19.0,-60.8,19.2,-59.9,19.5,-59.1,19.3,-58.3,19.2,-57.5,19.1,-56.8,18.7,-56.1,18.3,-55.5,17.8,-54.9,17.3,-54.2,17.1,-53.5,17.0,-52.9,16.8,-52.3,16.6,-51.7,16.3,-51.0,16.1,-50.5,15.9,-49.8,16.0,-49.2,16.0,-48.5,16.0,-47.7,16.0,-47.4,15.8,-46.8,15.5],[-102.3,-0.0,-102.4,-0.5,-102.5,-1.3,-102.4,-1.3,-102.5,-1.5,-102.3,-1.6,-102.4,-1.9,-102.6,-1.9,-102.7,-2.4,-102.8,-2.9,-102.6,-2.9,-102.6,-3.4,-102.7,-4.1,-103.6,-4.0,-104.5,-3.8,-104.7,-4.2,-105.4,-4.1,-105.5,-4.6,-106.3,-4.5,-106.5,-5.0,-106.6,-5.6,-106.7,-5.6,-106.8,-6.0,-107.0,-6.4,-107.4,-6.4,-107.6,-6.8,-107.7,-7.2,-107.9,-7.5,-108.1,-8.2,-108.2,-8.4,-108.3,-9.1,-109.0,-9.0,-109.8,-8.9,-109.9,-9.7,-110.1,-9.7,-110.2,-10.1,-110.3,-10.8,-110.4,-10.8,-110.5,-11.4,-110.7,-11.5,-110.9,-12.0,-111.1,-12.7,-110.9,-12.8,-111.0,-13.4,-111.2,-13.4,-111.3,-13.5,-111.8,-13.5,-112.4,-13.4,-112.4,-13.9,-112.6,-14.1,-112.6,-14.7,-112.8,-14.7,-112.9,-15.2,-113.0,-15.8,-113.1,-16.4,-113.0,-16.4,-113.2,-16.7,-113.0,-16.7,-113.2,-17.1,-113.1,-17.1,-113.3,-17.5,-113.2,-17.5,-113.4,-18.0,-113.3,-18.0,-113.4,-18.4,-113.5,-18.8,-113.4,-18.8,-113.6,-19.3,-113.5,-19.3,-113.7,-20.0,-113.8,-20.3,-113.9,-20.6,-114.1,-20.6,-114.2,-21.1,-114.3,-21.6,-114.4,-21.6,-114.4,-22.1],[-76.0,-45.7,-75.8,-44.8,-75.8,-44.1,-75.6,-43.6,-75.6,-43.0,-75.4,-42.3,-75.4,-41.8,-75.4,-41.4,-75.2,-40.9,-75.2,-40.4,-75.1,-39.8,-75.1,-39.6,-75.0,-39.1,-74.8,-38.5,-74.7,-38.1,-74.6,-37.6,-74.4,-36.7,-74.3,-36.2,-73.9,-35.6,-73.7,-34.9,-73.2,-34.3,-72.9,-33.8,-72.9,-33.4,-72.9,-32.7,-72.8,-32.3,-72.7,-31.5,-72.6,-31.0,-72.6,-30.2,-72.6,-29.5,-72.4,-28.9,-72.2,-28.3,-72.0,-27.8,-71.8,-27.2,-71.8,-26.7,-71.6,-25.8,-71.5,-25.1,-71.5,-24.3,-71.4,-23.5,-71.3,-22.8,-71.3,-22.0],[-71.3,-22.0,-71.2,-21.3,-71.3,-20.8,-71.4,-20.2,-71.5,-19.8,-71.7,-19.3,-72.3,-18.7,-72.7,-18.3,-73.4,-17.7,-73.9,-17.4,-74.6,-16.8,-75.3,-16.3,-75.9,-15.7],[-75.9,-15.7,-76.4,-15.2,-76.8,-14.8,-77.1,-14.5,-77.6,-13.9,-78.1,-13.4,-78.4,-13.0,-78.7,-12.6,-79.1,-11.9,-79.6,-11.3,-80.0,-10.6,-80.4,-9.9,-80.7,-9.4,-81.0,-8.7,-81.4,-8.0,-81.5,-7.3,-81.8,-6.7,-82.0,-6.0,-82.0,-5.3,-82.0,-4.5,-81.9,-3.7,-81.6,-3.2],[-81.6,-3.2,-81.7,-3.0,-81.5,-2.4,-81.6,-1.8,-81.4,-1.1,-81.2,-0.3,-80.9,0.4,-80.6,1.1,-80.3,1.5,-79.8,2.1,-79.5,2.4,-79.2,2.8,-78.7,3.4,-78.3,4.1,-78.1,4.8,-77.9,5.5,-78.0,6.0],[-71.3,-22.0,-70.7,-21.7,-70.1,-21.5,-69.1,-21.5,-68.2,-21.5,-67.7,-21.5,-67.1,-21.5,-66.6,-21.5,-66.1,-21.5,-65.4,-21.5,-64.7,-21.4,-64.1,-21.4,-63.5,-21.4,-63.4,-20.8,-63.2,-20.2,-63.3,-19.5,-63.4,-18.9,-63.6,-18.4,-63.8,-17.9,-63.9,-17.5,-64.6,-17.4,-65.4,-17.1,-65.8,-16.7,-66.2,-16.3,-66.7,-15.7,-67.2,-15.1,-67.4,-14.5,-68.0,-14.0,-68.6,-13.5,-69.0,-13.4,-69.5,-13.3,-70.1,-13.0,-70.7,-12.8,-71.4,-12.6,-72.0,-12.3,-72.7,-12.4,-73.3,-12.5,-73.8,-13.2,-74.4,-13.9,-74.9,-14.5,-75.4,-15.1,-75.9,-15.7],[-108.6,21.9,-108.7,22.0,-108.6,22.1,-108.5,22.2,-108.5,22.3,-108.4,22.4,-108.3,22.6,-108.2,22.7],[-108.6,21.9,-108.7,21.8,-108.8,21.6,-108.9,21.5,-109.0,21.3,-108.8,21.3,-108.9,21.1,-109.0,20.9,-109.1,20.8,-109.2,20.7,-109.3,20.6,-109.2,20.5,-109.2,20.4,-109.3,20.2,-109.4,20.2,-109.4,20.1,-109.5,20.0,-109.2,19.8,-108.9,19.6,-108.9,19.5,-108.5,19.4,-108.2,19.2,-108.2,19.1,-107.8,18.9,-107.5,18.9,-107.3,18.8,-107.0,18.6,-106.8,18.6,-106.5,18.5,-106.2,18.5,-106.3,18.3,-106.3,18.1,-106.3,18.0,-106.3,17.9,-105.6,17.9],[-108.6,21.9,-108.4,21.8,-108.1,21.7,-107.9,21.7,-107.8,21.7,-107.6,21.7,-107.4,21.7,-107.2,21.8,-107.0,21.8,-106.9,21.8],[-106.9,21.8,-106.9,21.7,-106.8,21.6,-106.8,21.5,-106.6,21.3,-106.6,21.2,-106.5,21.2,-106.4,21.1,-106.4,20.8,-106.4,20.6,-106.4,20.4,-106.4,20.2,-106.3,19.9,-106.1,19.6,-105.9,19.4,-105.7,19.2,-105.5,19.0,-105.2,18.8],[-105.6,17.9,-105.5,18.1,-105.4,18.4,-105.4,18.6,-105.2,18.8],[-114.4,-22.1,-114.5,-22.2,-114.5,-22.5,-114.6,-23.0,-114.9,-23.0,-115.0,-23.2,-115.2,-23.2,-115.3,-23.4,-115.6,-23.5,-115.4,-23.9,-115.4,-24.0,-115.5,-24.1,-115.9,-24.2,-116.0,-24.4,-116.2,-24.5,-116.2,-24.6,-116.1,-24.8,-116.5,-25.2,-116.4,-25.4,-116.0,-25.7,-115.8,-26.0,-115.5,-26.2,-115.3,-26.5,-115.1,-26.6,-114.5,-26.7,-113.9,-26.8,-113.6,-26.8,-113.0,-26.8],[-113.0,-26.8,-112.9,-26.7,-112.7,-26.8,-112.7,-26.6,-112.7,-26.3,-112.7,-26.0,-112.6,-25.9,-112.5,-25.9,-112.5,-25.8,-112.4,-25.7,-112.4,-25.6,-112.4,-25.4,-112.4,-25.2,-112.5,-25.1,-112.0,-25.0,-112.0,-24.9,-112.0,-24.7,-112.1,-24.4,-112.1,-24.2,-112.1,-24.1,-111.7,-24.0,-111.8,-23.9,-111.8,-23.7,-111.9,-23.5,-111.9,-23.3,-111.7,-23.2,-111.9,-23.0,-112.2,-22.8,-112.6,-22.6,-112.9,-22.4,-113.3,-22.2,-113.6,-22.1,-113.9,-22.1,-114.1,-22.1,-114.4,-22.1],[-102.1,2.6,-102.1,2.5,-102.1,2.4,-102.1,2.3,-102.1,2.2,-102.1,2.1,-102.1,2.0,-102.1,1.9,-102.1,1.8,-102.3,1.8,-102.2,1.5,-102.3,1.5,-102.2,1.4,-102.2,1.3,-102.2,1.2,-102.2,1.1],[-102.2,1.1,-102.1,1.2,-102.0,1.3,-101.8,1.3,-101.6,1.4,-101.6,1.3,-101.5,1.4,-101.4,1.3,-101.3,1.4,-101.2,1.4,-101.0,1.5,-101.1,1.5,-101.0,1.7,-100.9,1.7,-101.0,1.8,-101.0,1.9,-101.1,2.0,-101.3,2.0,-101.4,2.1,-101.4,2.2,-101.5,2.2],[-101.5,2.2,-101.5,2.6,-101.7,2.6,-101.9,2.6,-102.1,2.6],[-102.1,2.6,-102.1,2.8,-102.1,2.9,-102.2,3.1,-102.2,3.2],[-102.2,1.1,-102.2,0.7,-102.3,0.4,-102.3,0.2,-102.3,-0.0],[-101.5,2.2,-101.2,2.2,-101.1,2.2,-100.6,2.2,-100.4,2.2,-100.1,2.2,-100.0,2.3,-99.9,2.3,-99.8,2.3,-99.7,2.3],[-76.7,8.7,-76.8,9.1,-76.9,9.4,-77.1,9.6,-77.3,9.9,-77.5,10.1,-77.7,10.3,-77.9,10.4,-78.1,10.5,-78.2,10.6,-78.4,10.6,-78.7,10.7,-79.0,10.6,-79.2,10.5,-79.2,10.4,-79.4,10.4,-79.7,10.4,-80.1,10.3,-80.4,10.3,-80.6,10.2,-80.9,10.1],[-80.9,10.1,-81.1,9.9,-81.3,9.8,-81.5,9.6,-81.7,9.4,-82.1,9.4,-82.3,9.5,-82.5,9.6,-82.8,9.8,-83.0,9.9,-83.2,10.1,-83.5,10.2,-83.8,10.3,-84.1,10.4,-84.4,10.5,-84.7,10.6,-85.1,10.7,-85.4,10.6,-85.7,10.6,-86.0,10.5,-86.2,10.4,-86.6,10.2],[-78.6,7.3,-78.8,7.3,-79.0,7.3,-79.2,7.3,-79.5,7.2,-79.7,7.2,-79.8,7.2,-80.1,7.1,-80.2,7.1],[-80.2,7.1,-80.4,7.2,-80.5,7.3,-80.7,7.4,-80.8,7.4,-80.9,7.3,-81.0,7.2,-81.2,7.2,-81.3,7.1,-81.5,7.1,-81.6,7.0,-81.7,7.1],[-81.7,7.1,-81.9,7.0,-81.9,6.9,-82.1,7.0,-82.2,7.0,-82.3,7.1,-82.3,7.3,-82.5,7.3,-82.6,7.3,-82.7,7.3,-82.8,7.3,-82.9,7.4],[-82.9,7.4,-83.1,7.6,-83.2,7.8,-83.4,7.9,-83.6,8.0,-83.8,8.2,-84.0,8.3,-84.2,8.5,-84.4,8.6,-84.7,8.8,-85.0,8.9,-85.4,9.1,-85.6,9.2,-85.9,9.4,-86.2,9.7,-86.4,9.9,-86.6,10.2],[-78.6,7.3,-78.7,7.2,-78.8,7.1,-78.7,7.0,-78.6,6.9,-78.5,6.9,-78.4,6.8,-78.4,6.7,-78.3,6.6,-78.3,6.5,-78.2,6.5,-78.2,6.3,-78.1,6.2,-78.1,6.1,-78.0,6.0],[-78.6,7.3,-78.2,7.5,-78.0,7.6,-77.7,7.8,-77.5,8.0,-77.3,8.1,-77.1,8.2,-76.9,8.4,-76.7,8.7],[-76.7,8.7,-76.7,9.0,-76.7,9.4,-76.7,9.8,-76.6,10.1,-76.5,10.3,-76.3,10.6,-76.1,10.8,-75.9,11.1,-75.6,11.4,-75.4,11.6,-75.1,11.8,-74.8,11.9,-74.5,12.0,-74.3,12.2,-74.1,12.4,-73.9,12.7,-73.6,13.1,-73.3,13.3,-72.9,13.4,-72.4,13.4,-71.8,13.5,-71.2,13.5,-71.0,13.4,-70.7,13.3],[-70.7,13.3,-70.5,13.2,-70.2,12.9,-69.9,12.7,-69.6,12.4,-69.3,12.2,-69.0,11.8,-68.7,11.5,-68.4,11.2,-68.1,10.8,-68.0,10.5],[-81.6,-3.2,-81.3,-3.3,-81.0,-3.3,-80.6,-3.1,-80.2,-2.9,-79.8,-2.6,-79.5,-2.5,-79.2,-2.3,-78.9,-2.0,-78.7,-1.4,-78.4,-0.7,-78.2,-0.2,-78.0,0.1],[-78.0,0.1,-77.7,0.6,-77.3,0.9,-76.9,1.1,-76.6,1.3,-76.3,1.5,-76.0,1.6,-75.8,1.9,-75.4,2.3,-75.2,2.5,-74.9,2.8,-74.6,3.0,-74.3,3.3,-74.1,3.4,-73.9,3.6,-73.8,3.8,-73.8,4.0,-73.6,4.2,-73.3,4.3,-73.1,4.4,-72.9,4.7,-72.8,4.9,-72.6,5.1,-72.4,5.3,-72.2,5.5,-72.1,5.8,-72.1,6.0,-71.9,6.3,-71.9,6.5,-71.9,6.7,-72.0,7.0,-72.1,7.2,-72.1,7.3,-72.4,7.6,-72.4,7.7,-72.2,7.8,-72.1,7.9,-71.9,8.1,-71.8,8.2,-71.7,8.3,-71.5,8.5,-71.2,8.6,-71.1,8.7,-70.9,8.8,-70.7,8.9,-70.5,9.0,-70.4,9.1,-70.1,9.4,-69.9,9.6,-69.7,9.8,-69.5,10.0,-69.3,10.1,-69.1,10.2,-69.0,10.3,-68.7,10.5,-68.5,10.5,-68.4,10.5,-68.1,10.5,-68.0,10.5],[-68.0,10.5,-67.5,10.6,-66.9,10.7,-66.4,10.7,-66.0,10.7,-65.5,10.6,-65.1,10.6,-65.0,10.5,-64.5,10.5,-64.2,10.5,-63.9,10.5]];
 // El servidor principal de Overpass es comunitario y devuelve 429/504 con
 // frecuencia; se reintenta contra espejos antes de reportar un fallo real.
@@ -949,6 +1059,33 @@ var I18N = {
     mayor: 'mayor', sismosError: 'No se pudo consultar USGS.', profundidad: 'Profundidad',
     verSismoMonitor: '→ Abrir SISMO·MONITOR',
     fuentesSismo: 'Fuentes', sinRespuesta: 'Sin respuesta',
+    anTitulo: 'Análisis de condiciones', anSinDatos: 'Sin datos suficientes para analizar.',
+    anResumenAlerta: 'Condiciones que requieren atención inmediata',
+    anResumenAtencion: 'Condiciones a vigilar',
+    anResumenInfo: 'Condiciones normales con detalles a considerar',
+    anResumenOk: 'Sin condiciones destacables',
+    anNadaDestacable: 'Ningún indicador supera los umbrales de vigilancia.',
+    anLluvia: 'Alta probabilidad de lluvia en las próximas 24 h', anPico: 'pico',
+    anLluviaPersistente: 'Lluvia persistente varios días seguidos',
+    anAcumulado: 'Acumulado de lluvia previsto',
+    anSuelo: 'Suelo con humedad alta',
+    anSueloLluvia: 'Suelo saturado con más lluvia prevista — riesgo de deslizamiento',
+    anRio: 'Crecida prevista del río más cercano',
+    anRafaga: 'Ráfagas de viento apreciables',
+    anRafagaFuerte: 'Ráfagas fuertes — riesgo para estructuras ligeras y árboles',
+    anTormenta: 'Energía atmosférica alta — posibilidad de tormentas',
+    anCalor: 'Sensación térmica muy por encima de la temperatura real',
+    anUV: 'Índice ultravioleta alto',
+    anAire: 'Calidad del aire degradada',
+    anOleaje: 'Oleaje elevado en la costa',
+    anVisibilidad: 'Visibilidad reducida',
+    anCopiar: 'Copiar análisis', dias: 'días',
+    anNota: 'Resumen generado automáticamente a partir de los datos mostrados arriba, aplicando umbrales fijos. No es un pronóstico ni un aviso oficial: los avisos son del NHC, INAMEH y Protección Civil.',
+    capaCiudades: 'Ciudades', ciudadesCargando: 'Consultando ciudades…',
+    ciudadesMostradas: 'ciudades', ciudadesError: 'No se pudo cargar el clima por ciudad.',
+    manana: 'Mañana', verFichaCompleta: 'Ver ficha completa →',
+    legCiudades: 'Clima por ciudad',
+    legCiudadesTxt: 'Icono de la condición actual y temperatura sobre cada ciudad. Las de Venezuela llevan la temperatura en azul. Toca una para ver su ficha completa.',
     legFuentesSismo: 'Fusiona FUNVISIS (red nacional de Venezuela), USGS y EMSC, descartando duplicados. Ante un mismo sismo prevalece FUNVISIS por ser la red local.',
     legSismos: 'Sismos y placas', legPlacas: 'Límite de placas tectónicas',
     legMagBaja: 'M < 3', legMagMedia: 'M 3–4.5', legMagAlta: 'M 4.5–6', legMagMuyAlta: 'M ≥ 6',
@@ -1058,6 +1195,33 @@ var I18N = {
     mayor: 'largest', sismosError: 'Could not query USGS.', profundidad: 'Depth',
     verSismoMonitor: '→ Open SISMO·MONITOR',
     fuentesSismo: 'Sources', sinRespuesta: 'No response',
+    anTitulo: 'Conditions analysis', anSinDatos: 'Not enough data to analyse.',
+    anResumenAlerta: 'Conditions requiring immediate attention',
+    anResumenAtencion: 'Conditions to watch',
+    anResumenInfo: 'Normal conditions with details to consider',
+    anResumenOk: 'Nothing notable',
+    anNadaDestacable: 'No indicator exceeds the watch thresholds.',
+    anLluvia: 'High chance of rain in the next 24 h', anPico: 'peak',
+    anLluviaPersistente: 'Persistent rain over several days',
+    anAcumulado: 'Forecast rainfall accumulation',
+    anSuelo: 'High soil moisture',
+    anSueloLluvia: 'Saturated soil with more rain forecast — landslide risk',
+    anRio: 'Rise forecast in the nearest river',
+    anRafaga: 'Noticeable wind gusts',
+    anRafagaFuerte: 'Strong gusts — risk to light structures and trees',
+    anTormenta: 'High atmospheric energy — storms possible',
+    anCalor: 'Feels-like temperature well above the actual one',
+    anUV: 'High ultraviolet index',
+    anAire: 'Degraded air quality',
+    anOleaje: 'High waves along the coast',
+    anVisibilidad: 'Reduced visibility',
+    anCopiar: 'Copy analysis', dias: 'days',
+    anNota: 'Summary generated automatically from the data shown above, applying fixed thresholds. It is not a forecast nor an official advisory: advisories come from the NHC, INAMEH and Civil Protection.',
+    capaCiudades: 'Cities', ciudadesCargando: 'Querying cities…',
+    ciudadesMostradas: 'cities', ciudadesError: 'Could not load city weather.',
+    manana: 'Tomorrow', verFichaCompleta: 'View full details →',
+    legCiudades: 'City weather',
+    legCiudadesTxt: 'Current condition icon and temperature over each city. Venezuelan cities show the temperature in blue. Tap one for full details.',
     legFuentesSismo: 'Merges FUNVISIS (Venezuela national network), USGS and EMSC, discarding duplicates. For the same quake FUNVISIS prevails, being the local network.',
     legSismos: 'Quakes and plates', legPlacas: 'Tectonic plate boundary',
     legMagBaja: 'M < 3', legMagMedia: 'M 3–4.5', legMagAlta: 'M 4.5–6', legMagMuyAlta: 'M ≥ 6',
@@ -2278,6 +2442,9 @@ function renderClima(){
   html += kvRow(t('precipitacion'), (c.precipitation||0).toFixed(1) + ' mm');
   html += '</div>';
 
+  html += '<div class="section-title">' + t('anTitulo') + '</div>';
+  html += '<div id="analisisBody"></div>';
+
   html += '<div class="section-title">' + t('proximas24h') + '</div>';
   html += '<div class="hourStrip">';
   if (f.hourly && f.hourly.time){
@@ -2374,6 +2541,7 @@ function renderClima(){
 
   var body = document.getElementById('climaBody');
   if (body) body.innerHTML = html;
+  renderAnalisis(); // se pinta después porque necesita el contenedor ya en el DOM
 }
 
 /* ============================================================
@@ -2807,6 +2975,256 @@ document.getElementById('lowDataChk').addEventListener('change', function(){
   GRID_CACHE = {};
   if (vientoOn || nubesOn) loadGridConditions();
 });
+
+/* ============================================================
+ * ANÁLISIS DE CONDICIONES (determinista, sin IA)
+ * ------------------------------------------------------------
+ * Convierte los datos ya obtenidos en hallazgos legibles. Es
+ * deliberadamente determinista, NO un modelo de lenguaje:
+ *  - cada frase sale de un dato concreto que se muestra al lado,
+ *    así que es auditable y no puede inventar nada;
+ *  - funciona sin conexión, sin cuota y sin costo;
+ *  - no pronostica: solo describe y relaciona lo que las fuentes
+ *    ya dijeron. Los pronósticos y avisos siguen siendo del NHC,
+ *    INAMEH y Protección Civil.
+ * Los umbrales son orientativos y están todos aquí arriba para
+ * poder ajustarlos en un solo sitio.
+ * ============================================================ */
+var UMBRALES = {
+  lluviaProb: 70,        // % probabilidad para considerarla "alta"
+  lluviaAcum: 20,        // mm/día que ya suponen acumulación relevante
+  sueloSaturado: 0.35,   // fracción de humedad del suelo
+  rafagaAtencion: 50,    // km/h
+  rafagaAlerta: 70,      // km/h
+  capeTormenta: 1000,    // J/kg
+  uvAlto: 8,
+  aqiMalo: 60,           // AQI europeo
+  olaAtencion: 2.0,      // m
+  visibilidadBaja: 2000, // m
+  calorSensacion: 5,     // °C por encima de la real
+  rioCrecida: 1.5        // factor de aumento previsto
+};
+function nivelIcono(n){ return n === 'alerta' ? '🔴' : n === 'atencion' ? '🟠' : '🔵'; }
+
+function analizarCondiciones(){
+  if (!lastClimaData || !lastClimaData.forecast) return null;
+  var f = lastClimaData.forecast, c = f.current || {}, d = f.daily || {}, h = f.hourly || {};
+  var a = lastClimaData.air, fl = lastClimaData.flood, mar = lastClimaData.marine;
+  var hallazgos = [];
+  function add(nivel, texto, dato){ hallazgos.push({ nivel: nivel, texto: texto, dato: dato }); }
+
+  // --- Lluvia en las próximas 24 h ---
+  if (h.time && h.precipitation_probability){
+    var i0 = findNowIndex(h.time), maxProb = 0, horaPico = null;
+    for (var i = i0; i < Math.min(i0 + 24, h.time.length); i++){
+      var pp = h.precipitation_probability[i];
+      if (typeof pp === 'number' && pp > maxProb){ maxProb = pp; horaPico = h.time[i]; }
+    }
+    if (maxProb >= UMBRALES.lluviaProb){
+      var hh = horaPico ? new Date(horaPico).toLocaleTimeString(lang==='es'?'es-VE':'en-US',{hour:'2-digit'}) : '';
+      add(maxProb >= 90 ? 'atencion' : 'info', t('anLluvia') + (hh ? ' (' + t('anPico') + ' ' + hh + ')' : ''), Math.round(maxProb) + '%');
+    }
+  }
+  // --- Días seguidos con lluvia: lo que satura el terreno ---
+  if (d.precipitation_probability_max){
+    var seguidos = 0;
+    for (var j = 0; j < d.precipitation_probability_max.length; j++){
+      if (d.precipitation_probability_max[j] >= UMBRALES.lluviaProb) seguidos++; else break;
+    }
+    if (seguidos >= 3) add('atencion', t('anLluviaPersistente'), seguidos + ' ' + t('dias'));
+  }
+  // --- Acumulado previsto ---
+  if (d.precipitation_sum){
+    var acum = d.precipitation_sum.slice(0, 3).reduce(function(x,y){ return x + (typeof y === 'number' ? y : 0); }, 0);
+    if (acum >= UMBRALES.lluviaAcum) add(acum >= 60 ? 'alerta' : 'atencion', t('anAcumulado'), acum.toFixed(0) + ' mm / 3 ' + t('dias'));
+  }
+  // --- Suelo saturado: en Venezuela es el factor de deslizamiento ---
+  var suelo = c.soil_moisture_0_to_1cm;
+  if (typeof suelo === 'number' && suelo >= UMBRALES.sueloSaturado){
+    var lluviaEncima = d.precipitation_probability_max && d.precipitation_probability_max[0] >= UMBRALES.lluviaProb;
+    add(lluviaEncima ? 'alerta' : 'atencion',
+        lluviaEncima ? t('anSueloLluvia') : t('anSuelo'), Math.round(suelo * 100) + '%');
+  }
+  // --- Crecida del río ---
+  if (fl && fl.daily && fl.daily.river_discharge){
+    var v = fl.daily.river_discharge.filter(function(x){ return typeof x === 'number'; });
+    if (v.length > 1){
+      var hoyQ = v[0], maxQ = Math.max.apply(null, v);
+      if (maxQ > hoyQ * UMBRALES.rioCrecida && maxQ > 0.05)
+        add('atencion', t('anRio'), hoyQ.toFixed(1) + ' → ' + maxQ.toFixed(1) + ' m³/s');
+    }
+  }
+  // --- Viento y ráfagas ---
+  var raf = c.wind_gusts_10m;
+  if (typeof raf === 'number'){
+    if (raf >= UMBRALES.rafagaAlerta) add('alerta', t('anRafagaFuerte'), fmtVientoKmh(raf));
+    else if (raf >= UMBRALES.rafagaAtencion) add('atencion', t('anRafaga'), fmtVientoKmh(raf));
+  }
+  // --- Potencial de tormenta ---
+  if (typeof c.cape === 'number' && c.cape >= UMBRALES.capeTormenta)
+    add(c.cape >= 2500 ? 'alerta' : 'atencion', t('anTormenta'), Math.round(c.cape) + ' J/kg');
+  // --- Calor: la sensación es lo que afecta a quien trabaja en la calle ---
+  if (typeof c.apparent_temperature === 'number' && typeof c.temperature_2m === 'number'){
+    var delta = c.apparent_temperature - c.temperature_2m;
+    if (delta >= UMBRALES.calorSensacion && c.apparent_temperature >= 32)
+      add(c.apparent_temperature >= 38 ? 'alerta' : 'atencion', t('anCalor'),
+          Math.round(c.temperature_2m) + '° → ' + Math.round(c.apparent_temperature) + '°');
+  }
+  // --- UV ---
+  if (d.uv_index_max && typeof d.uv_index_max[0] === 'number' && d.uv_index_max[0] >= UMBRALES.uvAlto)
+    add('info', t('anUV'), 'UV ' + Math.round(d.uv_index_max[0]));
+  // --- Calidad del aire ---
+  if (a && a.current && typeof a.current.european_aqi === 'number' && a.current.european_aqi >= UMBRALES.aqiMalo)
+    add('atencion', t('anAire'), 'AQI ' + Math.round(a.current.european_aqi));
+  // --- Mar ---
+  if (mar && mar.current && typeof mar.current.wave_height === 'number' && mar.current.wave_height >= UMBRALES.olaAtencion)
+    add(mar.current.wave_height >= 3 ? 'alerta' : 'atencion', t('anOleaje'), mar.current.wave_height.toFixed(1) + ' m');
+  // --- Visibilidad ---
+  if (typeof c.visibility === 'number' && c.visibility <= UMBRALES.visibilidadBaja)
+    add('atencion', t('anVisibilidad'), (c.visibility / 1000).toFixed(1) + ' km');
+
+  var alertas = hallazgos.filter(function(x){ return x.nivel === 'alerta'; }).length;
+  var atencion = hallazgos.filter(function(x){ return x.nivel === 'atencion'; }).length;
+  var resumen = alertas ? 'alerta' : atencion ? 'atencion' : hallazgos.length ? 'info' : 'ok';
+  return { hallazgos: hallazgos, resumen: resumen };
+}
+
+function renderAnalisis(){
+  var box = document.getElementById('analisisBody');
+  if (!box) return;
+  var r = analizarCondiciones();
+  if (!r){ box.innerHTML = '<p style="color:var(--muted);font-size:12px">' + t('anSinDatos') + '</p>'; return; }
+  var html = '';
+  var cab = { alerta: t('anResumenAlerta'), atencion: t('anResumenAtencion'), info: t('anResumenInfo'), ok: t('anResumenOk') };
+  html += '<div class="anResumen an-' + r.resumen + '">' + nivelIcono(r.resumen === 'ok' ? 'info' : r.resumen) + ' ' + cab[r.resumen] + '</div>';
+  if (!r.hallazgos.length){
+    html += '<div class="anItem"><span>' + t('anNadaDestacable') + '</span></div>';
+  } else {
+    r.hallazgos.forEach(function(x){
+      html += '<div class="anItem an-' + x.nivel + '"><span class="anIco">' + nivelIcono(x.nivel) + '</span>' +
+              '<span class="anTexto">' + escapeHtml(x.texto) + '</span>' +
+              '<span class="anDato">' + escapeHtml(x.dato) + '</span></div>';
+    });
+  }
+  html += '<button id="anCopiarBtn" class="linkbtn" style="margin-top:8px">📋 ' + t('anCopiar') + '</button>';
+  html += '<div class="anNota">' + t('anNota') + '</div>';
+  box.innerHTML = html;
+  document.getElementById('anCopiarBtn').addEventListener('click', function(){
+    var btn = this;
+    var txt = (climaLocation ? climaLocation.name + ' — ' : '') + cab[r.resumen] + '\n' +
+      r.hallazgos.map(function(x){ return '- ' + x.texto + ' (' + x.dato + ')'; }).join('\n') +
+      '\n' + fmtTimeDual(Date.now()) + '\n' + t('anNota');
+    (navigator.clipboard ? navigator.clipboard.writeText(txt) : Promise.reject())
+      .then(function(){ btn.textContent = '✓ ' + t('compartirUbiCopiado'); })
+      .catch(function(){ btn.textContent = txt; });
+  });
+}
+
+/* ============================================================
+ * CAPA CIUDADES — condición climática sobre el mapa
+ * ------------------------------------------------------------
+ * Un icono por ciudad con su condición actual (sol, nube, lluvia,
+ * tormenta…) y la temperatura. Coste: UNA sola petición para
+ * todas las ciudades visibles, aprovechando que Open-Meteo acepta
+ * listas de coordenadas. Al tocar una ciudad se abre su ficha
+ * completa en el modo Clima.
+ * ============================================================ */
+var ciudadesOn = false, ciudadesLayer = null, ciudadesTimer = null;
+var ciudadesCache = { t: 0, datos: null, clave: '' };
+var CIUDADES_TTL = 10 * 60000; // el dato horario no cambia más rápido
+
+function ciudadesVisibles(){
+  var b = map.getBounds();
+  var vis = CIUDADES_MAPA.filter(function(c){ return b.contains([c.lat, c.lon]); });
+  // si el mapa está lejos y no entra ninguna, mostrar al menos Venezuela
+  if (!vis.length) vis = CIUDADES_MAPA.filter(function(c){ return c.vz; });
+  // en modo bajo consumo, solo las de Venezuela dentro de la vista
+  if (lowDataMode) vis = vis.filter(function(c){ return c.vz; });
+  // a zoom bajo el mapa se satura de iconos: solo las principales
+  if (map.getZoom() <= 5) vis = vis.filter(function(c){ return c.vz || /Habana|Santo Domingo|San Juan|Kingston|Puerto España|Panamá|Miami/.test(c.n); });
+  return vis.slice(0, 60);
+}
+function loadCiudades(){
+  var vis = ciudadesVisibles();
+  if (!vis.length){ ciudadesLayer.clearLayers(); return; }
+  var clave = vis.map(function(c){ return c.n; }).join('|');
+  // caché: mover el mapa dentro de la misma zona no repite la petición
+  if (ciudadesCache.datos && ciudadesCache.clave === clave && Date.now() - ciudadesCache.t < CIUDADES_TTL){
+    pintarCiudades(vis, ciudadesCache.datos);
+    return;
+  }
+  document.getElementById('ciudadesLeyenda').textContent = t('ciudadesCargando');
+  var lats = vis.map(function(c){ return c.lat.toFixed(3); }).join(',');
+  var lons = vis.map(function(c){ return c.lon.toFixed(3); }).join(',');
+  var url = OM_FORECAST + '?latitude=' + lats + '&longitude=' + lons +
+    '&current=temperature_2m,weather_code&daily=weather_code,temperature_2m_max,temperature_2m_min&forecast_days=2&timezone=auto';
+  fetchJson(url).then(function(data){
+    // con varias coordenadas la respuesta es un ARRAY; con una sola, un objeto.
+    // Se normaliza para que el resto del código no dependa de eso.
+    var lista = Array.isArray(data) ? data : [data];
+    ciudadesCache = { t: Date.now(), datos: lista, clave: clave };
+    marcarFuente('ciudades');
+    pintarCiudades(vis, lista);
+  }).catch(function(err){
+    console.error('Error ciudades:', err);
+    document.getElementById('ciudadesLeyenda').textContent = t('ciudadesError');
+  });
+}
+function pintarCiudades(vis, lista){
+  ciudadesLayer.clearLayers();
+  var pintadas = 0;
+  vis.forEach(function(c, i){
+    var d = lista[i];
+    if (!d || !d.current) return;
+    var code = d.current.weather_code, temp = d.current.temperature_2m;
+    if (typeof temp !== 'number') return;
+    var manana = (d.daily && d.daily.weather_code && d.daily.weather_code.length > 1) ? d.daily.weather_code[1] : null;
+    var maxHoy = (d.daily && d.daily.temperature_2m_max) ? d.daily.temperature_2m_max[0] : null;
+    var minHoy = (d.daily && d.daily.temperature_2m_min) ? d.daily.temperature_2m_min[0] : null;
+    var icon = L.divIcon({
+      className: '',
+      html: '<div class="cityWx' + (c.vz ? ' cityWxVz' : '') + '">' +
+              '<span class="cityWxIcon">' + wmoIcon(code) + '</span>' +
+              '<span class="cityWxTemp">' + Math.round(temp) + '°</span>' +
+              '<span class="cityWxName">' + escapeHtml(c.n) + '</span>' +
+            '</div>',
+      iconSize: [64, 44], iconAnchor: [32, 22]
+    });
+    var popup = '<b>' + escapeHtml(c.n) + '</b><br>' +
+      wmoIcon(code) + ' ' + escapeHtml(wmoDesc(code)) + ' · ' + Math.round(temp) + '°C<br>' +
+      (typeof maxHoy === 'number' ? t('hoy') + ': ' + Math.round(maxHoy) + '° / ' + Math.round(minHoy) + '°<br>' : '') +
+      (manana != null ? t('manana') + ': ' + wmoIcon(manana) + ' ' + escapeHtml(wmoDesc(manana)) + '<br>' : '') +
+      '<a href="#" class="cityWxLink" data-lat="' + c.lat + '" data-lon="' + c.lon + '" data-n="' + escapeHtml(c.n) + '">' + t('verFichaCompleta') + '</a>';
+    L.marker([c.lat, c.lon], { icon: icon, zIndexOffset: 200 }).bindPopup(popup).addTo(ciudadesLayer);
+    pintadas++;
+  });
+  document.getElementById('ciudadesLeyenda').textContent =
+    pintadas + ' ' + t('ciudadesMostradas') + ' · ' + edadTexto('ciudades');
+}
+/* El enlace del popup se crea después, así que se escucha en el documento */
+document.addEventListener('click', function(e){
+  var a = e.target.closest && e.target.closest('.cityWxLink');
+  if (!a) return;
+  e.preventDefault();
+  map.closePopup();
+  setMode('clima');
+  selectClimaLocation(parseFloat(a.getAttribute('data-lat')), parseFloat(a.getAttribute('data-lon')), a.getAttribute('data-n'));
+});
+function toggleCiudades(){
+  ciudadesOn = !ciudadesOn;
+  document.getElementById('btnCiudades').classList.toggle('act', ciudadesOn);
+  document.getElementById('ciudadesLeyenda').classList.toggle('on', ciudadesOn);
+  if (!ciudadesLayer) ciudadesLayer = L.layerGroup().addTo(map);
+  if (!ciudadesOn){ ciudadesLayer.clearLayers(); return; }
+  loadCiudades();
+}
+document.getElementById('btnCiudades').addEventListener('click', toggleCiudades);
+map.on('moveend', function(){
+  if (!ciudadesOn) return;
+  clearTimeout(ciudadesTimer);
+  ciudadesTimer = setTimeout(loadCiudades, lowDataMode ? 2000 : 900);
+});
+setInterval(function(){ if (ciudadesOn){ ciudadesCache.datos = null; loadCiudades(); } }, 15 * 60 * 1000);
 
 /* ============================================================
  * CAPA SÍSMICA — enlace con SISMO·MONITOR
@@ -3283,6 +3701,8 @@ function buildShareUrl(){
   if (nubesOn) capas.push('n');
   if (gdacsOn) capas.push('g');
   if (recursosOn) capas.push('o');
+  if (sismosOn) capas.push('q');
+  if (ciudadesOn) capas.push('t');
   var p = new URLSearchParams();
   p.set('lat', c.lat.toFixed(4));
   p.set('lon', c.lng.toFixed(4));
@@ -3306,6 +3726,10 @@ function applyShareUrl(){
   if (l.indexOf('n') !== -1 && !nubesOn) toggleNubes();
   if (l.indexOf('g') !== -1 && !gdacsOn) toggleGdacs();
   if (l.indexOf('o') !== -1 && !recursosOn) toggleRecursos();
+  if (l.indexOf('q') !== -1 && !sismosOn) toggleSismos();
+  // las ciudades arrancan encendidas: si el enlace no las incluye, apagarlas
+  if (l.indexOf('t') === -1 && ciudadesOn) toggleCiudades();
+  if (l.indexOf('t') !== -1 && !ciudadesOn) toggleCiudades();
   return true;
 }
 
@@ -3468,6 +3892,10 @@ function renderLegend(){
   html += '<div class="legendRow"><span style="font-size:12px">🏠</span> ' + t('legRefugio') + '</div>';
   html += '</div>';
 
+  html += '<div class="legendSection"><h3>' + t('legCiudades') + '</h3>';
+  html += '<div class="legendRow"><span style="font-size:14px">☀️ ⛅ 🌧️ ⛈️</span> <span style="color:var(--muted);font-size:11px">' + t('legCiudadesTxt') + '</span></div>';
+  html += '</div>';
+
   html += '<div class="legendSection"><h3>' + t('legSismos') + '</h3>';
   html += '<div class="legendRow"><span class="legendSwatch" style="background:#3ec6a8"></span>' + t('legMagBaja') + '</div>';
   html += '<div class="legendRow"><span class="legendSwatch" style="background:#e8b23c"></span>' + t('legMagMedia') + '</div>';
@@ -3622,6 +4050,7 @@ renderNoSelection();
 setMode('clima');
 selectClimaLocation(VZ_CITIES[0].lat, VZ_CITIES[0].lon, VZ_CITIES[0].name, true); // Caracas por defecto, sin forzar el tab en móvil
 toggleRadar(); // radar encendido de entrada: es la capa que muestra los eventos en vivo
+toggleCiudades(); // condición por ciudad: da lectura inmediata del mapa de un vistazo
 applyShareUrl(); // #7 si la URL trae una vista compartida, la aplica encima del estado por defecto
 updateZoomBarPos();
 loadStorms();
