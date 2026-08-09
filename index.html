@@ -41,8 +41,15 @@ a{color:inherit}
   position:fixed;background:var(--panel);border:1px solid var(--line);border-radius:12px;
   backdrop-filter:blur(10px);z-index:20;max-height:calc(100vh - 24px);overflow-y:auto;
 }
-.panel::-webkit-scrollbar{width:5px}
-.panel::-webkit-scrollbar-thumb{background:var(--line);border-radius:3px}
+.panel::-webkit-scrollbar{width:10px}
+.panel::-webkit-scrollbar-track{background:#0a0d12;border-radius:5px}
+.panel::-webkit-scrollbar-thumb{background:#3a4a5c;border-radius:5px;border:2px solid #0a0d12}
+.panel::-webkit-scrollbar-thumb:hover{background:#55697f}
+.panel{scrollbar-width:thin;scrollbar-color:#3a4a5c #0a0d12}
+*::-webkit-scrollbar{width:10px;height:10px}
+*::-webkit-scrollbar-track{background:#0a0d12;border-radius:5px}
+*::-webkit-scrollbar-thumb{background:#3a4a5c;border-radius:5px;border:2px solid #0a0d12}
+*::-webkit-scrollbar-thumb:hover{background:#55697f}
 .panel h2{font-size:12px;letter-spacing:.06em;color:var(--muted);text-transform:uppercase;margin-bottom:10px;display:flex;align-items:center;justify-content:space-between}
 .panel h2 button{background:none;border:none;color:var(--muted);cursor:pointer;font-family:inherit;font-size:13px}
 .panel h2 button:hover{color:var(--text)}
@@ -124,47 +131,50 @@ a{color:inherit}
 #layersControl{
   position:fixed;left:12px;bottom:12px;z-index:22;
   background:var(--panel);border:1px solid var(--line);border-radius:12px;
-  backdrop-filter:blur(10px);max-width:200px;
+  backdrop-filter:blur(10px);max-width:230px;
 }
 #layersControlHeader{
   display:flex;align-items:center;justify-content:space-between;gap:10px;
-  padding:9px 10px;font-size:11px;font-weight:700;cursor:pointer;
+  padding:10px 11px;font-size:12px;font-weight:700;cursor:move;
 }
-#layersCollapseBtn{background:none;border:none;color:var(--muted);font-size:11px;cursor:pointer;transition:transform .15s}
+#layersCollapseBtn{background:none;border:none;color:var(--muted);font-size:13px;cursor:pointer;transition:transform .15s;padding:2px 6px;border-radius:4px}
+#layersCollapseBtn:hover{color:var(--text);background:#1b2430}
 #layersControlBody{padding:0 8px 8px;display:flex;flex-direction:column;gap:7px}
 #layersControlBody.collapsed{display:none}
 #layersControl .layerBtns{display:flex;gap:6px}
 #layersControl button{
   background:#161d26;border:1px solid var(--line);color:var(--text);border-radius:8px;
-  padding:7px 10px;font-family:inherit;font-size:11px;cursor:pointer;white-space:nowrap;
+  padding:8px 10px;font-family:inherit;font-size:12px;cursor:pointer;white-space:nowrap;
 }
 #layersControl button.act{border-color:#6fb8e0;background:#0d1a22;color:#6fb8e0}
 #satModeRow{display:none;gap:5px}
 #satModeRow.on{display:flex}
 #satModeRow button{flex:1;font-size:9.5px !important;padding:5px 4px !important}
-#radarControls{display:none;align-items:center;gap:7px;font-size:10px;color:var(--muted);padding-top:2px;border-top:1px dashed var(--line)}
+#radarControls{display:none;align-items:center;gap:7px;font-size:11px;color:#8fa3b8;padding-top:4px;border-top:1px dashed var(--line)}
 #radarControls.on{display:flex}
 #radarPlayBtn{background:#161d26;border:1px solid var(--line);color:var(--text);border-radius:6px;
   width:26px;height:26px;cursor:pointer;font-size:11px;flex:0 0 auto}
 #radarTime{min-width:44px}
-#radarAttrib{font-size:9px;opacity:.75}
-#satAttrib,#satGoesAviso,#vientoLeyenda,#nubesLeyenda,#gdacsLeyenda,#recursosLeyenda{display:none;font-size:9px;color:var(--muted);padding-top:2px;border-top:1px dashed var(--line);max-width:190px;line-height:1.4}
+#radarAttrib{font-size:10px;opacity:.85}
+#satAttrib,#satGoesAviso,#vientoLeyenda,#nubesLeyenda,#gdacsLeyenda,#recursosLeyenda{display:none;font-size:10.5px;color:#8fa3b8;padding-top:4px;border-top:1px dashed var(--line);max-width:210px;line-height:1.5}
 #satAttrib.on,#satGoesAviso.on,#vientoLeyenda.on,#nubesLeyenda.on,#gdacsLeyenda.on,#recursosLeyenda.on{display:block}
 #satGoesAviso{color:#e0b840}
-#radarLegend{display:none;align-items:center;gap:4px;font-size:9px;color:var(--muted);flex-wrap:wrap}
+#radarLegend{display:none;align-items:center;gap:5px;font-size:10.5px;color:#8fa3b8;flex-wrap:wrap}
 #radarLegend.on{display:flex}
 .legendChip{width:12px;height:8px;border-radius:2px;display:inline-block}
 
 /* ===== barra de zoom con límites visibles ===== */
+/* A la IZQUIERDA, junto al panel de capas: a la derecha quedaba aplastada
+ * contra el panel de clima y medio tapada. */
 #zoomBar{
-  position:fixed;right:12px;bottom:78px;z-index:23;
+  position:fixed;left:12px;bottom:12px;z-index:24;
   background:var(--panel);border:1px solid var(--line);border-radius:12px;
-  backdrop-filter:blur(10px);padding:8px 6px;
-  display:flex;flex-direction:column;align-items:center;gap:6px;
+  backdrop-filter:blur(10px);padding:9px 7px;
+  display:flex;flex-direction:column;align-items:center;gap:7px;
 }
 #zoomBar button{
   background:#161d26;border:1px solid var(--line);color:var(--text);border-radius:7px;
-  width:30px;height:30px;cursor:pointer;font-family:inherit;font-size:14px;line-height:1;
+  width:32px;height:32px;cursor:pointer;font-family:inherit;font-size:15px;line-height:1;
   display:flex;align-items:center;justify-content:center;
 }
 #zoomBar button:hover{border-color:var(--accent)}
@@ -174,9 +184,10 @@ a{color:inherit}
   writing-mode:vertical-lr;direction:rtl;
   width:22px;height:96px;accent-color:#6fb8e0;cursor:pointer;background:transparent;
 }
-#zoomLabel{font-size:9.5px;color:var(--muted);font-variant-numeric:tabular-nums}
+#zoomLabel{font-size:11px;color:#8fa3b8;font-variant-numeric:tabular-nums;font-weight:700}
+#zoomSlider::-webkit-slider-thumb{background:#6fb8e0}
 @media (max-width:820px){
-  #zoomBar{bottom:calc(78px + env(safe-area-inset-bottom));right:10px;padding:6px 5px}
+  #zoomBar{bottom:calc(68px + env(safe-area-inset-bottom));left:auto;right:10px;padding:6px 5px}
   #zoomSlider{height:76px}
   #zoomBar button{width:34px;height:34px}
   #left.on ~ #zoomBar, #right.on ~ #zoomBar{display:none}
@@ -195,7 +206,7 @@ a{color:inherit}
 .riverBox{border:1px solid #2a3b4a;background:#0d1a22;border-radius:8px;padding:9px;margin-top:8px;font-size:11.5px;line-height:1.6}
 .riverBox .riverVal{font-size:17px;font-weight:700;color:#6fb8e0}
 .marineGrid{display:grid;grid-template-columns:1fr 1fr;gap:6px 12px;margin-top:4px}
-#coordsReadout{font-size:9.5px;color:var(--muted);padding-top:2px;border-top:1px dashed var(--line);font-variant-numeric:tabular-nums}
+#coordsReadout{font-size:11px;color:#8fa3b8;padding-top:4px;border-top:1px dashed var(--line);font-variant-numeric:tabular-nums;letter-spacing:.02em}
 
 /* ===== barra de escala de Leaflet, adaptada al tema oscuro ===== */
 .leaflet-control-scale-line{
@@ -365,6 +376,33 @@ a{color:inherit}
 @media (min-width:821px){
   #left.hideDesk{display:none}
 }
+/* ===== paneles movibles, ocultables y a pantalla completa ===== */
+.panel h2{cursor:move;user-select:none}
+.panelBtns{display:flex;gap:4px;align-items:center}
+.panelBtns button{background:none;border:none;color:var(--muted);cursor:pointer;font-family:inherit;font-size:13px;padding:2px 4px;border-radius:4px;line-height:1}
+.panelBtns button:hover{color:var(--text);background:#1b2430}
+.panel.dragging{opacity:.92;box-shadow:0 8px 30px #000a}
+.panel.fullscreen{
+  left:12px !important;top:12px !important;right:12px !important;bottom:12px !important;
+  width:auto !important;max-width:none !important;max-height:none !important;height:auto !important;
+  z-index:45;
+}
+#restoreBar{
+  position:fixed;left:50%;transform:translateX(-50%);bottom:12px;z-index:26;
+  display:none;gap:6px;background:var(--panel);border:1px solid var(--line);
+  border-radius:10px;padding:6px 8px;backdrop-filter:blur(10px);
+}
+#restoreBar.on{display:flex}
+#restoreBar button{
+  background:#161d26;border:1px solid var(--line);color:var(--text);border-radius:7px;
+  padding:6px 10px;font-family:inherit;font-size:11px;cursor:pointer;
+}
+#restoreBar button:hover{border-color:var(--accent)}
+@media (max-width:820px){
+  .panel h2{cursor:default}
+  #restoreBar{bottom:calc(64px + env(safe-area-inset-bottom))}
+  .panel.fullscreen{bottom:calc(60px + env(safe-area-inset-bottom)) !important}
+}
 [data-i18n]{}
 
 /* ===== reporte de impresión: oculto en pantalla, único contenido visible al imprimir ===== */
@@ -406,7 +444,7 @@ a{color:inherit}
   </div>
 
   <div id="panelCiclonesLeft" style="display:none">
-    <h2><span data-i18n="panelSistemas">Sistemas activos</span><button id="leftClose">✕</button></h2>
+    <h2><span data-i18n="panelSistemas">Sistemas activos</span><span class="panelBtns"><button id="leftFull" title="Pantalla completa">⤢</button><button id="leftClose" title="Ocultar">✕</button></span></h2>
     <div id="stormList"></div>
     <div id="emptyState"></div>
     <div class="warnbox" data-i18n="disclaimerGlobal">
@@ -417,7 +455,7 @@ a{color:inherit}
   </div>
 
   <div id="panelClimaLeft">
-    <h2><span data-i18n="panelClimaBuscar">Buscar ubicación</span><button id="leftCloseClima">✕</button></h2>
+    <h2><span data-i18n="panelClimaBuscar">Buscar ubicación</span><span class="panelBtns"><button id="leftFullClima" title="Pantalla completa">⤢</button><button id="leftCloseClima" title="Ocultar">✕</button></span></h2>
     <div class="searchRow">
       <input id="climaSearchInput" type="text" data-i18n-ph="climaBuscarPh" placeholder="Ciudad, país…">
       <button id="climaSearchBtn" title="Buscar">🔍</button>
@@ -431,11 +469,11 @@ a{color:inherit}
 
 <aside class="panel" id="right">
   <div id="panelCiclonesRight" style="display:none">
-    <h2><span id="detailTitle">—</span><button id="rightClose">✕</button></h2>
+    <h2><span id="detailTitle">—</span><span class="panelBtns"><button id="rightFull" title="Pantalla completa">⤢</button><button id="rightClose" title="Ocultar">✕</button></span></h2>
     <div id="detailBody"></div>
   </div>
   <div id="panelClimaRight">
-    <h2><span id="climaTitle">—</span><button id="rightCloseClima">✕</button></h2>
+    <h2><span id="climaTitle">—</span><span class="panelBtns"><button id="rightFullClima" title="Pantalla completa">⤢</button><button id="rightCloseClima" title="Ocultar">✕</button></span></h2>
     <div id="climaBody"></div>
   </div>
 </aside>
@@ -488,6 +526,11 @@ a{color:inherit}
     <div id="recursosLeyenda"></div>
     <div id="coordsReadout">— , —</div>
   </div>
+</div>
+
+<div id="restoreBar">
+  <button id="restoreLeftBtn" data-i18n="mostrarIzq">Mostrar panel izquierdo</button>
+  <button id="restoreRightBtn" data-i18n="mostrarDer">Mostrar ficha</button>
 </div>
 
 <div id="zoomBar">
@@ -576,6 +619,13 @@ var GDACS_API   = 'https://www.gdacs.org/gdacsapi/api/events/geteventlist/SEARCH
 var OM_FLOOD    = 'https://flood-api.open-meteo.com/v1/flood';
 var OM_MARINE   = 'https://marine-api.open-meteo.com/v1/marine';
 var OVERPASS_API = 'https://overpass-api.de/api/interpreter';
+// El servidor principal de Overpass es comunitario y devuelve 429/504 con
+// frecuencia; se reintenta contra espejos antes de reportar un fallo real.
+var OVERPASS_MIRRORS = [
+  'https://overpass-api.de/api/interpreter',
+  'https://overpass.kumi.systems/api/interpreter',
+  'https://maps.mail.ru/osm/tools/overpass/api/interpreter'
+];
 
 /* ============================================================
  * GIS OFICIAL DEL NHC — NOAA ArcGIS REST (MapServer)
@@ -701,7 +751,8 @@ var I18N = {
     legAlertaNaranja: 'Alerta naranja — impacto moderado esperado',
     legTiposGdacs: 'Ciclón · Inundación · Sismo · Volcán · Incendio · Sequía',
     legHospital: 'Hospital o centro de salud', legBomberos: 'Estación de bomberos',
-    legPolicia: 'Policía', legRefugio: 'Refugio'
+    legPolicia: 'Policía', legRefugio: 'Refugio',
+    mostrarIzq: 'Mostrar panel izquierdo', mostrarDer: 'Mostrar ficha'
   },
   en: {
     panelSistemas: 'Active systems',
@@ -785,7 +836,8 @@ var I18N = {
     legAlertaNaranja: 'Orange alert — moderate impact expected',
     legTiposGdacs: 'Cyclone · Flood · Earthquake · Volcano · Wildfire · Drought',
     legHospital: 'Hospital or health centre', legBomberos: 'Fire station',
-    legPolicia: 'Police', legRefugio: 'Shelter'
+    legPolicia: 'Police', legRefugio: 'Shelter',
+    mostrarIzq: 'Show left panel', mostrarDer: 'Show details'
   }
 };
 var lang = (navigator.language || 'es').startsWith('en') ? 'en' : 'es';
@@ -874,11 +926,13 @@ syncZoomBar();
 
 /* Panel de capas colapsable — con tantos controles acumulados, en
  * pantallas chicas conviene poder reducirlo a solo el encabezado. */
-document.getElementById('layersControlHeader').addEventListener('click', function(){
+/* El colapso vive en el BOTÓN, no en todo el encabezado: el encabezado ahora
+ * es el asa para arrastrar el panel y ambos gestos se pisarían. */
+document.getElementById('layersCollapseBtn').addEventListener('click', function(e){
+  e.stopPropagation();
   var body = document.getElementById('layersControlBody');
-  var btn = document.getElementById('layersCollapseBtn');
   var collapsed = body.classList.toggle('collapsed');
-  btn.style.transform = collapsed ? 'rotate(-90deg)' : 'rotate(0deg)';
+  this.style.transform = collapsed ? 'rotate(-90deg)' : 'rotate(0deg)';
 });
 
 var markersLayer = L.layerGroup().addTo(map);
@@ -1913,6 +1967,11 @@ function renderClima(){
  * uso y se muestra siempre que la capa está activa.
  * ============================================================ */
 var RAINVIEWER_META = 'https://api.rainviewer.com/public/weather-maps.json';
+/* Verificado contra el comportamiento real del servicio: por encima de este nivel
+ * RainViewer no devuelve un error HTTP sino una IMAGEN que dice "Zoom Level Not
+ * Supported", que Leaflet pinta como si fuera radar válido. Con z8 todavía salía,
+ * así que se baja a 6 con margen. Leaflet reescala desde aquí al acercar. */
+var RADAR_MAX_NATIVE_ZOOM = 6;
 var radarOn = false, radarLayer = null, radarFrames = [], radarHost = '', radarIdx = 0;
 var radarPlaying = false, radarTimer = null;
 
@@ -1930,7 +1989,7 @@ function showRadarFrame(i){
     // imagen que dice "Zoom Level Not Supported" en vez de un error HTTP, así que
     // errorTileUrl no sirve. maxNativeZoom hace que Leaflet reescale la última
     // tesela válida en lugar de pedir uno que no existe.
-    maxNativeZoom: 8, maxZoom: 12
+    maxNativeZoom: RADAR_MAX_NATIVE_ZOOM, maxZoom: MAP_MAX_ZOOM
   }).addTo(map);
   if (prev) map.removeLayer(prev);
   var el = document.getElementById('radarTime');
@@ -2281,8 +2340,13 @@ function loadRecursos(){
     'way["amenity"~"hospital|fire_station|police"](' + bbox + ');' +
     ');out center 120;';
   document.getElementById('recursosLeyenda').textContent = t('recursosCargando');
-  fetch(OVERPASS_API, { method: 'POST', body: 'data=' + encodeURIComponent(q) })
-    .then(function(r){ if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
+  function tryMirror(i){
+    if (i >= OVERPASS_MIRRORS.length) return Promise.reject(new Error('todos los espejos fallaron'));
+    return fetch(OVERPASS_MIRRORS[i], { method: 'POST', body: 'data=' + encodeURIComponent(q) })
+      .then(function(r){ if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
+      .catch(function(err){ console.warn('Overpass espejo ' + i + ' falló:', err); return tryMirror(i + 1); });
+  }
+  tryMirror(0)
     .then(function(data){
       recursosLayer.clearLayers();
       var els = (data && data.elements) || [];
@@ -2326,6 +2390,89 @@ map.on('moveend', function(){
   clearTimeout(recursosMoveTimer);
   recursosMoveTimer = setTimeout(loadRecursos, 1200); // Overpass es comunitario: debounce generoso
 });
+
+/* ============================================================
+ * PANELES: mover, ocultar, restaurar y pantalla completa
+ * ------------------------------------------------------------
+ * El arrastre solo se activa en escritorio: en móvil los paneles
+ * son hojas ancladas al borde inferior y moverlas rompería el
+ * patrón de navegación por pestañas.
+ * ============================================================ */
+function makeDraggable(panelId, handleSel){
+  var panel = document.getElementById(panelId);
+  if (!panel) return;
+  var dragging = false, startX = 0, startY = 0, startL = 0, startT = 0;
+
+  function onDown(e){
+    if (window.innerWidth <= 820) return;               // móvil: no arrastrar
+    if (e.target.closest('button')) return;             // no secuestrar los botones del encabezado
+    if (panel.classList.contains('fullscreen')) return; // en pantalla completa no tiene sentido
+    var handle = e.target.closest(handleSel);
+    if (!handle || !panel.contains(handle)) return;
+    var r = panel.getBoundingClientRect();
+    // fijar posición explícita antes de mover (los paneles nacen anclados con right/top)
+    panel.style.left = r.left + 'px'; panel.style.top = r.top + 'px';
+    panel.style.right = 'auto'; panel.style.bottom = 'auto';
+    dragging = true; startX = e.clientX; startY = e.clientY; startL = r.left; startT = r.top;
+    panel.classList.add('dragging');
+    e.preventDefault();
+  }
+  function onMove(e){
+    if (!dragging) return;
+    var nl = startL + (e.clientX - startX), nt = startT + (e.clientY - startY);
+    // mantener siempre una franja visible para que el panel no se pierda fuera de pantalla
+    nl = Math.max(-panel.offsetWidth + 80, Math.min(window.innerWidth - 80, nl));
+    nt = Math.max(0, Math.min(window.innerHeight - 44, nt));
+    panel.style.left = nl + 'px'; panel.style.top = nt + 'px';
+  }
+  function onUp(){ dragging = false; panel.classList.remove('dragging'); }
+
+  panel.addEventListener('mousedown', onDown);
+  document.addEventListener('mousemove', onMove);
+  document.addEventListener('mouseup', onUp);
+}
+makeDraggable('left', 'h2');
+makeDraggable('right', 'h2');
+makeDraggable('layersControl', '#layersControlHeader');
+
+function toggleFullscreen(panelId){
+  var panel = document.getElementById(panelId);
+  var isFull = panel.classList.toggle('fullscreen');
+  if (!isFull){
+    // al salir, limpiar la posición en línea para que vuelva a su anclaje original
+    panel.style.left = ''; panel.style.top = ''; panel.style.right = ''; panel.style.bottom = '';
+  }
+  setTimeout(function(){ map.invalidateSize(); }, 60);
+}
+['leftFull','leftFullClima'].forEach(function(id){
+  document.getElementById(id).addEventListener('click', function(e){ e.stopPropagation(); toggleFullscreen('left'); });
+});
+['rightFull','rightFullClima'].forEach(function(id){
+  document.getElementById(id).addEventListener('click', function(e){ e.stopPropagation(); toggleFullscreen('right'); });
+});
+
+function updateRestoreBar(){
+  if (window.innerWidth <= 820){ document.getElementById('restoreBar').classList.remove('on'); return; }
+  var leftHidden = document.getElementById('left').classList.contains('hideDesk');
+  var rightHidden = !document.getElementById('right').classList.contains('on');
+  document.getElementById('restoreLeftBtn').style.display = leftHidden ? '' : 'none';
+  document.getElementById('restoreRightBtn').style.display = rightHidden ? '' : 'none';
+  document.getElementById('restoreBar').classList.toggle('on', leftHidden || rightHidden);
+}
+document.getElementById('restoreLeftBtn').addEventListener('click', function(){
+  var p = document.getElementById('left');
+  p.classList.remove('hideDesk');
+  p.style.left = ''; p.style.top = ''; // devolver a su sitio si quedó arrastrado
+  document.getElementById('reopenLeftBtn').style.display = 'none';
+  updateRestoreBar();
+});
+document.getElementById('restoreRightBtn').addEventListener('click', function(){
+  var p = document.getElementById('right');
+  p.classList.add('on');
+  p.style.left = ''; p.style.top = '';
+  updateRestoreBar();
+});
+window.addEventListener('resize', updateRestoreBar);
 
 /* ============================================================
  * LEYENDA — cómo leer el mapa
@@ -2484,6 +2631,7 @@ document.getElementById('mnFicha').addEventListener('click', function(){ setMobi
 function closeLeftDesktop(){
   document.getElementById('left').classList.add('hideDesk');
   document.getElementById('reopenLeftBtn').style.display = '';
+  updateRestoreBar();
 }
 document.getElementById('reopenLeftBtn').addEventListener('click', function(){
   document.getElementById('left').classList.remove('hideDesk');
@@ -2494,14 +2642,14 @@ document.getElementById('leftClose').addEventListener('click', function(){
 });
 document.getElementById('rightClose').addEventListener('click', function(){
   document.getElementById('right').classList.remove('on');
-  if (window.innerWidth <= 820) setMobileTab('mapa');
+  if (window.innerWidth <= 820) setMobileTab('mapa'); else updateRestoreBar();
 });
 document.getElementById('leftCloseClima').addEventListener('click', function(){
   if (window.innerWidth <= 820) setMobileTab('mapa'); else closeLeftDesktop();
 });
 document.getElementById('rightCloseClima').addEventListener('click', function(){
   document.getElementById('right').classList.remove('on');
-  if (window.innerWidth <= 820) setMobileTab('mapa');
+  if (window.innerWidth <= 820) setMobileTab('mapa'); else updateRestoreBar();
 });
 
 /* en escritorio, el panel izquierdo siempre visible por defecto */
