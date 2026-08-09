@@ -10,6 +10,42 @@
 <link rel="icon" href="icon-192.png">
 <link rel="apple-touch-icon" href="icon-192.png">
 <style>
+/* #5 Tema claro de alto contraste: el tema oscuro es ideal en sala de
+ * situación pero casi ilegible bajo el sol, que es justo donde está un
+ * bombero o un voluntario en campo. Se conmuta con el botón ☀/🌙. */
+html[data-theme="light"]{
+  --bg:#eef2f6;
+  --panel:#ffffffee;
+  --line:#b9c6d3;
+  --text:#0d1720;
+  --muted:#465866;
+  --c-td:#00795c;
+  --c-ts:#8a5a00;
+  --c-h1:#a35200;
+  --c-h3:#c2410c;
+  --c-h5:#b3141c;
+  --accent:#a35200;
+  --danger:#b3141c;
+}
+html[data-theme="light"] .leaflet-container{background:#dfe6ec}
+html[data-theme="light"] #layersControl button,
+html[data-theme="light"] #zoomBar button,
+html[data-theme="light"] .quickCities button,
+html[data-theme="light"] #climaSearchInput,
+html[data-theme="light"] .linkbtn,
+html[data-theme="light"] #langBtn,html[data-theme="light"] #notifBtn,
+html[data-theme="light"] #printBtn,html[data-theme="light"] #hideAllBtn,
+html[data-theme="light"] #geoTopBtn{background:#f4f7fa;color:#0d1720}
+html[data-theme="light"] .warnbox{background:#fff4d6;border-color:#c99a2e;color:#4a3708}
+html[data-theme="light"] .wnBox{background:#eaf3f9;border-color:#9dc0d6}
+html[data-theme="light"] .hourCard,html[data-theme="light"] .aqiCell,
+html[data-theme="light"] .riverBox{background:#f4f7fa}
+html[data-theme="light"] .gdacsPin,html[data-theme="light"] .recursoPin{background:#ffffffee}
+html[data-theme="light"] .windArrow{text-shadow:0 0 3px #fff, 0 0 3px #fff}
+html[data-theme="light"] .stormCard.sel{background:#dce8f2}
+html[data-theme="light"] #modeSwitch{background:#dfe6ec}
+html[data-theme="light"] #modeSwitch button.act{background:#ffffff}
+
 :root{
   --bg:#0b0f14;
   --panel:#10151cdd;
@@ -212,6 +248,11 @@ a{color:inherit}
 .riverBox{border:1px solid #2a3b4a;background:#0d1a22;border-radius:8px;padding:9px;margin-top:8px;font-size:11.5px;line-height:1.6}
 .riverBox .riverVal{font-size:17px;font-weight:700;color:#6fb8e0}
 .marineGrid{display:grid;grid-template-columns:1fr 1fr;gap:6px 12px;margin-top:4px}
+#ajustesRow{display:flex;align-items:center;gap:4px;padding-top:4px;border-top:1px dashed var(--line)}
+#ajustesRow button{padding:4px 7px !important;font-size:10px !important}
+#ajustesRow button.act{border-color:#6fb8e0;background:#0d1a22;color:#6fb8e0}
+#ajustesRow2{font-size:10.5px;color:#8fa3b8}
+#lowDataLabel{display:flex;align-items:center;gap:5px;cursor:pointer}
 #coordsReadout{font-size:11px;color:#8fa3b8;padding-top:4px;border-top:1px dashed var(--line);font-variant-numeric:tabular-nums;letter-spacing:.02em}
 
 /* ===== barra de escala de Leaflet, adaptada al tema oscuro ===== */
@@ -264,7 +305,7 @@ a{color:inherit}
 #topbar .dot.live{background:var(--c-td);box-shadow:0 0 6px var(--c-td)}
 #topbar .dot.err{background:var(--danger);box-shadow:0 0 6px var(--danger)}
 #lastUpdateTxt{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-#langBtn,#notifBtn,#printBtn,#hideAllBtn,#geoTopBtn{background:#161d26;border:1px solid var(--line);color:var(--text);border-radius:6px;padding:4px 8px;cursor:pointer;font-family:inherit;font-size:11px;flex:0 0 auto;min-height:28px}
+#langBtn,#notifBtn,#printBtn,#hideAllBtn,#geoTopBtn,#themeBtn{background:#161d26;border:1px solid var(--line);color:var(--text);border-radius:6px;padding:4px 8px;cursor:pointer;font-family:inherit;font-size:11px;flex:0 0 auto;min-height:28px}
 #notifBtn.act{border-color:#3ec6a8;color:#3ec6a8}
 #hideAllBtn.act{border-color:#6fb8e0;color:#6fb8e0}
 #reopenLeftBtn{flex:0 0 auto}
@@ -376,7 +417,7 @@ a{color:inherit}
   @media (max-width:420px){
     #lastUpdateTxt{display:none}
     #topbar{gap:5px;padding:6px 9px}
-    #notifBtn,#printBtn,#geoTopBtn,#hideAllBtn{padding:4px 6px}
+    #notifBtn,#printBtn,#geoTopBtn,#hideAllBtn,#themeBtn{padding:4px 6px}
     #topbar b{font-size:12px}
   }
   @media (max-width:370px){
@@ -430,6 +471,24 @@ a{color:inherit}
   #restoreBar{bottom:calc(64px + env(safe-area-inset-bottom))}
   .panel.fullscreen{bottom:calc(60px + env(safe-area-inset-bottom)) !important}
 }
+/* #12 modo kiosko: solo mapa y alertas */
+body.kiosko #topbar,body.kiosko #left,body.kiosko #right,body.kiosko #layersControl,
+body.kiosko #zoomBar,body.kiosko #mobilenav,body.kiosko #restoreBar{display:none !important}
+body.kiosko #vzAlertBanner{font-size:16px;padding:14px}
+#kioskoHint{display:none;position:fixed;right:14px;bottom:14px;z-index:50;
+  background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:6px 10px;
+  font-size:11px;color:var(--muted)}
+body.kiosko #kioskoHint{display:block}
+
+/* #2 modal de diagnóstico */
+#diagModal{display:none;position:fixed;inset:0;z-index:60;background:#00000099;align-items:center;justify-content:center;padding:16px}
+#diagModal.on{display:flex}
+#diagCard{background:var(--panel);border:1px solid var(--line);border-radius:14px;max-width:440px;width:100%;
+  max-height:85vh;overflow-y:auto;padding:16px;backdrop-filter:blur(10px)}
+#diagCard h2{display:flex;justify-content:space-between;align-items:center;font-size:14px;margin-bottom:10px}
+#diagCard h2 button{background:none;border:none;color:var(--muted);font-size:15px;cursor:pointer}
+.diagRow{display:flex;justify-content:space-between;gap:8px;padding:5px 0;border-bottom:1px dashed var(--line);font-size:11.5px}
+
 [data-i18n]{}
 
 /* ===== reporte de impresión: oculto en pantalla, único contenido visible al imprimir ===== */
@@ -449,20 +508,21 @@ a{color:inherit}
 </head>
 <body>
 
-<div id="map"></div>
+<div id="map" role="application" aria-label="Mapa de monitoreo meteorológico"></div>
 
-<div id="vzAlertBanner"></div>
+<div id="vzAlertBanner" role="alert" aria-live="assertive"></div>
 <div id="printReport"></div>
 
 <div id="topbar">
   <span class="dot" id="statusDot"></span>
   <b>CICLÓN·MONITOR</b>
   <span id="lastUpdateTxt" style="color:var(--muted);font-size:11px"></span>
-  <button id="geoTopBtn" title="Mi ubicación">📍</button>
-  <button id="hideAllBtn" title="Ocultar/mostrar todos los paneles">👁</button>
-  <button id="notifBtn" title="Alertas del navegador">🔔</button>
-  <button id="printBtn" title="Reporte de situación">🖨️</button>
-  <button id="reopenLeftBtn" style="display:none">☰</button>
+  <button id="themeBtn" title="Tema claro/oscuro" aria-label="Cambiar entre tema claro y oscuro">🌙</button>
+  <button id="geoTopBtn" title="Mi ubicación" aria-label="Ir a mi ubicación">📍</button>
+  <button id="hideAllBtn" title="Ocultar/mostrar todos los paneles" aria-label="Ocultar o mostrar todos los paneles">👁</button>
+  <button id="notifBtn" title="Alertas del navegador" aria-label="Activar alertas del navegador">🔔</button>
+  <button id="printBtn" title="Reporte de situación" aria-label="Generar reporte de situación">🖨️</button>
+  <button id="reopenLeftBtn" style="display:none" aria-label="Mostrar panel lateral">☰</button>
   <button id="langBtn">EN</button>
 </div>
 
@@ -473,7 +533,7 @@ a{color:inherit}
   </div>
 
   <div id="panelCiclonesLeft" style="display:none">
-    <h2><span data-i18n="panelSistemas">Sistemas activos</span><span class="panelBtns"><button id="leftFull" title="Pantalla completa">⤢</button><button id="leftClose" title="Ocultar">✕</button></span></h2>
+    <h2><span data-i18n="panelSistemas">Sistemas activos</span><span class="panelBtns"><button id="leftFull" title="Pantalla completa" aria-label="Ampliar panel a pantalla completa">⤢</button><button id="leftClose" title="Ocultar" aria-label="Ocultar panel de sistemas">✕</button></span></h2>
     <div id="stormList"></div>
     <div id="emptyState"></div>
     <div class="warnbox" data-i18n="disclaimerGlobal">
@@ -484,11 +544,11 @@ a{color:inherit}
   </div>
 
   <div id="panelClimaLeft">
-    <h2><span data-i18n="panelClimaBuscar">Buscar ubicación</span><span class="panelBtns"><button id="leftCloseClima" title="Ocultar">✕</button></span></h2>
+    <h2><span data-i18n="panelClimaBuscar">Buscar ubicación</span><span class="panelBtns"><button id="leftCloseClima" title="Ocultar" aria-label="Ocultar panel de búsqueda">✕</button></span></h2>
     <div class="searchRow">
       <input id="climaSearchInput" type="text" data-i18n-ph="climaBuscarPh" placeholder="Ciudad, país…">
-      <button id="climaSearchBtn" title="Buscar">🔍</button>
-      <button id="climaGeoBtn" title="Mi ubicación">📍</button>
+      <button id="climaSearchBtn" title="Buscar" aria-label="Buscar ubicación">🔍</button>
+      <button id="climaGeoBtn" title="Mi ubicación" aria-label="Usar mi ubicación actual">📍</button>
     </div>
     <div id="climaSearchResults"></div>
     <div class="section-title" data-i18n="climaAccesoRapido">Acceso rápido — Venezuela</div>
@@ -498,21 +558,21 @@ a{color:inherit}
 
 <aside class="panel" id="right">
   <div id="panelCiclonesRight" style="display:none">
-    <h2><span id="detailTitle">—</span><span class="panelBtns"><button id="rightFull" title="Pantalla completa">⤢</button><button id="rightClose" title="Ocultar">✕</button></span></h2>
+    <h2><span id="detailTitle">—</span><span class="panelBtns"><button id="rightFull" title="Pantalla completa" aria-label="Ampliar panel a pantalla completa">⤢</button><button id="rightClose" title="Ocultar" aria-label="Ocultar ficha del sistema">✕</button></span></h2>
     <div id="detailBody"></div>
   </div>
   <div id="panelClimaRight">
-    <h2><span id="climaTitle">—</span><span class="panelBtns"><button id="rightCloseClima" title="Ocultar">✕</button></span></h2>
+    <h2><span id="climaTitle">—</span><span class="panelBtns"><button id="rightCloseClima" title="Ocultar" aria-label="Ocultar ficha del clima">✕</button></span></h2>
     <div id="climaBody"></div>
   </div>
 </aside>
 
-<div id="sourceBanner"></div>
+<div id="sourceBanner" role="status" aria-live="polite"></div>
 
 <div id="layersControl">
   <div id="layersControlHeader">
     <span>🗺️ <span data-i18n="capasTitulo">Capas del mapa</span></span>
-    <button id="layersCollapseBtn">▾</button>
+    <button id="layersCollapseBtn" aria-label="Contraer o expandir el panel de capas">▾</button>
   </div>
   <div id="layersControlBody">
     <div class="layerBtns">
@@ -531,12 +591,19 @@ a{color:inherit}
       <button id="btnLegend" title="Leyenda / cómo leer el mapa">❓ <span data-i18n="verLeyenda">Leyenda</span></button>
       <button id="btnShareLoc" title="Compartir ubicación">📍 <span data-i18n="compartirUbi">Compartir</span></button>
     </div>
+    <div class="layerBtns">
+      <button id="btnShareView" title="Copiar enlace de esta vista" aria-label="Copiar enlace de esta vista">🔗 <span data-i18n="compartirVista">Enlace</span></button>
+      <button id="btnKiosko" title="Modo kiosko (Ctrl+K)" aria-label="Activar modo kiosko">📺 <span data-i18n="modoKiosko">Kiosko</span></button>
+    </div>
+    <div class="layerBtns">
+      <button id="btnDiag" title="Diagnóstico de fuentes" aria-label="Ejecutar diagnóstico de fuentes">🩺 <span data-i18n="diagnostico">Diagnóstico</span></button>
+    </div>
     <div id="satModeRow">
       <button id="satModeViirs" class="act" data-i18n="satModoDiario">Diario (VIIRS)</button>
       <button id="satModeGoes" data-i18n="satModoVivo">Casi en vivo (GOES)</button>
     </div>
     <div id="radarControls">
-      <button id="radarPlayBtn">▶</button>
+      <button id="radarPlayBtn" aria-label="Reproducir o pausar la animación del radar">▶</button>
       <span id="radarTime">—</span>
       <span id="radarAttrib">RainViewer.com</span>
     </div>
@@ -553,9 +620,20 @@ a{color:inherit}
     <div id="nubesLeyenda" data-i18n="nubesAviso"></div>
     <div id="gdacsLeyenda"></div>
     <div id="recursosLeyenda"></div>
+    <div id="ajustesRow">
+      <span id="unidadLabel">⚙</span>
+      <button class="unidadBtn" data-u="kmh">km/h</button>
+      <button class="unidadBtn" data-u="kt">kt</button>
+      <button class="unidadBtn" data-u="mph">mph</button>
+    </div>
+    <div id="ajustesRow2">
+      <label id="lowDataLabel"><input type="checkbox" id="lowDataChk"> <span data-i18n="bajoConsumo">Modo bajo consumo</span></label>
+    </div>
     <div id="coordsReadout">— , —</div>
   </div>
 </div>
+
+<div id="kioskoHint" data-i18n="kioskoSalir">Pulsa Escape para salir del modo kiosko</div>
 
 <div id="restoreBar">
   <button id="restoreLeftBtn" data-i18n="mostrarIzq">Mostrar panel izquierdo</button>
@@ -564,27 +642,34 @@ a{color:inherit}
 </div>
 
 <div id="zoomBar">
-  <button id="zoomInBtn" title="Acercar">＋</button>
-  <input id="zoomSlider" type="range" orient="vertical" min="2" max="12" step="1" value="4">
-  <button id="zoomOutBtn" title="Alejar">－</button>
+  <button id="zoomInBtn" title="Acercar" aria-label="Acercar el mapa">＋</button>
+  <input id="zoomSlider" type="range" orient="vertical" min="2" max="12" step="1" value="4" aria-label="Nivel de zoom del mapa">
+  <button id="zoomOutBtn" title="Alejar" aria-label="Alejar el mapa">－</button>
   <div id="zoomLabel">z4</div>
 </div>
 
 <div id="legendModal">
   <div id="legendCard">
-    <h2><span data-i18n="leyendaTitulo">Cómo leer este mapa</span><button id="legendClose">✕</button></h2>
+    <h2><span data-i18n="leyendaTitulo">Cómo leer este mapa</span><button id="legendClose" aria-label="Cerrar leyenda">✕</button></h2>
     <div id="legendBody"></div>
+  </div>
+</div>
+
+<div id="diagModal">
+  <div id="diagCard">
+    <h2><span data-i18n="diagTitulo">Diagnóstico de fuentes</span><button id="diagClose" aria-label="Cerrar">✕</button></h2>
+    <div id="diagBody"></div>
   </div>
 </div>
 
 <div id="shareLocPanel">
   <div id="shareLocCard">
-    <h2><span data-i18n="compartirUbiTitulo">Compartir ubicación</span><button id="shareLocClose">✕</button></h2>
+    <h2><span data-i18n="compartirUbiTitulo">Compartir ubicación</span><button id="shareLocClose" aria-label="Cerrar compartir ubicación">✕</button></h2>
     <div id="shareLocBody"></div>
   </div>
 </div>
 
-<nav id="mobilenav">
+<nav id="mobilenav" aria-label="Navegación principal">
   <button id="mnMapa" class="act"><span class="ico">◉</span><span data-i18n="navMapa">Mapa</span></button>
   <button id="mnSistemas"><span class="ico">☰</span><span data-i18n="navSistemas">Sistemas</span></button>
   <button id="mnFicha"><span class="ico">▤</span><span data-i18n="navFicha">Ficha</span></button>
@@ -596,6 +681,45 @@ a{color:inherit}
 
 <script>
 'use strict';
+/* ═══════════════════════════════════════════════════════════════
+ *  CICLÓN·MONITOR — índice del código
+ * ───────────────────────────────────────────────────────────────
+ *  Un solo archivo, sin compilación (decisión de diseño: se puede
+ *  editar y desplegar desde cualquier máquina, sin herramientas).
+ *  Para no perderse, busca el nombre de la sección con Ctrl+F:
+ *
+ *    CONFIGURACIÓN            constantes, endpoints, ciudades
+ *    FUENTES ADICIONALES      GDACS, GloFAS, marino, Overpass
+ *    i18n                     textos ES/EN (un solo lugar)
+ *    UNIDADES CONFIGURABLES   km/h · kt · mph
+ *    HORA UTC                 local + Zulu para boletines
+ *    ANTIGÜEDAD POR FUENTE    cuánto hace que se actualizó cada capa
+ *    MAPA                     Leaflet, límites de zoom, coordenadas
+ *    BARRA DE ZOOM            control propio con topes visibles
+ *    PARSEO DEFENSIVO         valida por contenido, no por nombre
+ *    OBTENCIÓN DE DATOS       NHC + respaldo + persistencia
+ *    TRAYECTORIA Y CONO       GIS oficial de NOAA
+ *    ALERTA VENEZUELA         cruce con watch/warning oficial
+ *    NOTIFICACIONES           avisos del navegador
+ *    PERSISTENCIA             último estado confirmado
+ *    REPORTE DE SITUACIÓN     salida imprimible
+ *    MÓDULO CLIMA             búsqueda, pronóstico, río, mar
+ *    WEATHERNEXT              ensamble experimental de DeepMind
+ *    CAPA RADAR               RainViewer animado
+ *    CAPA SATELITAL           NASA GIBS (diario y casi en vivo)
+ *    REJILLA DE CONDICIONES   viento, nubes, convergencia
+ *    CAPA GDACS               alertas multi-amenaza
+ *    CAPA RECURSOS            hospitales, bomberos, refugios
+ *    COMPARTIR VISTA          enlace con estado del mapa
+ *    MODO KIOSKO              sala de situación
+ *    DIAGNÓSTICO              prueba cada fuente en vivo
+ *    PANELES                  mover, ocultar, pantalla completa
+ *    LEYENDA                  cómo leer el mapa
+ *    NAV MÓVIL                hojas inferiores, una a la vez
+ *    ARRANQUE                 orden de inicialización
+ *
+ *  Antes de subir cambios: node test.js
+ * ═══════════════════════════════════════════════════════════════ */
 
 /* ============================================================
  * CONFIGURACIÓN
@@ -610,7 +734,7 @@ a{color:inherit}
  *             ocultar un fallo de la fuente real.
  * ============================================================ */
 var NHC_URL   = 'https://www.nhc.noaa.gov/CurrentStorms.json';
-var NHC_PROXY = 'https://script.google.com/macros/s/AKfycbxtUYUKWznHwQaGyp-CuHPpY1dpv9U-kazfzQSaKR_nAe3VVO3zPYs58GrvyosTV6EJ/exec'; // ← pega aquí tu URL /exec si CORS directo falla
+var NHC_PROXY = 'https://script.google.com/macros/s/AKfycbwEQjhgQfMMjnAFlihcM6Tv5LNaJCR6bLFGqrR0IYK2Hv7n4q8vushci8AWkgAvXBYi/exec'; // ← pega aquí tu URL /exec si CORS directo falla
 var OM_ENSEMBLE = 'https://ensemble-api.open-meteo.com/v1/ensemble';
 var REFRESH_MS = 5 * 60 * 1000; // NHC actualiza por evento, no por polling agresivo
 var DEMO_MODE = true; // desactívalo en cuanto confirmes que la fuente real responde
@@ -787,6 +911,12 @@ var I18N = {
     legTiposGdacs: 'Ciclón · Inundación · Sismo · Volcán · Incendio · Sequía',
     legHospital: 'Hospital o centro de salud', legBomberos: 'Estación de bomberos',
     legPolicia: 'Policía', legRefugio: 'Refugio',
+    bajoConsumo: 'Modo bajo consumo', compartirVista: 'Enlace', modoKiosko: 'Kiosko',
+    diagnostico: 'Diagnóstico', diagTitulo: 'Diagnóstico de fuentes',
+    diagCorriendo: 'Probando cada fuente…', diagBloqueado: 'bloqueado (CORS o red)',
+    diagAyuda: 'Si una fuente de NOAA aparece bloqueada, configura la URL de tu proxy de Apps Script en NHC_PROXY y GIS_PROXY dentro de index.html. Un fallo aquí significa que esa capa no funcionará en este navegador.',
+    kioskoSalir: 'Pulsa Escape para salir del modo kiosko',
+    hace: 'hace', haceSegundos: 'hace instantes',
     mostrarIzq: 'Mostrar panel izquierdo', mostrarDer: 'Mostrar ficha',
     restablecerPaneles: 'Restablecer paneles',
     riesgoTitulo: 'Indicadores de riesgo', capeLabel: 'Potencial de tormenta (CAPE)',
@@ -882,6 +1012,12 @@ var I18N = {
     legTiposGdacs: 'Cyclone · Flood · Earthquake · Volcano · Wildfire · Drought',
     legHospital: 'Hospital or health centre', legBomberos: 'Fire station',
     legPolicia: 'Police', legRefugio: 'Shelter',
+    bajoConsumo: 'Low data mode', compartirVista: 'Link', modoKiosko: 'Kiosk',
+    diagnostico: 'Diagnostics', diagTitulo: 'Source diagnostics',
+    diagCorriendo: 'Testing each source…', diagBloqueado: 'blocked (CORS or network)',
+    diagAyuda: 'If a NOAA source shows as blocked, set your Apps Script proxy URL in NHC_PROXY and GIS_PROXY inside index.html. A failure here means that layer will not work in this browser.',
+    kioskoSalir: 'Press Escape to exit kiosk mode',
+    hace: '', haceSegundos: 'just now',
     mostrarIzq: 'Show left panel', mostrarDer: 'Show details',
     restablecerPaneles: 'Reset panels',
     riesgoTitulo: 'Risk indicators', capeLabel: 'Storm potential (CAPE)',
@@ -894,6 +1030,71 @@ var I18N = {
 var lang = (navigator.language || 'es').startsWith('en') ? 'en' : 'es';
 
 function t(key){ return I18N[lang][key] || key; }
+
+/* ============================================================
+ * #14 UNIDADES CONFIGURABLES
+ * Los boletines del NHC usan nudos; el público en Venezuela piensa
+ * en km/h. Ambos son legítimos, así que se elige.
+ * ============================================================ */
+var unidadViento = 'kmh'; // 'kmh' | 'kt' | 'mph'
+try { unidadViento = localStorage.getItem('ciclon_unidad') || 'kmh'; } catch(e){}
+function kmhA(v){
+  if (typeof v !== 'number') return null;
+  if (unidadViento === 'kt') return v / 1.852;
+  if (unidadViento === 'mph') return v / 1.609344;
+  return v;
+}
+function ktA(v){
+  if (typeof v !== 'number') return null;
+  if (unidadViento === 'kt') return v;
+  if (unidadViento === 'mph') return v * 1.15078;
+  return v * 1.852;
+}
+function unidadLabel(){ return unidadViento === 'kt' ? 'kt' : unidadViento === 'mph' ? 'mph' : 'km/h'; }
+function fmtVientoKmh(v){ var x = kmhA(v); return x === null ? '—' : Math.round(x) + ' ' + unidadLabel(); }
+function fmtVientoKt(v){ var x = ktA(v); return x === null ? '—' : Math.round(x) + ' ' + unidadLabel(); }
+function setUnidad(u){
+  unidadViento = u;
+  try { localStorage.setItem('ciclon_unidad', u); } catch(e){}
+  if (selectedStorm) renderDetail(selectedStorm);
+  if (climaLocation && lastClimaData) renderClima();
+  renderList();
+  if (vientoOn || nubesOn) loadGridConditions();
+}
+
+/* ============================================================
+ * #6 HORA UTC ADEMÁS DE LOCAL
+ * Los avisos del NHC e INAMEH se emiten en UTC/Zulu: un equipo que
+ * coordina con boletines oficiales necesita ver las dos.
+ * ============================================================ */
+function fmtUTC(d){
+  if (!d) return '—';
+  try {
+    var x = new Date(d);
+    return x.toISOString().slice(11,16) + 'Z';
+  } catch(e){ return ''; }
+}
+function fmtTimeDual(d){
+  if (!d) return '—';
+  return fmtTime(d) + ' · ' + fmtUTC(d);
+}
+
+/* ============================================================
+ * #8 ANTIGÜEDAD VISIBLE POR FUENTE
+ * Un aviso global de "fuente caída" no dice cuál capa está vieja.
+ * Cada fuente registra su última lectura correcta y se muestra
+ * junto a su capa.
+ * ============================================================ */
+var fuenteEdad = {}; // clave -> timestamp de la última lectura correcta
+function marcarFuente(clave){ fuenteEdad[clave] = Date.now(); }
+function edadTexto(clave){
+  var t0 = fuenteEdad[clave];
+  if (!t0) return '';
+  var min = Math.round((Date.now() - t0) / 60000);
+  if (min < 1) return t('haceSegundos');
+  if (min < 60) return t('hace') + ' ' + min + ' min';
+  return t('hace') + ' ' + Math.round(min / 60) + ' h';
+}
 function applyI18n(){
   document.documentElement.lang = lang;
   document.querySelectorAll('[data-i18n]').forEach(function(el){
@@ -917,6 +1118,23 @@ function applyI18n(){
   renderQuickCities();
   if (climaLocation) renderClima(); else renderClimaNoSelection();
 }
+/* #5 Tema: se recuerda la elección; por defecto sigue al sistema operativo. */
+var temaActual = 'dark';
+try { temaActual = localStorage.getItem('ciclon_tema') || (window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark'); } catch(e){}
+function aplicarTema(){
+  document.documentElement.setAttribute('data-theme', temaActual);
+  var btn = document.getElementById('themeBtn');
+  if (btn) btn.textContent = temaActual === 'light' ? '☀️' : '🌙';
+  var meta = document.querySelector('meta[name="theme-color"]');
+  if (meta) meta.setAttribute('content', temaActual === 'light' ? '#eef2f6' : '#0b0f14');
+}
+document.getElementById('themeBtn').addEventListener('click', function(){
+  temaActual = temaActual === 'light' ? 'dark' : 'light';
+  try { localStorage.setItem('ciclon_tema', temaActual); } catch(e){}
+  aplicarTema();
+});
+aplicarTema();
+
 document.getElementById('langBtn').addEventListener('click', function(){
   lang = lang === 'es' ? 'en' : 'es';
   applyI18n();
@@ -1007,6 +1225,17 @@ function catColor(kind, windKt){
   }
   if (kind === 'TS' || kind === 'STS') return '#e8b23c';
   return '#3ec6a8'; // TD, STD, PTC, PC — sistema débil o post-tropical
+}
+/* #3 Daltonismo: ~8% de los hombres no distingue rojo/naranja/verde. La
+ * severidad se marca también con un símbolo, nunca solo con color. */
+function sevSymbol(kind, windKt){
+  if (kind === 'HU' || kind === 'TY'){
+    if (windKt >= 137) return '\u25B2\u25B2\u25B2';
+    if (windKt >= 96)  return '\u25B2\u25B2';
+    return '\u25B2';
+  }
+  if (kind === 'TS' || kind === 'STS') return '\u25CF';
+  return '\u25CB';
 }
 function kindLabel(kind){
   var map_ = {
@@ -1150,7 +1379,7 @@ function loadStorms(){
   attempt.then(function(data){
     var list = (data && data.activeStorms) || [];
     storms = list.map(normalizeStorm);
-    lastGoodStorms = storms; lastGoodAt = new Date();
+    lastGoodStorms = storms; lastGoodAt = new Date(); marcarFuente('nhc');
     hideSourceBanner();
     setStatus('live');
     renderAll();
@@ -1217,7 +1446,7 @@ function hideSourceBanner(){ document.getElementById('sourceBanner').classList.r
  * RENDER: lista + marcadores
  * ============================================================ */
 function renderAll(){
-  document.getElementById('lastUpdateTxt').textContent = lastGoodAt ? fmtTime(lastGoodAt) : '';
+  document.getElementById('lastUpdateTxt').textContent = lastGoodAt ? fmtTimeDual(lastGoodAt) : '';
   renderList();
   renderMarkers();
   renderEmptyState();
@@ -1240,11 +1469,12 @@ function renderList(){
     var card = document.createElement('div');
     card.className = 'stormCard' + (selectedStorm && selectedStorm.id === s.id ? ' sel' : '');
     var color = catColor(s.classification, s.windKt || 0);
+    var sevMark = sevSymbol(s.classification, s.windKt || 0);
     card.innerHTML =
       '<div class="name">' + (s.__demo || s._raw.__demo ? '⚠ ' + t('demoTag') + ' — ' : '') + escapeHtml(s.name) + '</div>' +
       '<div class="meta">' +
-        '<span class="catPill" style="background:'+color+'">' + escapeHtml(kindLabel(s.classification)) + '</span>' +
-        (typeof s.windKt === 'number' ? '<span>' + Math.round(s.windKt) + ' kt</span>' : '') +
+        '<span class="catPill" style="background:'+color+'">' + sevMark + ' ' + escapeHtml(kindLabel(s.classification)) + '</span>' +
+        (typeof s.windKt === 'number' ? '<span>' + fmtVientoKt(s.windKt) + '</span>' : '') +
       '</div>';
     card.addEventListener('click', function(){ selectStorm(s); });
     wrap.appendChild(card);
@@ -1633,10 +1863,10 @@ function renderDetail(s){
   }
 
   html += '<div class="kv"><span data-i18n="categoria">' + t('categoria') + '</span><span style="color:'+color+'">' + escapeHtml(kindLabel(s.classification)) + '</span></div>';
-  html += '<div class="kv"><span>' + t('vientos') + '</span><span>' + (typeof s.windKt==='number' ? Math.round(s.windKt)+' kt ('+Math.round(s.windKt*1.852)+' km/h)' : '—') + '</span></div>';
+  html += '<div class="kv"><span>' + t('vientos') + '</span><span>' + fmtVientoKt(s.windKt) + '</span></div>';
   html += '<div class="kv"><span>' + t('presion') + '</span><span>' + (typeof s.pressureMb==='number' ? Math.round(s.pressureMb)+' hPa' : '—') + '</span></div>';
-  html += '<div class="kv"><span>' + t('movimiento') + '</span><span>' + (typeof s.moveSpeed==='number' ? Math.round(s.moveSpeed)+' kt'+(s.moveDir!=null?' @ '+Math.round(s.moveDir)+'°':'') : '—') + '</span></div>';
-  html += '<div class="kv"><span>' + t('actualizado') + '</span><span>' + (s.lastUpdate ? fmtTime(s.lastUpdate) : (lastGoodAt?fmtTime(lastGoodAt):'—')) + '</span></div>';
+  html += '<div class="kv"><span>' + t('movimiento') + '</span><span>' + (typeof s.moveSpeed==='number' ? fmtVientoKt(s.moveSpeed)+(s.moveDir!=null?' @ '+Math.round(s.moveDir)+'°':'') : '—') + '</span></div>';
+  html += '<div class="kv"><span>' + t('actualizado') + '</span><span>' + (s.lastUpdate ? fmtTimeDual(s.lastUpdate) : (lastGoodAt?fmtTimeDual(lastGoodAt):'—')) + '</span></div>';
 
   if (s.advisoryUrl){
     html += '<a class="linkbtn" target="_blank" rel="noopener" href="' + s.advisoryUrl + '">' + t('verOficial') + '</a>';
@@ -1953,6 +2183,7 @@ function loadClima(){
   ])
     .then(function(results){
       lastClimaData = { forecast: results[0], air: results[1], flood: results[2], marine: results[3] };
+      marcarFuente('clima');
       renderClima();
     })
     .catch(function(err){
@@ -1996,8 +2227,8 @@ function renderClima(){
 
   html += '<div class="wxGrid">';
   html += kvRow(t('humedad'), Math.round(c.relative_humidity_2m) + '%');
-  html += kvRow(t('viento'), Math.round(c.wind_speed_10m) + ' km/h');
-  html += kvRow(t('rafagas'), Math.round(c.wind_gusts_10m) + ' km/h');
+  html += kvRow(t('viento'), fmtVientoKmh(c.wind_speed_10m));
+  html += kvRow(t('rafagas'), fmtVientoKmh(c.wind_gusts_10m));
   html += kvRow(t('presionClima'), Math.round(c.pressure_msl) + ' hPa');
   html += kvRow(t('nubosidad'), Math.round(c.cloud_cover) + '%');
   html += kvRow(t('precipitacion'), (c.precipitation||0).toFixed(1) + ' mm');
@@ -2149,7 +2380,7 @@ function showRadarFrame(i){
   var frame = radarFrames[radarIdx];
   ensureRadarLayer().setUrl(radarTileUrl(frame), false);
   var el = document.getElementById('radarTime');
-  if (el) el.textContent = new Date(frame.time * 1000).toLocaleTimeString(lang==='es'?'es-VE':'en-US', {hour:'2-digit', minute:'2-digit'});
+  if (el) el.textContent = new Date(frame.time * 1000).toLocaleTimeString(lang==='es'?'es-VE':'en-US', {hour:'2-digit', minute:'2-digit'}) + ' · ' + edadTexto('radar');
 }
 function radarPlay(){
   if (radarPlaying) return;
@@ -2181,7 +2412,7 @@ function toggleRadar(){
  * horas abierto no se quede animando lluvia vieja. */
 function loadRadarData(autoplay){
   return fetchJson(RAINVIEWER_META).then(function(data){
-    radarHost = data.host;
+    radarHost = data.host; marcarFuente('radar');
     radarFrames = (data.radar && data.radar.past) || [];
     if (!radarFrames.length){ document.getElementById('radarTime').textContent = t('radarError'); return; }
     if (!radarOn) return;
@@ -2291,7 +2522,30 @@ document.getElementById('satModeGoes').addEventListener('click', function(){
  * partes donde aparece.
  * ============================================================ */
 var vientoOn = false, nubesOn = false, gridLayer = null;
-var GRID_N = 4;
+/* #1 CONSUMO DE DATOS (crítico para usuarios en Venezuela con datos móviles caros):
+ *  - menos puntos en pantallas chicas (9 en vez de 16)
+ *  - caché por celda redondeada, con vencimiento: mover el mapa un poco ya no
+ *    vuelve a pedir lo mismo
+ *  - "modo bajo consumo" que reduce aún más la rejilla y alarga el refresco */
+function gridN(){
+  if (lowDataMode) return 2;
+  return window.innerWidth <= 820 ? 3 : 4;
+}
+var GRID_CACHE = {};              // "lat,lon" redondeado -> {t: ms, d: datos}
+var GRID_CACHE_TTL = 10 * 60000;  // 10 min: el dato horario no cambia más rápido
+var lowDataMode = false;
+try { lowDataMode = localStorage.getItem('ciclon_lowdata') === '1'; } catch(e){}
+function gridCacheKey(lat, lon){ return lat.toFixed(1) + ',' + lon.toFixed(1); }
+function gridCacheGet(lat, lon){
+  var hit = GRID_CACHE[gridCacheKey(lat, lon)];
+  if (hit && Date.now() - hit.t < GRID_CACHE_TTL) return hit.d;
+  return null;
+}
+function gridCacheSet(lat, lon, d){
+  GRID_CACHE[gridCacheKey(lat, lon)] = { t: Date.now(), d: d };
+  var keys = Object.keys(GRID_CACHE);
+  if (keys.length > 200) delete GRID_CACHE[keys[0]]; // tope de memoria
+}
 function windColor(kmh){
   if (kmh < 20) return '#3ec6a8';
   if (kmh < 40) return '#e8b23c';
@@ -2304,12 +2558,13 @@ function windUV(spd, dirFrom){
 }
 function buildGrid(){
   var b = map.getBounds();
-  var latStep = (b.getNorth() - b.getSouth()) / (GRID_N + 1);
-  var lonStep = (b.getEast() - b.getWest()) / (GRID_N + 1);
+  var N = gridN();
+  var latStep = (b.getNorth() - b.getSouth()) / (N + 1);
+  var lonStep = (b.getEast() - b.getWest()) / (N + 1);
   var byKey = {};
   var pts = [];
-  for (var i = 1; i <= GRID_N; i++){
-    for (var j = 1; j <= GRID_N; j++){
+  for (var i = 1; i <= N; i++){
+    for (var j = 1; j <= N; j++){
       var p = { lat: b.getSouth() + latStep * i, lon: b.getWest() + lonStep * j, i: i, j: j };
       pts.push(p);
       byKey[i + ',' + j] = p;
@@ -2324,14 +2579,21 @@ function loadGridConditions(){
   var byKey = pts._byKey;
   gridLayer.clearLayers();
   var pending = pts.length;
+  function aplicar(p, cur){
+    p.spd = cur.wind_speed_10m; p.dir = cur.wind_direction_10m; p.cloud = cur.cloud_cover;
+    renderGridPoint(p);
+  }
   pts.forEach(function(p){
+    var cached = gridCacheGet(p.lat, p.lon);
+    if (cached){
+      aplicar(p, cached);
+      pending--; if (pending === 0 && vientoOn) renderConvergence(byKey);
+      return; // sin petición de red: ahorro directo de datos móviles
+    }
     var url = OM_FORECAST + '?latitude=' + p.lat.toFixed(3) + '&longitude=' + p.lon.toFixed(3) +
       '&current=wind_speed_10m,wind_direction_10m,cloud_cover';
     fetchJson(url).then(function(data){
-      if (data.current){
-        p.spd = data.current.wind_speed_10m; p.dir = data.current.wind_direction_10m; p.cloud = data.current.cloud_cover;
-        renderGridPoint(p);
-      }
+      if (data.current){ gridCacheSet(p.lat, p.lon, data.current); aplicar(p, data.current); }
     }).catch(function(err){ console.error('Error rejilla clima:', err); })
       .then(function(){ pending--; if (pending === 0 && vientoOn) renderConvergence(byKey); });
   });
@@ -2349,13 +2611,14 @@ function renderGridPoint(p){
       className: '', html: '<div class="windArrow" style="color:'+color+';transform:rotate(' + p.dir + 'deg)">↑</div>',
       iconSize: [20, 20], iconAnchor: [10, 10]
     });
-    L.marker([p.lat, p.lon], { icon: icon, zIndexOffset: 100 }).bindTooltip(Math.round(p.spd) + ' km/h').addTo(gridLayer);
+    L.marker([p.lat, p.lon], { icon: icon, zIndexOffset: 100 }).bindTooltip(fmtVientoKmh(p.spd)).addTo(gridLayer);
   }
 }
 var CONVERGENCIA_UMBRAL = 14; // km/h combinados — umbral empírico, no un estándar meteorológico
 function renderConvergence(byKey){
-  for (var i = 2; i < GRID_N; i++){
-    for (var j = 2; j < GRID_N; j++){
+  var N = gridN();
+  for (var i = 2; i < N; i++){
+    for (var j = 2; j < N; j++){
       var c = byKey[i+','+j], w = byKey[i+','+(j-1)], e = byKey[i+','+(j+1)], n = byKey[(i-1)+','+j], s = byKey[(i+1)+','+j];
       if (![c,w,e,n,s].every(function(p){ return p && typeof p.spd === 'number' && typeof p.dir === 'number'; })) continue;
       var uw = windUV(w.spd, w.dir).u, ue = windUV(e.spd, e.dir).u;
@@ -2389,7 +2652,7 @@ var gridMoveTimer = null;
 map.on('moveend', function(){
   if (!vientoOn && !nubesOn) return;
   clearTimeout(gridMoveTimer);
-  gridMoveTimer = setTimeout(loadGridConditions, 800);
+  gridMoveTimer = setTimeout(loadGridConditions, lowDataMode ? 2000 : 800);
 });
 
 /* ============================================================
@@ -2466,7 +2729,8 @@ function loadGdacs(){
       L.marker([lat, lon], { icon: icon }).bindPopup(popup).addTo(gdacsLayer);
       shown++;
     });
-    document.getElementById('gdacsLeyenda').textContent = shown + ' ' + t('gdacsEventos');
+    marcarFuente('gdacs');
+    document.getElementById('gdacsLeyenda').textContent = shown + ' ' + t('gdacsEventos') + ' · ' + edadTexto('gdacs');
   }).catch(function(err){
     console.error('Error GDACS:', err);
     document.getElementById('gdacsLeyenda').textContent = t('gdacsError');
@@ -2481,6 +2745,24 @@ function toggleGdacs(){
   loadGdacs();
 }
 document.getElementById('btnGdacs').addEventListener('click', toggleGdacs);
+
+/* #14 selector de unidades y #1 interruptor de bajo consumo */
+function syncUnidadBtns(){
+  Array.prototype.forEach.call(document.querySelectorAll('.unidadBtn'), function(b){
+    b.classList.toggle('act', b.getAttribute('data-u') === unidadViento);
+  });
+}
+Array.prototype.forEach.call(document.querySelectorAll('.unidadBtn'), function(b){
+  b.addEventListener('click', function(){ setUnidad(this.getAttribute('data-u')); syncUnidadBtns(); });
+});
+syncUnidadBtns();
+document.getElementById('lowDataChk').checked = lowDataMode;
+document.getElementById('lowDataChk').addEventListener('change', function(){
+  lowDataMode = this.checked;
+  try { localStorage.setItem('ciclon_lowdata', lowDataMode ? '1' : '0'); } catch(e){}
+  GRID_CACHE = {};
+  if (vientoOn || nubesOn) loadGridConditions();
+});
 
 /* ============================================================
  * CAPA RECURSOS — OpenStreetMap vía Overpass
@@ -2537,7 +2819,8 @@ function loadRecursos(){
           .addTo(recursosLayer);
         shown++;
       });
-      document.getElementById('recursosLeyenda').textContent = shown + ' ' + t('recursosEncontrados');
+      marcarFuente('osm');
+      document.getElementById('recursosLeyenda').textContent = shown + ' ' + t('recursosEncontrados') + ' · ' + edadTexto('osm');
     }).catch(function(err){
       console.error('Error Overpass:', err);
       document.getElementById('recursosLeyenda').textContent = t('recursosError');
@@ -2736,6 +3019,132 @@ document.getElementById('restoreRightBtn').addEventListener('click', function(){
 window.addEventListener('resize', updateRestoreBar);
 
 /* ============================================================
+ * #7 COMPARTIR VISTA POR URL
+ * Para que Protección Civil pueda mandar por WhatsApp un enlace
+ * que abra exactamente el mapa que está viendo: posición, zoom,
+ * capas activas y modo. Se lee al arrancar y se aplica.
+ * ============================================================ */
+function buildShareUrl(){
+  var c = map.getCenter();
+  var capas = [];
+  if (radarOn) capas.push('r');
+  if (satOn) capas.push('s');
+  if (vientoOn) capas.push('v');
+  if (nubesOn) capas.push('n');
+  if (gdacsOn) capas.push('g');
+  if (recursosOn) capas.push('o');
+  var p = new URLSearchParams();
+  p.set('lat', c.lat.toFixed(4));
+  p.set('lon', c.lng.toFixed(4));
+  p.set('z', String(Math.round(map.getZoom())));
+  p.set('m', appMode === 'clima' ? 'c' : 'x');
+  if (capas.length) p.set('l', capas.join(''));
+  return location.origin + location.pathname + '?' + p.toString();
+}
+function applyShareUrl(){
+  var p = new URLSearchParams(location.search);
+  if (!p.has('lat') && !p.has('l') && !p.has('m')) return false;
+  var lat = parseFloat(p.get('lat')), lon = parseFloat(p.get('lon')), z = parseInt(p.get('z'), 10);
+  if (isFinite(lat) && isFinite(lon)) map.setView([lat, lon], isFinite(z) ? z : map.getZoom());
+  if (p.get('m') === 'x') setMode('ciclones');
+  var l = p.get('l') || '';
+  // el radar arranca encendido por defecto: si el enlace no lo incluye, apagarlo
+  if (l.indexOf('r') === -1 && radarOn) toggleRadar();
+  if (l.indexOf('r') !== -1 && !radarOn) toggleRadar();
+  if (l.indexOf('s') !== -1 && !satOn) toggleSat();
+  if (l.indexOf('v') !== -1 && !vientoOn) toggleViento();
+  if (l.indexOf('n') !== -1 && !nubesOn) toggleNubes();
+  if (l.indexOf('g') !== -1 && !gdacsOn) toggleGdacs();
+  if (l.indexOf('o') !== -1 && !recursosOn) toggleRecursos();
+  return true;
+}
+
+/* ============================================================
+ * #12 MODO KIOSKO (pantalla de sala de situación)
+ * Oculta todos los controles, deja el mapa a pantalla completa y
+ * rota automáticamente entre los sistemas activos. Se sale con
+ * Escape o tocando la pantalla.
+ * ============================================================ */
+var kioskoOn = false, kioskoTimer = null, kioskoIdx = 0;
+function toggleKiosko(){
+  kioskoOn = !kioskoOn;
+  document.body.classList.toggle('kiosko', kioskoOn);
+  if (kioskoOn){
+    if (document.documentElement.requestFullscreen) document.documentElement.requestFullscreen().catch(function(){});
+    kioskoIdx = 0;
+    kioskoTimer = setInterval(function(){
+      if (!storms.length) return;
+      kioskoIdx = (kioskoIdx + 1) % storms.length;
+      var st = storms[kioskoIdx];
+      if (st && st._hasPosition) map.panTo([st.lat, st.lon]);
+      selectStorm(st);
+    }, 12000);
+  } else {
+    clearInterval(kioskoTimer);
+    if (document.fullscreenElement && document.exitFullscreen) document.exitFullscreen().catch(function(){});
+  }
+  setTimeout(function(){ map.invalidateSize(); }, 120);
+}
+document.addEventListener('keydown', function(e){
+  if (e.key === 'Escape' && kioskoOn) toggleKiosko();
+  if (e.key === 'k' && (e.ctrlKey || e.metaKey)){ e.preventDefault(); toggleKiosko(); }
+});
+
+/* ============================================================
+ * #2 DIAGNÓSTICO DE FUENTES
+ * Varias funciones (GIS del NHC, GOES casi en vivo, GDACS) nunca
+ * se pudieron verificar en vivo durante el desarrollo. Este panel
+ * las prueba una por una desde el navegador del usuario y dice
+ * cuál falla y por qué — en vez de fallar en silencio.
+ * ============================================================ */
+function runDiagnostico(){
+  var box = document.getElementById('diagBody');
+  box.innerHTML = '<p style="font-size:12px;color:var(--muted)">' + t('diagCorriendo') + '</p>';
+  var pruebas = [
+    { n: 'NHC CurrentStorms', u: NHC_PROXY || NHC_URL },
+    { n: 'NHC GIS (trayectorias)', u: (GIS_PROXY ? GIS_PROXY + '?url=' + encodeURIComponent(gisQueryUrl(gisLayerId('AT',1,'points'))) : gisQueryUrl(gisLayerId('AT',1,'points'))) },
+    { n: 'Open-Meteo (clima)', u: OM_FORECAST + '?latitude=10.5&longitude=-66.9&current=temperature_2m' },
+    { n: 'Open-Meteo (ensamble WeatherNext)', u: OM_ENSEMBLE + '?latitude=10.5&longitude=-66.9&hourly=wind_speed_10m&forecast_days=1&models=google_weathernext2_ensemble' },
+    { n: 'Open-Meteo (río/GloFAS)', u: OM_FLOOD + '?latitude=10.5&longitude=-66.9&daily=river_discharge&forecast_days=1' },
+    { n: 'Open-Meteo (marino)', u: OM_MARINE + '?latitude=10.7&longitude=-66.9&current=wave_height&forecast_days=1' },
+    { n: 'RainViewer (radar)', u: RAINVIEWER_META },
+    { n: 'GDACS (alertas)', u: GDACS_API + '?eventlist=TC;FL&alertlevel=orange;red' }
+  ];
+  var filas = [];
+  var pendientes = pruebas.length;
+  pruebas.forEach(function(pr, i){
+    var t0 = Date.now();
+    fetch(pr.u, { cache: 'no-store' })
+      .then(function(r){ filas[i] = { n: pr.n, ok: r.ok, msg: 'HTTP ' + r.status + ' · ' + (Date.now()-t0) + ' ms' }; })
+      .catch(function(err){ filas[i] = { n: pr.n, ok: false, msg: (err && err.message) ? err.message : t('diagBloqueado') }; })
+      .then(function(){ if (--pendientes === 0) pintarDiag(filas); });
+  });
+  // la capa satelital es una imagen, no JSON: se prueba cargando una tesela
+  var img = new Image();
+  var ayer = new Date(Date.now() - 86400000).toISOString().slice(0,10);
+  img.onload = function(){ addDiagExtra('NASA GIBS (satélite)', true, 'OK'); };
+  img.onerror = function(){ addDiagExtra('NASA GIBS (satélite)', false, t('diagBloqueado')); };
+  img.src = 'https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/VIIRS_SNPP_CorrectedReflectance_TrueColor/default/' + ayer + '/GoogleMapsCompatible_Level9/2/1/1.jpg';
+}
+function pintarDiag(filas){
+  var html = '<div style="font-size:12px">';
+  filas.forEach(function(f){
+    if (!f) return;
+    html += '<div class="diagRow"><span>' + (f.ok ? '✅' : '❌') + ' ' + escapeHtml(f.n) + '</span>' +
+            '<span style="color:var(--muted);font-size:10.5px">' + escapeHtml(f.msg) + '</span></div>';
+  });
+  html += '</div><div id="diagExtra"></div>';
+  html += '<div class="warnbox" style="margin-top:10px">' + t('diagAyuda') + '</div>';
+  document.getElementById('diagBody').innerHTML = html;
+}
+function addDiagExtra(nombre, ok, msg){
+  var ex = document.getElementById('diagExtra');
+  if (!ex) return;
+  ex.innerHTML += '<div class="diagRow"><span>' + (ok ? '✅' : '❌') + ' ' + escapeHtml(nombre) + '</span>' +
+                  '<span style="color:var(--muted);font-size:10.5px">' + escapeHtml(msg) + '</span></div>';
+}
+
+/* ============================================================
  * LEYENDA — cómo leer el mapa
  * ------------------------------------------------------------
  * Pensado para que alguien sin formación meteorológica (bombero,
@@ -2868,6 +3277,28 @@ function renderShareLoc(lat, lon, isMapCenter){
   });
 }
 document.getElementById('btnShareLoc').addEventListener('click', openShareLoc);
+document.getElementById('btnShareView').addEventListener('click', function(){
+  var url = buildShareUrl();
+  var btn = this;
+  (navigator.clipboard ? navigator.clipboard.writeText(url) : Promise.reject())
+    .then(function(){
+      var sp = btn.querySelector('span');
+      var prev = sp.textContent; sp.textContent = '✓';
+      setTimeout(function(){ sp.textContent = prev; }, 1500);
+    })
+    .catch(function(){ prompt(t('compartirVista'), url); });
+});
+document.getElementById('btnKiosko').addEventListener('click', toggleKiosko);
+document.getElementById('btnDiag').addEventListener('click', function(){
+  document.getElementById('diagModal').classList.add('on');
+  runDiagnostico();
+});
+document.getElementById('diagClose').addEventListener('click', function(){
+  document.getElementById('diagModal').classList.remove('on');
+});
+document.getElementById('diagModal').addEventListener('click', function(e){
+  if (e.target === this) this.classList.remove('on');
+});
 document.getElementById('shareLocClose').addEventListener('click', function(){
   document.getElementById('shareLocPanel').classList.remove('on');
 });
@@ -2928,6 +3359,7 @@ renderNoSelection();
 setMode('clima');
 selectClimaLocation(VZ_CITIES[0].lat, VZ_CITIES[0].lon, VZ_CITIES[0].name, true); // Caracas por defecto, sin forzar el tab en móvil
 toggleRadar(); // radar encendido de entrada: es la capa que muestra los eventos en vivo
+applyShareUrl(); // #7 si la URL trae una vista compartida, la aplica encima del estado por defecto
 updateZoomBarPos();
 loadStorms();
 setInterval(loadStorms, REFRESH_MS);

@@ -53,8 +53,31 @@ var DOMINIOS_PERMITIDOS = [
   'mapservices.weather.noaa.gov'
 ];
 
+/**
+ * Límite de peticiones. Esta URL /exec es pública: cualquiera que la descubra
+ * puede consumir la cuota diaria de UrlFetch de tu cuenta de Google y dejar la
+ * plataforma sin datos. Este tope reparte el uso y protege la cuota.
+ * Como el caché sirve la mayoría de las peticiones sin salir a la red, un
+ * límite generoso no molesta al uso legítimo.
+ */
+var LIMITE_POR_MINUTO = 120;
+
+function superaLimite_() {
+  var cache = CacheService.getScriptCache();
+  var clave = 'rl_' + Math.floor(Date.now() / 60000); // ventana de 1 minuto
+  var n = parseInt(cache.get(clave) || '0', 10) + 1;
+  cache.put(clave, String(n), 120);
+  return n > LIMITE_POR_MINUTO;
+}
+
 function doGet(e) {
   var params = (e && e.parameter) || {};
+
+  if (superaLimite_()) {
+    return ContentService
+      .createTextOutput(JSON.stringify({ activeStorms: [], error: 'limite de peticiones alcanzado, reintenta en un minuto' }))
+      .setMimeType(ContentService.MimeType.JSON);
+  }
 
   if (params.url) {
     return manejarPassthrough_(params.url);

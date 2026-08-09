@@ -93,6 +93,26 @@ Navegador (index.html — archivo único, sin build)
 
 Todo corre en infraestructura gratuita: GitHub Pages + (opcionalmente) Google Apps Script. Sin servidores, sin claves de API, sin costos.
 
+## 🧪 Verificación
+
+```bash
+node test.js
+```
+
+44 comprobaciones sin dependencias: sintaxis de todos los archivos, ids usados vs. definidos, etiquetas balanceadas, paridad de traducciones ES/EN, dominios de datos excluidos del caché del service worker, accesibilidad (aria-labels, severidad no dependiente solo del color) y los requisitos de honestidad del proyecto (avisos de "experimental", enlaces a fuentes oficiales, etiquetado del modo demo).
+
+Ejecútalo antes de cada `git push`. Ya ha cazado errores reales: claves de traducción usadas pero nunca definidas, y espejos de Overpass que se estaban cacheando cuando no debían.
+
+## ⚙️ Ajustes del usuario
+
+- **Tema claro / oscuro** (☀️/🌙): el tema oscuro es ideal en sala de situación pero casi ilegible bajo el sol; el claro es de alto contraste, para uso en campo.
+- **Unidades de viento**: km/h, nudos o mph. Los boletines del NHC usan nudos; el público en Venezuela piensa en km/h.
+- **Modo bajo consumo**: reduce la rejilla de muestreo y alarga los intervalos de refresco. Pensado para datos móviles caros.
+- **Hora local y UTC** simultáneas, porque los avisos oficiales se emiten en Zulu.
+- **Enlace de vista** (🔗): copia una URL que reproduce exactamente el mapa actual (posición, zoom, capas y modo) para enviarla por WhatsApp.
+- **Modo kiosko** (📺 o Ctrl+K): pantalla completa sin controles, rotando entre sistemas activos. Escape para salir.
+- **Diagnóstico** (🩺): prueba cada fuente desde tu navegador y dice cuál falla y por qué, en vez de fallar en silencio.
+
 ## 🚀 Despliegue propio
 
 1. Haz fork o descarga este repositorio.

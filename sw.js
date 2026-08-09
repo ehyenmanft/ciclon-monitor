@@ -7,7 +7,7 @@
  *    viejos como frescos.
  * Al actualizar la web, sube también este archivo cambiando VERSION.
  */
-const VERSION = 'v13';
+const VERSION = 'v14';
 const CACHE = 'ciclon-monitor-' + VERSION;
 
 const PRECACHE = [
@@ -31,7 +31,9 @@ const DATOS_VIVOS = [
   'gibs.earthdata.nasa.gov', // teselas satelitales NASA
   'mapservices.weather.noaa.gov', // GIS oficial del NHC: trayectoria y cono
   'gdacs.org', // alertas multi-amenaza
-  'overpass-api.de' // OpenStreetMap: hospitales, refugios, bomberos
+  'overpass-api.de', // OpenStreetMap: hospitales, refugios, bomberos
+  'overpass.kumi.systems', // espejo de Overpass
+  'maps.mail.ru' // espejo de Overpass
 ];
 
 self.addEventListener('install', e => {
