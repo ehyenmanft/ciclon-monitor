@@ -194,7 +194,9 @@ a{color:inherit}
   #zoomBar{top:50%;transform:translateY(-50%);bottom:auto;left:auto;right:10px;padding:6px 5px}
   #zoomSlider{height:76px}
   #zoomBar button{width:34px;height:34px}
-  #left.on ~ #zoomBar, #right.on ~ #zoomBar{display:none}
+  #left.on ~ #zoomBar, #right.on ~ #zoomBar, #layersControl.on ~ #zoomBar{display:none}
+  /* debajo de la barra superior, nunca encima de ella */
+  #zoomBar{top:auto;bottom:calc(70px + env(safe-area-inset-bottom));transform:none}
 }
 .legendItem{display:inline-flex;align-items:center;gap:3px}
 .windArrow{font-size:16px;line-height:1;text-shadow:0 0 3px #000, 0 0 3px #000;pointer-events:none}
@@ -262,7 +264,7 @@ a{color:inherit}
 #topbar .dot.live{background:var(--c-td);box-shadow:0 0 6px var(--c-td)}
 #topbar .dot.err{background:var(--danger);box-shadow:0 0 6px var(--danger)}
 #lastUpdateTxt{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-#langBtn,#notifBtn,#printBtn,#hideAllBtn{background:#161d26;border:1px solid var(--line);color:var(--text);border-radius:6px;padding:4px 8px;cursor:pointer;font-family:inherit;font-size:11px;flex:0 0 auto;min-height:28px}
+#langBtn,#notifBtn,#printBtn,#hideAllBtn,#geoTopBtn{background:#161d26;border:1px solid var(--line);color:var(--text);border-radius:6px;padding:4px 8px;cursor:pointer;font-family:inherit;font-size:11px;flex:0 0 auto;min-height:28px}
 #notifBtn.act{border-color:#3ec6a8;color:#3ec6a8}
 #hideAllBtn.act{border-color:#6fb8e0;color:#6fb8e0}
 #reopenLeftBtn{flex:0 0 auto}
@@ -352,27 +354,40 @@ a{color:inherit}
     padding-bottom:env(safe-area-inset-bottom);
   }
   #mobilenav button{
-    flex:1;background:none;border:none;color:var(--muted);font-family:inherit;font-size:9.5px;
+    flex:1;background:none;border:none;color:var(--muted);font-family:inherit;font-size:9px;
     display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;cursor:pointer;
-    min-height:44px;
+    min-height:44px;padding:0 2px;
   }
+  #mobilenav .ico{font-size:15px}
   #mobilenav button.act{color:var(--accent)}
   #mobilenav .ico{font-size:16px}
   #sourceBanner{bottom:calc(64px + env(safe-area-inset-bottom))}
   /* pantallas muy angostas (≤380px): ahora hay 4 botones en la topbar (notif,
      print, reopen, lang) además del título — sin esto se corta el borde derecho */
-  @media (max-width:380px){
+  /* La barra superior ya lleva 5 botones (ubicación, ocultar, alertas, imprimir,
+     idioma). En pantallas angostas se recorta por prioridad operativa: primero
+     la hora, luego imprimir (lo menos crítico en un teléfono). */
+  @media (max-width:420px){
     #lastUpdateTxt{display:none}
     #topbar{gap:5px;padding:6px 9px}
-    #notifBtn,#printBtn{padding:4px 6px}
+    #notifBtn,#printBtn,#geoTopBtn,#hideAllBtn{padding:4px 6px}
+    #topbar b{font-size:12px}
   }
-  @media (max-width:340px){
-    #printBtn{display:none} /* imprimir es la función menos crítica en un teléfono muy chico */
+  @media (max-width:370px){
+    #printBtn{display:none}
+    #topbar b{font-size:11px}
   }
-  /* el control de capas se oculta mientras un panel está abierto: en pantallas
-     chicas quedaba flotando ENCIMA del panel (auditoría de responsividad) */
-  #left.on ~ #layersControl, #right.on ~ #layersControl{display:none}
-  #layersControl{bottom:calc(68px + env(safe-area-inset-bottom))}
+  /* En móvil el panel de capas DEJA de ser flotante: se comporta como una hoja
+     inferior más, con su propia pestaña en la barra de navegación. Antes se
+     colaba bajo la barra superior y chocaba con la barra de zoom. */
+  #layersControl{
+    left:0;right:0;top:auto;bottom:56px;width:100%;max-width:none;
+    bottom:calc(56px + env(safe-area-inset-bottom));
+    border-radius:16px 16px 0 0;max-height:52vh;overflow-y:auto;display:none;
+  }
+  #layersControl.on{display:block}
+  #layersControlHeader{cursor:default}
+  #layersCollapseBtn{display:none} /* en hoja inferior el colapso no aporta */
   #layersControl button{min-height:38px}
   #radarPlayBtn{width:34px;height:34px;min-height:34px}
   #climaSearchBtn,#climaGeoBtn{min-height:40px;min-width:40px}
@@ -437,6 +452,7 @@ a{color:inherit}
   <span class="dot" id="statusDot"></span>
   <b>CICLÓN·MONITOR</b>
   <span id="lastUpdateTxt" style="color:var(--muted);font-size:11px"></span>
+  <button id="geoTopBtn" title="Mi ubicación">📍</button>
   <button id="hideAllBtn" title="Ocultar/mostrar todos los paneles">👁</button>
   <button id="notifBtn" title="Alertas del navegador">🔔</button>
   <button id="printBtn" title="Reporte de situación">🖨️</button>
@@ -566,6 +582,7 @@ a{color:inherit}
   <button id="mnMapa" class="act"><span class="ico">◉</span><span data-i18n="navMapa">Mapa</span></button>
   <button id="mnSistemas"><span class="ico">☰</span><span data-i18n="navSistemas">Sistemas</span></button>
   <button id="mnFicha"><span class="ico">▤</span><span data-i18n="navFicha">Ficha</span></button>
+  <button id="mnCapas"><span class="ico">🗺️</span><span data-i18n="navCapas">Capas</span></button>
 </nav>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
@@ -679,7 +696,7 @@ var VZ_CITIES = [
 var I18N = {
   es: {
     panelSistemas: 'Sistemas activos',
-    navMapa: 'Mapa', navSistemas: 'Sistemas', navFicha: 'Ficha',
+    navMapa: 'Mapa', navSistemas: 'Sistemas', navFicha: 'Ficha', navCapas: 'Capas',
     disclaimerGlobal: '⚠ Esta plataforma es una herramienta informativa independiente. No sustituye los avisos oficiales de tu autoridad de Protección Civil, tu servicio meteorológico nacional, ni del NHC/NOAA. Ante un sistema activo, sigue siempre las fuentes oficiales.',
     sinSistemas: 'No hay ciclones tropicales activos reportados por el NHC en este momento.',
     sinSistemas2: 'Esto es una buena noticia — significa que no hay avisos que atender ahora mismo.',
@@ -770,7 +787,7 @@ var I18N = {
   },
   en: {
     panelSistemas: 'Active systems',
-    navMapa: 'Map', navSistemas: 'Systems', navFicha: 'Details',
+    navMapa: 'Map', navSistemas: 'Systems', navFicha: 'Details', navCapas: 'Layers',
     disclaimerGlobal: '⚠ This platform is an independent informational tool. It does not replace official advisories from your civil protection authority, your national weather service, or the NHC/NOAA. During an active system, always follow official sources.',
     sinSistemas: 'No active tropical cyclones currently reported by the NHC.',
     sinSistemas2: 'That is good news — nothing to act on right now.',
@@ -1763,17 +1780,25 @@ function renderQuickCities(){
   });
 }
 
-document.getElementById('climaGeoBtn').addEventListener('click', function(){
-  if (!navigator.geolocation){ alert(t('climaGeoError')); return; }
-  document.getElementById('climaSearchResults').innerHTML = '<div style="color:var(--muted);font-size:11px">' + t('climaGeoBuscando') + '</div>';
+/* Una sola implementación para los dos accesos: el botón del panel de búsqueda
+ * y el de la barra superior (que funciona esté abierto el panel o no). */
+function irAMiUbicacion(){
+  var out = document.getElementById('climaSearchResults');
+  if (!navigator.geolocation){ if (out) out.innerHTML = '<div style="color:var(--danger);font-size:11px">' + t('climaGeoError') + '</div>'; return; }
+  setMode('clima');
+  if (out) out.innerHTML = '<div style="color:var(--muted);font-size:11px">' + t('climaGeoBuscando') + '</div>';
   navigator.geolocation.getCurrentPosition(function(pos){
-    document.getElementById('climaSearchResults').innerHTML = '';
+    if (out) out.innerHTML = '';
     selectClimaLocation(pos.coords.latitude, pos.coords.longitude, lang==='es' ? 'Mi ubicación' : 'My location');
+    map.setView([pos.coords.latitude, pos.coords.longitude], Math.max(map.getZoom(), 9));
   }, function(err){
     console.error('Error de geolocalización:', err);
-    document.getElementById('climaSearchResults').innerHTML = '<div style="color:var(--danger);font-size:11px">' + t('climaGeoError') + '</div>';
-  }, { timeout: 10000 });
-});
+    if (out) out.innerHTML = '<div style="color:var(--danger);font-size:11px">' + t('climaGeoError') + '</div>';
+    if (window.innerWidth <= 820) setMobileTab('sistemas'); // mostrar el aviso donde el usuario pueda verlo
+  }, { timeout: 10000, enableHighAccuracy: true });
+}
+document.getElementById('climaGeoBtn').addEventListener('click', irAMiUbicacion);
+document.getElementById('geoTopBtn').addEventListener('click', irAMiUbicacion);
 
 document.getElementById('climaSearchInput').addEventListener('input', function(){
   var q = this.value.trim();
@@ -2571,6 +2596,8 @@ function toggleAllPanels(){
   if (allPanelsHidden){
     panelStateBeforeHide = {
       right: document.getElementById('right').classList.contains('on'),
+      left: document.getElementById('left').classList.contains('on'),
+      capas: document.getElementById('layersControl').classList.contains('on'),
       leftHidden: document.getElementById('left').classList.contains('hideDesk')
     };
     HIDEABLES.forEach(function(id){ document.getElementById(id).classList.add('hiddenAll'); });
@@ -2580,6 +2607,9 @@ function toggleAllPanels(){
     if (panelStateBeforeHide){
       document.getElementById('right').classList.toggle('on', panelStateBeforeHide.right);
       document.getElementById('left').classList.toggle('hideDesk', panelStateBeforeHide.leftHidden);
+      // en móvil la visibilidad se gobierna con .on (hojas), no con hideDesk
+      document.getElementById('left').classList.toggle('on', panelStateBeforeHide.left);
+      document.getElementById('layersControl').classList.toggle('on', panelStateBeforeHide.capas);
     }
     updateRestoreBar();
   }
@@ -2775,17 +2805,21 @@ document.getElementById('shareLocPanel').addEventListener('click', function(e){
 /* ============================================================
  * NAV MÓVIL
  * ============================================================ */
+/* Una sola hoja abierta a la vez: es lo que garantiza que en móvil ningún
+ * panel quede encima ni debajo de otro. Todas las hojas (sistemas/búsqueda,
+ * ficha y capas) se cierran antes de abrir la solicitada. */
 function setMobileTab(tab){
-  document.getElementById('left').classList.remove('on');
-  document.getElementById('right').classList.remove('on');
-  ['mnMapa','mnSistemas','mnFicha'].forEach(function(id){ document.getElementById(id).classList.remove('act'); });
+  ['left','right','layersControl'].forEach(function(id){ document.getElementById(id).classList.remove('on'); });
+  ['mnMapa','mnSistemas','mnFicha','mnCapas'].forEach(function(id){ document.getElementById(id).classList.remove('act'); });
   if (tab === 'mapa'){ document.getElementById('mnMapa').classList.add('act'); }
   if (tab === 'sistemas'){ document.getElementById('left').classList.add('on'); document.getElementById('mnSistemas').classList.add('act'); }
   if (tab === 'ficha'){ document.getElementById('right').classList.add('on'); document.getElementById('mnFicha').classList.add('act'); }
+  if (tab === 'capas'){ document.getElementById('layersControl').classList.add('on'); document.getElementById('mnCapas').classList.add('act'); }
 }
 document.getElementById('mnMapa').addEventListener('click', function(){ setMobileTab('mapa'); });
 document.getElementById('mnSistemas').addEventListener('click', function(){ setMobileTab('sistemas'); });
 document.getElementById('mnFicha').addEventListener('click', function(){ setMobileTab('ficha'); });
+document.getElementById('mnCapas').addEventListener('click', function(){ setMobileTab('capas'); });
 function closeLeftDesktop(){
   document.getElementById('left').classList.add('hideDesk');
   document.getElementById('reopenLeftBtn').style.display = '';
