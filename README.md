@@ -60,6 +60,29 @@
 
 - **`nhc-proxy.gs`** — mismo patrón que `funvisis-proxy.gs` de SISMO·MONITOR: Google Apps Script que lee la fuente oficial, la cachea 3 minutos y la sirve sin problema de CORS.
 
+## 🌀 Sobre WeatherNext (Google DeepMind)
+
+WeatherNext Cyclones se liberó como código abierto el 6 de agosto de 2026 (Apache 2.0, junto a un artículo en *Nature*). Es tentador querer sus trayectorias de ciclón aquí, así que conviene dejar claro **qué se puede y qué no** con infraestructura gratuita:
+
+| Vía de acceso | ¿Da trayectorias de ciclón? | ¿Usable en esta plataforma? |
+|---|---|---|
+| **Open-Meteo** (`ensemble-api`) | No — campos atmosféricos de rejilla en un punto | ✅ **Sí, es lo que usamos.** Sin clave, desde el navegador |
+| **Weather Lab** | Sí | ❌ Es un sitio interactivo, no una API. Se enlaza desde la ficha |
+| **Google Cloud** (Earth Engine / BigQuery / Vertex AI) | Sí | ❌ Requiere cuenta con facturación |
+| **Ejecutar el modelo** (GitHub) | Sí | ⚠️ Ver abajo |
+
+### Lo que sí muestra la plataforma
+
+En la ficha de cada sistema activo se consulta el ensamble de WeatherNext en el punto donde el NHC sitúa el centro, y se muestra **la dispersión entre miembros a lo largo del tiempo** (ahora, +24 h, +48 h, +72 h, +120 h). Una barra ancha significa que los miembros del ensamble no se ponen de acuerdo, es decir, más incertidumbre. También se muestra la tendencia de la presión media, que es el indicador más directo de intensificación.
+
+Esto **no es** la trayectoria del ciclón: es contexto probabilístico en un punto que ya conocemos por la fuente oficial. La posición y el cono siempre vienen del NHC.
+
+### Ejecutar el modelo manualmente (opcional, no automático)
+
+`WeatherNext 2-mini` está diseñado para correr en un notebook de Google Colab gratuito, con el objetivo declarado de bajar la barrera de entrada para servicios meteorológicos de países con pocos recursos, incluido el Caribe. El código y los pesos están en [google-deepmind/weathernext](https://github.com/google-deepmind/weathernext).
+
+**Contrapartida honesta:** Colab gratuito no es un servidor. Se desconecta solo, no corre desatendido y no puede programarse para actualizar cada 6 horas sin que alguien abra el navegador. Sirve como **herramienta de análisis manual** durante un evento concreto — nunca como fuente automática de una plataforma que debe estar viva a las 3 de la madrugada durante un huracán.
+
 ## 🏗 Arquitectura
 
 ```
