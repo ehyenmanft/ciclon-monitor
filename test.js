@@ -135,7 +135,8 @@ const bloqueVivos = (sw.match(/DATOS_VIVOS\s*=\s*\[([\s\S]*?)\]/) || [])[1] || '
 const dominiosVivos = [...bloqueVivos.matchAll(/'([^']+)'/g)].map(m => m[1]);
 ok('sw.js define la lista DATOS_VIVOS', dominiosVivos.length > 0);
 ['nhc.noaa.gov', 'open-meteo.com', 'rainviewer.com', 'gdacs.org', 'overpass-api.de',
- 'mapservices.weather.noaa.gov', 'gibs.earthdata.nasa.gov'].forEach(d => {
+ 'mapservices.weather.noaa.gov', 'gibs.earthdata.nasa.gov', 'earthquake.usgs.gov', 'seismicportal.eu',
+ 'sismosve.rafnixg.dev'].forEach(d => {
   ok(`sw.js excluye ${d} del caché`, dominiosVivos.some(x => d.endsWith(x)));
 });
 
@@ -143,7 +144,7 @@ const dominiosEnHtml = [...new Set([...html.matchAll(/https:\/\/([a-z0-9.-]+)/g)
 // se compara contra la lista REAL de sw.js: así, si se añade una fuente nueva
 // al HTML y se olvida excluirla del caché, esta prueba lo caza
 const noCubiertos = dominiosEnHtml.filter(d =>
-  /(noaa|open-meteo|rainviewer|gdacs|overpass|earthdata|kumi|mail\.ru)/.test(d) &&
+  /(noaa|open-meteo|rainviewer|gdacs|overpass|earthdata|kumi|mail\.ru|usgs|seismicportal|sismosve)/.test(d) &&
   !dominiosVivos.some(x => d.endsWith(x))
 );
 ok('toda fuente de datos del HTML está excluida del caché del SW',
@@ -175,6 +176,14 @@ ok('se enlaza a fuentes oficiales (NHC)', html.includes('nhc.noaa.gov/'));
 ok('se enlaza a Protección Civil de Venezuela', html.includes('gestionderiesgo.gob.ve'));
 ok('el modo demo se etiqueta como ejemplo', js.includes('demoTag'));
 ok('existe aviso de fuente caída', js.includes('showSourceBanner'));
+// SISMO·MONITOR fusiona tres redes con validación cruzada: usar solo una
+// perdería los sismos locales de Venezuela que FUNVISIS sí detecta
+['fetchFUNVISISQuakes', 'fetchUSGSQuakes', 'fetchEMSCQuakes'].forEach(f => {
+  ok(`la capa sísmica consulta ${f.replace('fetch','').replace('Quakes','')}`, js.includes('function ' + f));
+});
+ok('los sismos duplicados se descartan entre redes', js.includes('function mergeSismos'));
+ok('se informa qué fuente sísmica no respondió', js.includes('sinRespuesta'));
+ok('FUNVISIS se parsea por contenido, no por nombre de campo', js.includes('esMag') && js.includes('esCoord'));
 
 // ---------------------------------------------------------------
 seccion('Mantenibilidad');

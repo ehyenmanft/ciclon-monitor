@@ -7,7 +7,7 @@
  *    viejos como frescos.
  * Al actualizar la web, sube también este archivo cambiando VERSION.
  */
-const VERSION = 'v14';
+const VERSION = 'v16';
 const CACHE = 'ciclon-monitor-' + VERSION;
 
 const PRECACHE = [
@@ -31,6 +31,9 @@ const DATOS_VIVOS = [
   'gibs.earthdata.nasa.gov', // teselas satelitales NASA
   'mapservices.weather.noaa.gov', // GIS oficial del NHC: trayectoria y cono
   'gdacs.org', // alertas multi-amenaza
+  'earthquake.usgs.gov', // sismos: red de Estados Unidos
+  'seismicportal.eu', // sismos: EMSC (Europa-Mediterráneo, buena cobertura del Caribe)
+  'sismosve.rafnixg.dev', // sismos: espejo público de FUNVISIS
   'overpass-api.de', // OpenStreetMap: hospitales, refugios, bomberos
   'overpass.kumi.systems', // espejo de Overpass
   'maps.mail.ru' // espejo de Overpass

@@ -23,6 +23,14 @@
 - **Condiciones actuales**: temperatura, sensación térmica, humedad, viento, ráfagas, presión, nubosidad, precipitación.
 - **Próximas 24 horas** y **pronóstico de 7 días**, más **calidad del aire** (AQI europeo/EE.UU.).
 
+### Enlace con SISMO·MONITOR
+- **Capa sísmica** (🌋): sismos de las últimas 24 h dimensionados y coloreados por magnitud, más los **límites de placas tectónicas** (modelo PB2002, Bird 2003) recortados a la región Caribe/Atlántico.
+- **Tres fuentes con validación cruzada**, igual que SISMO·MONITOR: **FUNVISIS** (red nacional de Venezuela), **USGS** y **EMSC**. Se fusionan descartando duplicados (mismo evento a menos de 10 min y 0.5°), con prioridad FUNVISIS > USGS > EMSC, porque ante un mismo sismo la red local es la más precisa. Usar solo USGS perdería los sismos locales pequeños que solo FUNVISIS detecta.
+- Si una red no responde, se indica **cuál** falló y se sigue con las demás. El popup muestra de qué red vino cada evento.
+- FUNVISIS se parsea **por contenido, no por nombre de campo** (ha llegado a servir la magnitud en un campo llamado `phone`).
+- Al tocar un sismo se abre su ficha con profundidad, hora local y UTC, y enlaces al detalle en USGS y a [SISMO·MONITOR](https://ehyenmanft.github.io/monitor-sismico/), la plataforma hermana con el análisis completo (globo 3D, histórico, replay y FUNVISIS para Venezuela).
+- Por qué tiene sentido: un ciclón y un sismo comparten las mismas cuadrillas de respuesta y la misma población expuesta. Se reusan las fuentes ya probadas en producción en SISMO·MONITOR, no fuentes nuevas.
+
 ### Herramientas para equipos de monitoreo / Protección Civil
 - **Leyenda explicada** (❓): modal con todos los colores y símbolos del mapa traducidos a lenguaje simple — categorías de sistema, líneas de trayectoria, tipos de aviso costero, intensidad de radar, escala de viento. Pensado para alguien sin formación meteorológica.
 - **Compartir ubicación** (📍): toma tu GPS (o el centro del mapa si no hay permiso) y genera un enlace a Google Maps + mensaje de WhatsApp listo para enviar — para reportar una posición exacta en campo sin dictar coordenadas por radio.
@@ -52,6 +60,10 @@
 | [RainViewer](https://www.rainviewer.com/api.html) | Global, radar de precipitación (últimas 2h) | JSON + teselas públicas, sin clave |
 | [NASA EOSDIS GIBS](https://nasa-gibs.github.io/gibs-api-docs/) — VIIRS true color | Global, imagen satelital diaria | Teselas WMTS públicas, sin clave |
 | [NOAA GIS (ArcGIS REST)](https://mapservices.weather.noaa.gov/tropical/rest/services/tropical/NHC_tropical_weather/MapServer) | Trayectoria, cono y puntos pronosticados reales | GeoJSON público, sin clave |
+| [USGS](https://earthquake.usgs.gov) — `all_day.geojson` | Global, sismos últimas 24 h | JSON público, sin clave |
+| [EMSC](https://www.seismicportal.eu) | Europa-Mediterráneo y Caribe, sismos | JSON público, sin clave |
+| FUNVISIS (Venezuela) | Red nacional venezolana | Vía el mismo proxy de Apps Script de SISMO·MONITOR, con espejo público de respaldo |
+| PB2002 (Bird 2003) | Límites de placas tectónicas | Datos estáticos incluidos en el archivo |
 | INAMEH (Venezuela) | — | Sin API pública — se enlaza directo a sus canales oficiales |
 
 ### El problema CORS de NHC (posible, sin confirmar aún)
