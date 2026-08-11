@@ -6,9 +6,11 @@
  * problemas que nadie escribió a propósito: código muerto, listeners
  * duplicados, ids huérfanos, endpoints sin usar.
  *
- * OJO con los falsos positivos: el detector de "función no definida"
- * marca parámetros de callback (fn, valida) y texto dentro de expresiones
- * regulares (EAST). Revisar a mano antes de corregir nada.
+ * FALSOS POSITIVOS CONOCIDOS del detector de "función no definida":
+ *   fn, valida  → parámetros de callback
+ *   EAST        → texto dentro de una expresión regular
+ *   new         → artefacto del análisis
+ * Revisar a mano antes de corregir nada.
  */
 const fs=require('fs');
 const html=fs.readFileSync('index.html','utf8');

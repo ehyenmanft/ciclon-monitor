@@ -232,6 +232,19 @@ function caso(nombre, datos, esperados, nivelEsperado){
      'obtenidos: ' + textos.join(' | '));
 }
 
+seccion('Arranque');
+const arranque = js.slice(js.lastIndexOf('* ARRANQUE'));
+// encender una capa y apagarla acto seguido tira peticiones en la carga inicial,
+// que es donde más pesan en un teléfono de gama media
+ok('las capas por defecto solo se encienden si no hay vista compartida',
+   /if \(!applyShareUrl\(\)\)/.test(arranque));
+ok('applyShareUrl se evalúa antes de encender capas',
+   arranque.indexOf('applyShareUrl') < arranque.indexOf('toggleRadar'));
+ok('applyShareUrl no apaga capas que nadie encendió',
+   !/l\.indexOf\('r'\) === -1 && radarOn/.test(js));
+ok('el service worker se registra al arrancar', arranque.includes("register('sw.js')"));
+ok('el refresco periódico de sistemas queda programado', arranque.includes('setInterval(loadStorms'));
+
 seccion('Correcciones de auditoría');
 // la URL del proxy vivía solo en una constante: cada actualización del archivo
 // la borraba y había que volver a pegarla a mano

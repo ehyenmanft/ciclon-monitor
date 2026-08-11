@@ -982,7 +982,8 @@ var OVERPASS_MIRRORS = [
  * en las propiedades devueltas), mismo principio defensivo que
  * ya usamos para CurrentStorms.json.
  * ============================================================ */
-var GIS_BASE = 'https://mapservices.weather.noaa.gov/tropical/rest/services/tropical/NHC_tropical_weather/MapServer';var GIS_PROXY = ''; // ídem; configurable desde el panel 🩺
+var GIS_BASE = 'https://mapservices.weather.noaa.gov/tropical/rest/services/tropical/NHC_tropical_weather/MapServer';
+var GIS_PROXY = ''; // ídem; configurable desde el panel 🩺
 var GIS_BASIN_OFFSET = { AT: 4, EP: 134, CP: 264 };
 var GIS_FIELD_OFFSET = { points: 2, track: 3, cone: 4, watchWarning: 5, pastPoints: 7, pastTrack: 8, arrivalEarliest: 15, arrivalMostLikely: 16 };
 // Bounding box aproximado de Venezuela continental + insular, para cruzar contra la
@@ -3971,8 +3972,7 @@ function applyShareUrl(){
   if (isFinite(lat) && isFinite(lon)) map.setView([lat, lon], isFinite(z) ? z : map.getZoom());
   if (p.get('m') === 'x') setMode('ciclones');
   var l = p.get('l') || '';
-  // el radar arranca encendido por defecto: si el enlace no lo incluye, apagarlo
-  if (l.indexOf('r') === -1 && radarOn) toggleRadar();
+  // se llama ANTES de encender nada, así que solo hay que activar lo pedido
   if (l.indexOf('r') !== -1 && !radarOn) toggleRadar();
   if (l.indexOf('s') !== -1 && !satOn) toggleSat();
   if (l.indexOf('v') !== -1 && !vientoOn) toggleViento();
@@ -3980,8 +3980,6 @@ function applyShareUrl(){
   if (l.indexOf('g') !== -1 && !gdacsOn) toggleGdacs();
   if (l.indexOf('o') !== -1 && !recursosOn) toggleRecursos();
   if (l.indexOf('q') !== -1 && !sismosOn) toggleSismos();
-  // las ciudades arrancan encendidas: si el enlace no las incluye, apagarlas
-  if (l.indexOf('t') === -1 && ciudadesOn) toggleCiudades();
   if (l.indexOf('t') !== -1 && !ciudadesOn) toggleCiudades();
   return true;
 }
@@ -4313,9 +4311,14 @@ applyI18n();
 renderNoSelection();
 setMode('clima');
 selectClimaLocation(VZ_CITIES[0].lat, VZ_CITIES[0].lon, VZ_CITIES[0].name, true); // Caracas por defecto, sin forzar el tab en móvil
-toggleRadar(); // radar encendido de entrada: es la capa que muestra los eventos en vivo
-toggleCiudades(); // condición por ciudad: da lectura inmediata del mapa de un vistazo
-applyShareUrl(); // #7 si la URL trae una vista compartida, la aplica encima del estado por defecto
+/* Si la URL trae una vista compartida, manda ella; si no, se encienden las
+ * capas por defecto. Antes se encendían SIEMPRE y luego applyShareUrl las
+ * apagaba: dos peticiones de red tiradas en la carga inicial, que es
+ * justo donde más pesan en un teléfono de gama media. */
+if (!applyShareUrl()){
+  toggleRadar();    // radar: la capa que muestra los eventos en vivo
+  toggleCiudades(); // condición por ciudad: lectura inmediata del mapa
+}
 updateZoomBarPos();
 loadStorms();
 setInterval(loadStorms, REFRESH_MS);
