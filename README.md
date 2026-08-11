@@ -138,12 +138,19 @@ Todo corre en infraestructura gratuita: GitHub Pages + (opcionalmente) Google Ap
 ## 🧪 Verificación
 
 ```bash
-node test.js
+node test.js    # 84 comprobaciones: reglas del proyecto
+node audit.js   # auditoría estática: código muerto, ids huérfanos, listeners duplicados
 ```
 
 44 comprobaciones sin dependencias: sintaxis de todos los archivos, ids usados vs. definidos, etiquetas balanceadas, paridad de traducciones ES/EN, dominios de datos excluidos del caché del service worker, accesibilidad (aria-labels, severidad no dependiente solo del color) y los requisitos de honestidad del proyecto (avisos de "experimental", enlaces a fuentes oficiales, etiquetado del modo demo).
 
 Ejecútalo antes de cada `git push`. Ya ha cazado errores reales: claves de traducción usadas pero nunca definidas, y espejos de Overpass que se estaban cacheando cuando no debían.
+
+## 🔌 Configuración de proxy
+
+Las URLs de los proxys de Apps Script se configuran desde el panel **🩺 Diagnóstico**, no editando el código. Se guardan en el navegador y **sobreviven a las actualizaciones de `index.html`**, así que actualizar la aplicación ya no borra la configuración.
+
+Las constantes `NHC_PROXY` y `GIS_PROXY` del código siguen funcionando como valor por defecto para un despliegue nuevo.
 
 ## ⚙️ Ajustes del usuario
 

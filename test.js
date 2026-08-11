@@ -232,6 +232,20 @@ function caso(nombre, datos, esperados, nivelEsperado){
      'obtenidos: ' + textos.join(' | '));
 }
 
+seccion('Correcciones de auditoría');
+// la URL del proxy vivía solo en una constante: cada actualización del archivo
+// la borraba y había que volver a pegarla a mano
+ok('los proxies se pueden configurar sin editar código', js.includes('function guardarProxies'));
+ok('la configuración de proxy sobrevive a las actualizaciones', js.includes('ciclon_proxy_nhc'));
+ok('guardar un proxy reintenta las trayectorias fallidas', /guardarProxies[\s\S]*?stormTrackCache = \{\}/.test(js));
+// cuatro manejadores de moveend ejecutándose en cada arrastre pesan en gama media
+ok('un único manejador de desplazamiento del mapa',
+   (js.match(/map\.on\('moveend'/g) || []).length === 1,
+   'encontrados: ' + (js.match(/map\.on\('moveend'/g) || []).length);
+ok('los suscriptores de desplazamiento usan onMapMove', (js.match(/onMapMove\(/g) || []).length >= 4);
+ok('un fallo en un suscriptor no rompe a los demás', /moveHandlers\.forEach[\s\S]{0,120}try \{/.test(js));
+ok('sin constantes de endpoint huérfanas', !js.includes('var OVERPASS_API'));
+
 seccion('Salvaguardas del modo simulacro');
 // lo crítico aquí no es que funcione, sino que sea IMPOSIBLE confundir un
 // ejercicio con condiciones reales
