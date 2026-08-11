@@ -338,7 +338,7 @@ html[data-theme="light"] .cityWx{text-shadow:0 0 3px #fff,0 0 3px #fff,0 0 5px #
 
 /* ===== topbar ===== */
 #topbar{
-  position:fixed;left:50%;top:calc(12px + var(--vzbanner-h, 0px));transform:translateX(-50%);z-index:25;
+  position:fixed;left:50%;top:calc(12px + var(--vzbanner-h, 0px) + var(--simbanner-h, 0px));transform:translateX(-50%);z-index:25;
   display:flex;align-items:center;gap:10px;background:var(--panel);border:1px solid var(--line);
   border-radius:12px;padding:8px 14px;backdrop-filter:blur(10px);
   max-width:calc(100vw - 24px);box-sizing:border-box;
@@ -365,7 +365,7 @@ html[data-theme="light"] .cityWx{text-shadow:0 0 3px #fff,0 0 3px #fff,0 0 5px #
 
 /* ===== banner de alerta Venezuela (watch/warning oficial o llegada de vientos) ===== */
 #vzAlertBanner{
-  display:none;position:fixed;left:0;right:0;top:0;z-index:40;
+  display:none;position:fixed;left:0;right:0;top:var(--simbanner-h, 0px);z-index:40;
   padding:9px 14px;padding-top:calc(9px + env(safe-area-inset-top));text-align:center;font-size:12px;font-weight:600;color:#fff;
 }
 #vzAlertBanner.on{display:block}
@@ -516,6 +516,32 @@ html[data-theme="light"] .cityWx{text-shadow:0 0 3px #fff,0 0 3px #fff,0 0 5px #
   #restoreBar{bottom:calc(64px + env(safe-area-inset-bottom))}
   .panel.fullscreen{bottom:calc(60px + env(safe-area-inset-bottom)) !important}
 }
+/* Modo simulacro: la advertencia tiene que ser imposible de confundir con una
+ * condición real, incluso mirando la pantalla de reojo. */
+#simulacroBanner{
+  display:none;position:fixed;left:0;right:0;top:0;z-index:55;
+  padding:9px 14px;padding-top:calc(9px + env(safe-area-inset-top));
+  text-align:center;font-size:12.5px;font-weight:700;color:#fff;
+  background:repeating-linear-gradient(45deg,#7a1fa2,#7a1fa2 14px,#5d1780 14px,#5d1780 28px);
+}
+#simulacroBanner.on{display:block}
+#simulacroBanner button{
+  background:#ffffff22;border:1px solid #fff9;color:#fff;border-radius:6px;
+  padding:3px 9px;font-family:inherit;font-size:11px;cursor:pointer;margin-left:6px;
+}
+body.simulacro{box-shadow:inset 0 0 0 3px #7a1fa2}
+body.simulacro #topbar b::after{content:' · SIMULACRO';color:#c07be0;font-size:10px}
+#simuladorModal{display:none;position:fixed;inset:0;z-index:60;background:#00000099;align-items:center;justify-content:center;padding:16px}
+#simuladorModal.on{display:flex}
+#simuladorCard{background:var(--panel);border:1px solid var(--line);border-radius:14px;max-width:420px;width:100%;
+  max-height:85vh;overflow-y:auto;padding:16px;backdrop-filter:blur(10px)}
+#simuladorCard h2{display:flex;justify-content:space-between;align-items:center;font-size:14px;margin-bottom:10px}
+#simuladorCard h2 button{background:none;border:none;color:var(--muted);font-size:15px;cursor:pointer}
+.simEsc{border:1px solid var(--line);border-radius:9px;padding:10px;margin-top:8px;cursor:pointer}
+.simEsc:hover{border-color:#b06be0}
+.simEsc .simEscT{font-weight:700;font-size:12.5px;margin-bottom:3px}
+.simEsc .simEscD{font-size:11px;color:var(--muted);line-height:1.5}
+
 /* #12 modo kiosko: solo mapa y alertas */
 body.kiosko #topbar,body.kiosko #left,body.kiosko #right,body.kiosko #layersControl,
 body.kiosko #zoomBar,body.kiosko #mobilenav,body.kiosko #restoreBar{display:none !important}
@@ -646,6 +672,7 @@ body.kiosko #kioskoHint{display:block}
     </div>
     <div class="layerBtns">
       <button id="btnDiag" title="Diagnóstico de fuentes" aria-label="Ejecutar diagnóstico de fuentes">🩺 <span data-i18n="diagnostico">Diagnóstico</span></button>
+      <button id="btnSimulacro" title="Modo simulacro (ejercicio)" aria-label="Iniciar modo simulacro de entrenamiento">🎓 <span data-i18n="simulacro">Simulacro</span></button>
     </div>
     <div id="satModeRow">
       <button id="satModeViirs" class="act" data-i18n="satModoDiario">Diario (VIIRS)</button>
@@ -706,6 +733,20 @@ body.kiosko #kioskoHint{display:block}
   </div>
 </div>
 
+<div id="simulacroBanner" role="alert" aria-live="assertive"></div>
+
+<div id="simuladorModal">
+  <div id="simuladorCard">
+    <h2><span data-i18n="simTitulo">Modo simulacro</span><button id="simuladorClose" aria-label="Cerrar">✕</button></h2>
+    <div class="warnbox" data-i18n="simAviso">
+      Ejercicio de entrenamiento. Los sistemas mostrados son ficticios y no corresponden a
+      ninguna condición real ni a ningún huracán histórico. Sirve para practicar el uso de la
+      plataforma y verificar que todas sus funciones responden.
+    </div>
+    <div id="simuladorLista"></div>
+  </div>
+</div>
+
 <div id="diagModal">
   <div id="diagCard">
     <h2><span data-i18n="diagTitulo">Diagnóstico de fuentes</span><button id="diagClose" aria-label="Cerrar">✕</button></h2>
@@ -760,6 +801,7 @@ body.kiosko #kioskoHint{display:block}
  *    CAPA SATELITAL           NASA GIBS (diario y casi en vivo)
  *    REJILLA DE CONDICIONES   viento, nubes, convergencia
  *    CAPA GDACS               alertas multi-amenaza
+ *    MODO SIMULACRO           ejercicio con sistemas ficticios
  *    ANÁLISIS DE CONDICIONES  hallazgos por reglas, sin IA
  *    CAPA CIUDADES            condición climática por ciudad
  *    CAPA SÍSMICA             sismos 24h + placas (SISMO·MONITOR)
@@ -1059,6 +1101,17 @@ var I18N = {
     mayor: 'mayor', sismosError: 'No se pudo consultar USGS.', profundidad: 'Profundidad',
     verSismoMonitor: '→ Abrir SISMO·MONITOR',
     fuentesSismo: 'Fuentes', sinRespuesta: 'Sin respuesta',
+    simulacro: 'Simulacro', simTitulo: 'Modo simulacro',
+    simAviso: 'Ejercicio de entrenamiento. Los sistemas mostrados son ficticios y no corresponden a ninguna condición real ni a ningún huracán histórico. Sirve para practicar el uso de la plataforma y verificar que todas sus funciones responden.',
+    simBannerTitulo: 'SIMULACRO EN CURSO — DATOS FICTICIOS', simSalir: 'Salir del simulacro',
+    sim_vigilancia: 'Tormenta tropical aproximándose a las Antillas',
+    sim_aviso: 'Huracán al norte de Venezuela',
+    sim_impacto: 'Huracán mayor cruzando el sur del Caribe',
+    simDesc_vigilancia: 'Sistema lejano al este. Ejercita la lista de sistemas, la ficha y el ensamble de WeatherNext, sin alerta para Venezuela.',
+    simDesc_aviso: 'Sistema a distancia media. Activa el aviso de posible llegada de vientos a Venezuela y la ficha completa con proximidad.',
+    simDesc_impacto: 'Dos sistemas simultáneos, uno de ellos con Venezuela en zona de aviso. Ejercita el banner rojo, las notificaciones y el reporte de situación.',
+    simNotifTitulo: '🎓 Simulacro iniciado', simNotifCuerpo: 'Ejercicio de entrenamiento — los datos no son reales',
+    simReporte: 'REPORTE DE SIMULACRO — datos ficticios, no corresponde a condiciones reales',
     anTitulo: 'Análisis de condiciones', anSinDatos: 'Sin datos suficientes para analizar.',
     anResumenAlerta: 'Condiciones que requieren atención inmediata',
     anResumenAtencion: 'Condiciones a vigilar',
@@ -1195,6 +1248,17 @@ var I18N = {
     mayor: 'largest', sismosError: 'Could not query USGS.', profundidad: 'Depth',
     verSismoMonitor: '→ Open SISMO·MONITOR',
     fuentesSismo: 'Sources', sinRespuesta: 'No response',
+    simulacro: 'Drill', simTitulo: 'Drill mode',
+    simAviso: 'Training exercise. The systems shown are fictitious and do not correspond to any real condition or historical hurricane. It exists to practise using the platform and to verify that every function responds.',
+    simBannerTitulo: 'DRILL IN PROGRESS — FICTITIOUS DATA', simSalir: 'Exit drill',
+    sim_vigilancia: 'Tropical storm approaching the Antilles',
+    sim_aviso: 'Hurricane north of Venezuela',
+    sim_impacto: 'Major hurricane crossing the southern Caribbean',
+    simDesc_vigilancia: 'Distant system to the east. Exercises the system list, the details panel and the WeatherNext ensemble, with no alert for Venezuela.',
+    simDesc_aviso: 'System at medium range. Triggers the possible-arrival notice for Venezuela and the full details panel with proximity.',
+    simDesc_impacto: 'Two simultaneous systems, one with Venezuela in a warning zone. Exercises the red banner, notifications and the situation report.',
+    simNotifTitulo: '🎓 Drill started', simNotifCuerpo: 'Training exercise — the data is not real',
+    simReporte: 'DRILL REPORT — fictitious data, does not reflect real conditions',
     anTitulo: 'Conditions analysis', anSinDatos: 'Not enough data to analyse.',
     anResumenAlerta: 'Conditions requiring immediate attention',
     anResumenAtencion: 'Conditions to watch',
@@ -1577,6 +1641,7 @@ function fetchJsonProxied(url, proxyBase){
 }
 
 function loadStorms(){
+  if (simulacroOn) return; // no pisar el ejercicio en curso con datos reales
   setStatus('loading');
   var attempt = fetchJson(NHC_URL)
     .catch(function(err){
@@ -1678,8 +1743,9 @@ function renderList(){
     card.className = 'stormCard' + (selectedStorm && selectedStorm.id === s.id ? ' sel' : '');
     var color = catColor(s.classification, s.windKt || 0);
     var sevMark = sevSymbol(s.classification, s.windKt || 0);
+    var esSim = s.__sim || (s._raw && s._raw.__sim);
     card.innerHTML =
-      '<div class="name">' + (s.__demo || s._raw.__demo ? '⚠ ' + t('demoTag') + ' — ' : '') + escapeHtml(s.name) + '</div>' +
+      '<div class="name">' + (esSim ? '🎓 ' : (s.__demo || s._raw.__demo ? '⚠ ' + t('demoTag') + ' — ' : '')) + escapeHtml(s.name) + '</div>' +
       '<div class="meta">' +
         '<span class="catPill" style="background:'+color+'">' + sevMark + ' ' + escapeHtml(kindLabel(s.classification)) + '</span>' +
         (typeof s.windKt === 'number' ? '<span>' + fmtVientoKt(s.windKt) + '</span>' : '') +
@@ -1752,8 +1818,12 @@ function featureMentionsStorm(feature, storm){
   });
 }
 function ensureStormTrack(storm){
-  if (storm.__demo || (storm._raw && storm._raw.__demo)){
-    setTrackStatus(t('trayOficialNo')); // el sistema DEMO no existe en el GIS real del NHC
+  var esFicticio = storm.__demo || storm.__sim ||
+                   (storm._raw && (storm._raw.__demo || storm._raw.__sim));
+  if (esFicticio){
+    // ni el DEMO ni los sistemas de SIMULACRO existen en el GIS real del NHC:
+    // consultarlo lanzaría 15 peticiones inútiles buscando una tormenta que no existe
+    setTrackStatus(t('trayOficialNo'));
     return;
   }
   if (stormTrackCache.hasOwnProperty(storm.id)){
@@ -1927,6 +1997,9 @@ document.getElementById('notifBtn').addEventListener('click', toggleNotif);
  * ============================================================ */
 function buildPrintReport(){
   var html = '<h1>CICLÓN·MONITOR — ' + t('reporteTitulo') + '</h1>';
+  // un reporte de simulacro impreso y circulando por ahí sin marcar sería
+  // indistinguible de uno real: se marca arriba del todo
+  if (simulacroOn) html += '<p class="printAlert">🎓 ' + t('simReporte') + '</p>';
   html += '<p>' + t('actualizado') + ': ' + (lastGoodAt ? fmtTime(lastGoodAt) : '—') + ' · ' + new Date().toLocaleString(lang==='es'?'es-VE':'en-US') + '</p>';
   var vzActive = Object.keys(vzAlerts).filter(function(id){ return vzAlerts[id]; });
   if (vzActive.length){
@@ -2066,7 +2139,9 @@ function renderDetail(s){
   var color = catColor(s.classification, s.windKt || 0);
   var html = '';
 
-  if (s.__demo || (s._raw && s._raw.__demo)){
+  if (s.__sim || (s._raw && s._raw.__sim)){
+    html += '<div class="warnbox" style="background:#2a0e33;border-color:#7a1fa2;color:#e6c7f0"><b>🎓 ' + t('simBannerTitulo') + '</b></div>';
+  } else if (s.__demo || (s._raw && s._raw.__demo)){
     html += '<div class="warnbox"><b>' + t('demoTag') + '</b></div>';
   }
 
@@ -2974,6 +3049,145 @@ document.getElementById('lowDataChk').addEventListener('change', function(){
   try { localStorage.setItem('ciclon_lowdata', lowDataMode ? '1' : '0'); } catch(e){}
   GRID_CACHE = {};
   if (vientoOn || nubesOn) loadGridConditions();
+});
+
+/* ============================================================
+ * MODO SIMULACRO (ejercicio de entrenamiento)
+ * ------------------------------------------------------------
+ * Motivo: el módulo de ciclones nunca ha visto un ciclón real.
+ * Toda su cadena —parseo, trayectoria, cono, cruce con Venezuela,
+ * banner de alerta, notificaciones, reporte— se estrenaría durante
+ * una emergencia, que es el peor momento para descubrir un fallo.
+ * Este modo inyecta sistemas ficticios y ejercita esa cadena
+ * completa, y de paso sirve para entrenar a un equipo sin esperar
+ * a que haya un huracán.
+ *
+ * HONESTIDAD: los escenarios son SINTÉTICOS, construidos sobre la
+ * climatología real de la región (los sistemas entran por el este
+ * entre 10-15°N desplazándose al oeste-noroeste). NO son la
+ * reconstrucción de ningún huracán histórico concreto: inventar
+ * coordenadas y presentarlas como datos históricos reales sería
+ * exactamente el tipo de dato falso que esta plataforma no admite.
+ *
+ * Salvaguardas: banner rojo permanente imposible de confundir,
+ * cada sistema con "[SIMULACRO]" en el nombre, el reporte impreso
+ * sale marcado, y NO persiste: al recargar la página se apaga solo.
+ * ============================================================ */
+var simulacroOn = false;
+var SIMULACROS = [
+  {
+    id: 'sim-vigilancia',
+    nombre: 'vigilancia',
+    storms: [{
+      id: 'SIM-AL01', name: '[SIMULACRO] ANDREA', classification: 'TS',
+      latitude: 11.8, longitude: -59.2, intensity: 55, pressure: 998,
+      movementDir: 285, movementSpeed: 16, lastUpdate: null, __sim: true
+    }],
+    vz: null
+  },
+  {
+    id: 'sim-aviso',
+    nombre: 'aviso',
+    storms: [{
+      id: 'SIM-AL02', name: '[SIMULACRO] BERNARDO', classification: 'HU',
+      latitude: 12.6, longitude: -66.4, intensity: 105, pressure: 962,
+      movementDir: 280, movementSpeed: 19, lastUpdate: null, __sim: true
+    }],
+    vz: 'arrival'
+  },
+  {
+    id: 'sim-impacto',
+    nombre: 'impacto',
+    storms: [{
+      id: 'SIM-AL03', name: '[SIMULACRO] CARMEN', classification: 'HU',
+      latitude: 11.2, longitude: -67.1, intensity: 130, pressure: 941,
+      movementDir: 265, movementSpeed: 14, lastUpdate: null, __sim: true
+    }, {
+      id: 'SIM-AL04', name: '[SIMULACRO] DANIEL', classification: 'TD',
+      latitude: 13.4, longitude: -55.8, intensity: 30, pressure: 1006,
+      movementDir: 290, movementSpeed: 20, lastUpdate: null, __sim: true
+    }],
+    vz: 'warning'
+  }
+];
+function iniciarSimulacro(idx){
+  var esc = SIMULACROS[idx];
+  if (!esc) return;
+  simulacroOn = true;
+  document.body.classList.add('simulacro');
+  document.getElementById('btnSimulacro').classList.add('act');
+  document.getElementById('simuladorModal').classList.remove('on');
+
+  // hora actual para que la ficha muestre datos coherentes
+  var ahora = Date.now();
+  storms = esc.storms.map(function(raw){
+    var copia = {};
+    for (var k in raw) copia[k] = raw[k];
+    copia.lastUpdate = new Date(ahora).toISOString();
+    return normalizeStorm(copia);
+  });
+  lastGoodAt = new Date(ahora);
+  setStatus('live');
+  hideSourceBanner();
+
+  // estado de alerta Venezuela del escenario (sin consultar el GIS real)
+  vzAlerts = {};
+  if (esc.vz) storms.forEach(function(st){ if (!/DANIEL/.test(st.name)) vzAlerts[st.id] = esc.vz; });
+  renderVzAlertBanner();
+
+  setMode('ciclones');
+  renderAll();
+  if (storms.length) selectStorm(storms[0]);
+  mostrarBannerSimulacro(esc);
+  notifyIfEnabled(t('simNotifTitulo'), t('simNotifCuerpo'));
+  if (window.innerWidth <= 820) setMobileTab('sistemas');
+}
+function mostrarBannerSimulacro(esc){
+  var b = document.getElementById('simulacroBanner');
+  b.innerHTML = '<b>🎓 ' + t('simBannerTitulo') + '</b> — ' + t('sim_' + esc.nombre) +
+    ' · <button id="simSalirBtn">' + t('simSalir') + '</button>';
+  b.classList.add('on');
+  document.getElementById('simSalirBtn').addEventListener('click', salirSimulacro);
+  requestAnimationFrame(function(){
+    document.documentElement.style.setProperty('--simbanner-h', b.offsetHeight + 'px');
+  });
+}
+function salirSimulacro(){
+  simulacroOn = false;
+  document.body.classList.remove('simulacro');
+  document.getElementById('btnSimulacro').classList.remove('act');
+  document.getElementById('simulacroBanner').classList.remove('on');
+  document.documentElement.style.setProperty('--simbanner-h', '0px');
+  vzAlerts = {};
+  renderVzAlertBanner();
+  coneLayer.clearLayers();
+  selectedStorm = null;
+  renderNoSelection();
+  storms = [];
+  loadStorms(); // vuelve a los datos reales
+}
+function renderSimuladorLista(){
+  var wrap = document.getElementById('simuladorLista');
+  wrap.innerHTML = '';
+  SIMULACROS.forEach(function(esc, i){
+    var div = document.createElement('div');
+    div.className = 'simEsc';
+    div.innerHTML = '<div class="simEscT">' + t('sim_' + esc.nombre) + '</div>' +
+                    '<div class="simEscD">' + t('simDesc_' + esc.nombre) + '</div>';
+    div.addEventListener('click', function(){ iniciarSimulacro(i); });
+    wrap.appendChild(div);
+  });
+}
+document.getElementById('btnSimulacro').addEventListener('click', function(){
+  if (simulacroOn){ salirSimulacro(); return; }
+  renderSimuladorLista();
+  document.getElementById('simuladorModal').classList.add('on');
+});
+document.getElementById('simuladorClose').addEventListener('click', function(){
+  document.getElementById('simuladorModal').classList.remove('on');
+});
+document.getElementById('simuladorModal').addEventListener('click', function(e){
+  if (e.target === this) this.classList.remove('on');
 });
 
 /* ============================================================

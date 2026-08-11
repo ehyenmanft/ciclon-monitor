@@ -18,6 +18,22 @@
 - **Capa experimental WeatherNext** (Google DeepMind, vía Open-Meteo): dispersión del ensamble de 64 miembros de viento/presión en el punto del sistema. Etiquetada explícitamente como experimental — nunca se usa como fuente de la posición del ciclón.
 - **Modo demo**: sistema de ejemplo, claramente etiquetado, para probar la interfaz cuando no hay ciclones activos reales.
 
+### Modo simulacro 🎓
+Ejercicio de entrenamiento con tres escenarios: sistema lejano en vigilancia, huracán al norte de Venezuela, y huracán mayor con dos sistemas simultáneos y Venezuela en zona de aviso.
+
+**Por qué existe:** el módulo de ciclones sólo se ejercita cuando hay un ciclón. Sin esto, toda su cadena —parseo, trayectoria, cono, cruce con territorio venezolano, banner de alerta, notificaciones, reporte— se estrenaría durante una emergencia real, que es el peor momento para descubrir un fallo. También permite entrenar a un equipo sin esperar a que haya un huracán.
+
+**Los escenarios son sintéticos**, construidos sobre la climatología real de la región (los sistemas entran por el este entre 10–15°N desplazándose al oeste-noroeste). **No reconstruyen ningún huracán histórico concreto**: inventar coordenadas y presentarlas como datos históricos reales sería exactamente el tipo de dato falso que esta plataforma no admite.
+
+Salvaguardas para que un ejercicio nunca se confunda con la realidad:
+- Banner con rayado diagonal permanente: «SIMULACRO EN CURSO — DATOS FICTICIOS», anunciado también a lectores de pantalla.
+- Borde morado alrededor de toda la ventana y sufijo «· SIMULACRO» en el título.
+- Cada sistema lleva `[SIMULACRO]` en el nombre y su ficha sale marcada.
+- El reporte impreso se emite con una cabecera de aviso: un PDF de ejercicio circulando sin marcar sería indistinguible de uno real.
+- **No persiste**: al recargar la página se apaga solo.
+- Los datos reales no pisan el ejercicio, y al salir se restauran automáticamente.
+- Los sistemas ficticios no consultan el GIS real de NOAA.
+
 ### Análisis de condiciones (sin IA, deliberadamente)
 En la ficha de cada ubicación aparece un resumen que cruza los datos ya obtenidos y señala lo que merece atención — por ejemplo, *"suelo saturado con más lluvia prevista → riesgo de deslizamiento (45%)"*, que combina humedad del suelo y probabilidad de precipitación.
 

@@ -232,6 +232,27 @@ function caso(nombre, datos, esperados, nivelEsperado){
      'obtenidos: ' + textos.join(' | '));
 }
 
+seccion('Salvaguardas del modo simulacro');
+// lo crítico aquí no es que funcione, sino que sea IMPOSIBLE confundir un
+// ejercicio con condiciones reales
+ok('cada sistema ficticio lleva [SIMULACRO] en el nombre',
+   (js.match(/\[SIMULACRO\]/g) || []).length >= 3);
+ok('hay banner permanente de simulacro', html.includes('id="simulacroBanner"'));
+ok('el banner de simulacro se anuncia a lectores de pantalla', /id="simulacroBanner"[^>]*aria-live=/.test(html));
+ok('el banner avisa que los datos son ficticios', /DATOS FICTICIOS|FICTITIOUS DATA/.test(html));
+ok('el reporte impreso sale marcado como simulacro', js.includes('simReporte'));
+ok('el simulacro NO persiste entre recargas',
+   !/localStorage[^\n]*simulacro/i.test(js), 'no debe guardarse en localStorage');
+ok('los datos reales no pisan el ejercicio en curso', js.includes('if (simulacroOn) return;'));
+ok('salir del simulacro restaura los datos reales',
+   /function salirSimulacro\(\)[\s\S]*?loadStorms\(\)/.test(js));
+ok('salir del simulacro limpia las alertas de Venezuela',
+   /function salirSimulacro\(\)[\s\S]*?vzAlerts = \{\}/.test(js));
+ok('el modal advierte que no es un huracán histórico', /histórico|historical/.test(html));
+// un sistema ficticio no debe disparar consultas al GIS real de NOAA
+ok('los sistemas ficticios no consultan el GIS real', js.includes('storm.__sim'));
+ok('la ficha de un sistema de simulacro sale marcada', js.includes("s.__sim ||"));
+
 seccion('Lógica del análisis de condiciones');
 
 caso('día tranquilo → sin hallazgos',

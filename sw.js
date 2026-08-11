@@ -7,7 +7,7 @@
  *    viejos como frescos.
  * Al actualizar la web, sube también este archivo cambiando VERSION.
  */
-const VERSION = 'v18';
+const VERSION = 'v19';
 const CACHE = 'ciclon-monitor-' + VERSION;
 
 const PRECACHE = [
