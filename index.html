@@ -383,6 +383,18 @@ html[data-theme="light"] .cityWx{text-shadow:0 0 3px #fff,0 0 3px #fff,0 0 5px #
 .stormCard:hover{border-color:var(--accent)}
 .stormCard.sel{border-color:var(--accent);background:#1b2430}
 .stormCard .name{font-weight:700;font-size:13px;margin-bottom:3px}
+.stormEfecto{font-size:10.5px;color:var(--muted);line-height:1.45;margin-top:5px;padding-top:5px;border-top:1px dashed var(--line)}
+.distPin{
+  width:24px;height:24px;border-radius:50%;border:2px solid;background:#10151ce6;
+  display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;
+}
+.distCard{border:1px solid var(--line);border-radius:9px;padding:9px;margin-bottom:7px;cursor:pointer}
+.distCard:hover{border-color:var(--accent)}
+.distCabecera{display:flex;align-items:center;gap:6px;font-size:12px;font-weight:700}
+.distX{font-size:13px}
+.distProb{margin-left:auto;color:#0b0f14;border-radius:20px;padding:1px 8px;font-size:10px;font-weight:700}
+.distMeta{font-size:10.5px;color:var(--muted);margin-top:3px}
+.distNota{font-size:10px;color:var(--muted);line-height:1.45;margin:2px 0 8px}
 .stormCard .meta{color:var(--muted);font-size:11px;display:flex;gap:8px;flex-wrap:wrap}
 .catPill{display:inline-block;padding:1px 7px;border-radius:20px;font-size:10px;font-weight:700;color:#0b0f14}
 
@@ -609,6 +621,7 @@ body.kiosko #kioskoHint{display:block}
   <div id="panelCiclonesLeft" style="display:none">
     <h2><span data-i18n="panelSistemas">Sistemas activos</span><span class="panelBtns"><button id="leftFull" title="Pantalla completa" aria-label="Ampliar panel a pantalla completa">⤢</button><button id="leftClose" title="Ocultar" aria-label="Ocultar panel de sistemas">✕</button></span></h2>
     <div id="stormList"></div>
+    <div id="disturbiosList"></div>
     <div id="emptyState"></div>
     <div class="warnbox" data-i18n="disclaimerGlobal">
       ⚠ Esta plataforma es una herramienta informativa independiente. <b>No sustituye</b> los avisos oficiales
@@ -804,6 +817,7 @@ body.kiosko #kioskoHint{display:block}
  *    CAPA SATELITAL           NASA GIBS (diario y casi en vivo)
  *    REJILLA DE CONDICIONES   viento, nubes, convergencia
  *    CAPA GDACS               alertas multi-amenaza
+ *    PERTURBACIONES           áreas vigiladas con prob. de formación
  *    MODO SIMULACRO           ejercicio con sistemas ficticios
  *    ANÁLISIS DE CONDICIONES  hallazgos por reglas, sin IA
  *    CAPA CIUDADES            condición climática por ciudad
@@ -833,7 +847,7 @@ body.kiosko #kioskoHint{display:block}
  *             ocultar un fallo de la fuente real.
  * ============================================================ */
 var NHC_URL   = 'https://www.nhc.noaa.gov/CurrentStorms.json';
-var NHC_PROXY = 'https://script.google.com/macros/s/AKfycbxx8l4tBb72Nf-plE5cMZvqiDijU6-weNntgj2hddJKcMX8C6I_kOPfOaDwJ9tPvsl8/exec'; // valor por defecto; se puede sobrescribir desde el panel 🩺 sin editar código
+var NHC_PROXY = 'https://script.google.com/macros/s/AKfycbzRjBVXsQuU5TVES-m__udLR_riX2krd33fADaFxAe2h2JKbzra2tmLz67CDMfXZza4/exec'; // valor por defecto; se puede sobrescribir desde el panel 🩺 sin editar código
 var OM_ENSEMBLE = 'https://ensemble-api.open-meteo.com/v1/ensemble';
 var REFRESH_MS = 5 * 60 * 1000; // NHC actualiza por evento, no por polling agresivo
 var DEMO_MODE = true; // desactívalo en cuanto confirmes que la fuente real responde
@@ -983,6 +997,24 @@ var OVERPASS_MIRRORS = [
  * ya usamos para CurrentStorms.json.
  * ============================================================ */
 var GIS_BASE = 'https://mapservices.weather.noaa.gov/tropical/rest/services/tropical/NHC_tropical_weather/MapServer';
+
+/* ============================================================
+ * PERTURBACIONES EN VIGILANCIA (Tropical Weather Outlook)
+ * ------------------------------------------------------------
+ * CurrentStorms.json solo lista sistemas YA formados. Las
+ * perturbaciones —lo que el NHC marca con equis de colores y una
+ * probabilidad de formación a 2 y 7 días— van en un servicio
+ * distinto. Para Protección Civil son justamente lo que da margen
+ * de preparación: cuando el sistema ya es depresión, se perdieron
+ * varios días de aviso.
+ *
+ * IDs de capa CONFIRMADOS contra la definición oficial del
+ * servicio (no adivinados): a diferencia del otro MapServer,
+ * este es un resumen y devuelve TODAS las perturbaciones de una
+ * vez, sin ranuras por cuenca.
+ * ============================================================ */
+var GIS_SUMMARY = 'https://mapservices.weather.noaa.gov/tropical/rest/services/tropical/NHC_tropical_weather_summary/MapServer';
+var TWO_CAPAS = { dosDias: 1, sieteDias: 2, region: 3, movimiento: 33 };
 var GIS_PROXY = ''; // ídem; configurable desde el panel 🩺
 var GIS_BASIN_OFFSET = { AT: 4, EP: 134, CP: 264 };
 var GIS_FIELD_OFFSET = { points: 2, track: 3, cone: 4, watchWarning: 5, pastPoints: 7, pastTrack: 8, arrivalEarliest: 15, arrivalMostLikely: 16 };
@@ -1035,6 +1067,21 @@ function guardarProxies(nhc, gis){
  * ============================================================ */
 var I18N = {
   es: {
+    categoriaAbrev: 'categoría',
+    efCat1: 'Vientos muy peligrosos: daños en techos, ramas partidas, cortes eléctricos de varios días.',
+    efCat2: 'Vientos extremadamente peligrosos: daños importantes en techos y paredes, árboles arrancados, cortes eléctricos prolongados.',
+    efCat3: 'Daño devastador: daño estructural en viviendas, agua y electricidad no disponibles por días o semanas.',
+    efCat4: 'Daño catastrófico: pérdida de techos y paredes, zona inhabitable durante semanas o meses.',
+    efCat5: 'Daño catastrófico: destrucción de viviendas, zona inhabitable durante semanas o meses.',
+    efTS: 'Vientos de tormenta tropical: ramas caídas, cortes eléctricos puntuales, lluvia intensa.',
+    efTD: 'Depresión tropical: el riesgo principal es la lluvia acumulada y las inundaciones, no el viento.',
+    efPC: 'Sistema en formación o en transición: puede reorganizarse; seguir los avisos.',
+    perturbacionesTitulo: 'Perturbaciones en vigilancia', perturbacion: 'Perturbación tropical',
+    probBaja: 'baja', probMedia: 'media', probAlta: 'alta',
+    en2dias: 'Formación en 2 días', en7dias: 'Formación en 7 días',
+    regionDesarrollo: 'Región de posible desarrollo',
+    perturbacionNota: 'Aún no es un ciclón: es un área que el NHC vigila por su posibilidad de convertirse en uno.',
+    sinSistemasConDist: 'No hay ciclones formados, pero sí áreas en vigilancia (ver abajo).',
     panelSistemas: 'Sistemas activos',
     navMapa: 'Mapa', navSistemas: 'Sistemas', navFicha: 'Ficha', navCapas: 'Capas',
     disclaimerGlobal: '⚠ Esta plataforma es una herramienta informativa independiente. No sustituye los avisos oficiales de tu autoridad de Protección Civil, tu servicio meteorológico nacional, ni del NHC/NOAA. Ante un sistema activo, sigue siempre las fuentes oficiales.',
@@ -1184,6 +1231,21 @@ var I18N = {
     riesgoAviso: 'Indicadores orientativos derivados del modelo, no pronósticos de tormenta ni de deslizamiento. Un suelo saturado aumenta el riesgo ante nuevas lluvias; consulta siempre a Protección Civil.'
   },
   en: {
+    categoriaAbrev: 'category',
+    efCat1: 'Very dangerous winds: roof damage, snapped branches, power outages lasting days.',
+    efCat2: 'Extremely dangerous winds: major roof and wall damage, uprooted trees, prolonged power outages.',
+    efCat3: 'Devastating damage: structural damage to homes, water and power unavailable for days or weeks.',
+    efCat4: 'Catastrophic damage: loss of roofs and walls, area uninhabitable for weeks or months.',
+    efCat5: 'Catastrophic damage: homes destroyed, area uninhabitable for weeks or months.',
+    efTS: 'Tropical-storm-force winds: downed branches, scattered outages, heavy rain.',
+    efTD: 'Tropical depression: the main risk is accumulated rain and flooding, not wind.',
+    efPC: 'System forming or in transition: it may reorganise; follow official advisories.',
+    perturbacionesTitulo: 'Areas being watched', perturbacion: 'Tropical disturbance',
+    probBaja: 'low', probMedia: 'medium', probAlta: 'high',
+    en2dias: 'Formation within 2 days', en7dias: 'Formation within 7 days',
+    regionDesarrollo: 'Potential development region',
+    perturbacionNota: 'Not a cyclone yet: an area the NHC is watching for possible development.',
+    sinSistemasConDist: 'No formed cyclones, but there are areas being watched (see below).',
     panelSistemas: 'Active systems',
     navMapa: 'Map', navSistemas: 'Systems', navFicha: 'Details', navCapas: 'Layers',
     disclaimerGlobal: '⚠ This platform is an independent informational tool. It does not replace official advisories from your civil protection authority, your national weather service, or the NHC/NOAA. During an active system, always follow official sources.',
@@ -1549,6 +1611,39 @@ function sevSymbol(kind, windKt){
   if (kind === 'TS' || kind === 'STS') return '\u25CF';
   return '\u25CB';
 }
+/* Categoría Saffir-Simpson a partir del viento máximo sostenido en nudos.
+ * Los umbrales son los oficiales: 64 kt entra en huracán, y de ahí
+ * 83 / 96 / 113 / 137 kt marcan las categorías 2 a 5. */
+function categoriaSS(windKt){
+  if (typeof windKt !== 'number') return null;
+  if (windKt >= 137) return 5;
+  if (windKt >= 113) return 4;
+  if (windKt >= 96) return 3;
+  if (windKt >= 83) return 2;
+  if (windKt >= 64) return 1;
+  return null;
+}
+/* Etiqueta completa: "Huracán categoría 3" o "Depresión tropical". */
+function clasificacionCompleta(kind, windKt){
+  var cat = categoriaSS(windKt);
+  var base = kindLabel(kind);
+  if ((kind === 'HU' || kind === 'TY') && cat) return base + ' ' + t('categoriaAbrev') + ' ' + cat;
+  return base;
+}
+/* Escala de daños esperada, en lenguaje llano: lo que de verdad
+ * necesita saber quien no es meteorólogo. */
+function efectoEsperado(kind, windKt){
+  var cat = categoriaSS(windKt);
+  if (cat === 5) return t('efCat5');
+  if (cat === 4) return t('efCat4');
+  if (cat === 3) return t('efCat3');
+  if (cat === 2) return t('efCat2');
+  if (cat === 1) return t('efCat1');
+  if (kind === 'TS' || kind === 'STS') return t('efTS');
+  if (kind === 'TD' || kind === 'STD') return t('efTD');
+  if (kind === 'PTC' || kind === 'PC') return t('efPC');
+  return null;
+}
 function kindLabel(kind){
   var map_ = {
     TD: lang==='es'?'Depresión tropical':'Tropical depression',
@@ -1702,6 +1797,9 @@ function loadStorms(){
     // sistemas activos (no solo el seleccionado): un panel de monitoreo no
     // puede depender de que alguien haga clic para detectar una alerta.
     storms.forEach(function(s){ ensureStormTrack(s); });
+    // las perturbaciones son un servicio aparte: si falla, los sistemas
+    // formados se siguen mostrando igual
+    loadDisturbios().catch(function(e){ console.warn('Perturbaciones no disponibles:', e); });
   }).catch(function(err){
     console.error('Error leyendo NHC:', err);
     var persisted = lastGoodStorms ? null : loadPersistedLastGood();
@@ -1771,6 +1869,12 @@ function renderAll(){
 }
 function renderEmptyState(){
   var el = document.getElementById('emptyState');
+  // si no hay sistemas formados pero SÍ perturbaciones vigiladas, decir
+  // "ninguno formado" en vez de "no hay nada", que sería engañoso
+  if (storms.length === 0 && disturbios.length > 0){
+    el.innerHTML = '<b>' + t('sinSistemasConDist') + '</b>';
+    return;
+  }
   if (storms.length === 0){
     el.innerHTML = '<b>' + t('sinSistemas') + '</b><br>' + t('sinSistemas2');
   } else { el.innerHTML = ''; }
@@ -1787,9 +1891,11 @@ function renderList(){
     card.innerHTML =
       '<div class="name">' + (esSim ? '🎓 ' : (s.__demo || s._raw.__demo ? '⚠ ' + t('demoTag') + ' — ' : '')) + escapeHtml(s.name) + '</div>' +
       '<div class="meta">' +
-        '<span class="catPill" style="background:'+color+'">' + sevMark + ' ' + escapeHtml(kindLabel(s.classification)) + '</span>' +
+        '<span class="catPill" style="background:'+color+'">' + sevMark + ' ' + escapeHtml(clasificacionCompleta(s.classification, s.windKt)) + '</span>' +
         (typeof s.windKt === 'number' ? '<span>' + fmtVientoKt(s.windKt) + '</span>' : '') +
-      '</div>';
+      '</div>' +
+      (efectoEsperado(s.classification, s.windKt)
+        ? '<div class="stormEfecto">' + escapeHtml(efectoEsperado(s.classification, s.windKt)) + '</div>' : '');
     card.addEventListener('click', function(){ selectStorm(s); });
     wrap.appendChild(card);
   });
@@ -2185,7 +2291,9 @@ function renderDetail(s){
     html += '<div class="warnbox"><b>' + t('demoTag') + '</b></div>';
   }
 
-  html += '<div class="kv"><span data-i18n="categoria">' + t('categoria') + '</span><span style="color:'+color+'">' + escapeHtml(kindLabel(s.classification)) + '</span></div>';
+  html += '<div class="kv"><span data-i18n="categoria">' + t('categoria') + '</span><span style="color:'+color+'">' + escapeHtml(clasificacionCompleta(s.classification, s.windKt)) + '</span></div>';
+  var efecto = efectoEsperado(s.classification, s.windKt);
+  if (efecto) html += '<div class="stormEfecto" style="margin:6px 0">' + escapeHtml(efecto) + '</div>';
   html += '<div class="kv"><span>' + t('vientos') + '</span><span>' + fmtVientoKt(s.windKt) + '</span></div>';
   html += '<div class="kv"><span>' + t('presion') + '</span><span>' + (typeof s.pressureMb==='number' ? Math.round(s.pressureMb)+' hPa' : '—') + '</span></div>';
   html += '<div class="kv"><span>' + t('movimiento') + '</span><span>' + (typeof s.moveSpeed==='number' ? fmtVientoKt(s.moveSpeed)+(s.moveDir!=null?' @ '+Math.round(s.moveDir)+'°':'') : '—') + '</span></div>';
@@ -3375,6 +3483,134 @@ function renderAnalisis(){
 }
 
 /* ============================================================
+ * PERTURBACIONES EN VIGILANCIA
+ * ------------------------------------------------------------
+ * Se dibujan en el mapa y se listan en el panel de ciclones, en
+ * su propia sección: son sistemas que AÚN NO son depresión pero
+ * que el NHC vigila. El color sigue su convención oficial:
+ * amarillo baja, naranja media, rojo alta probabilidad.
+ * ============================================================ */
+var disturbios = [];
+var disturbiosLayer = null;
+function probColor(p){
+  if (typeof p !== 'number') return '#76879a';
+  if (p >= 60) return '#e8484f';   // alta
+  if (p >= 40) return '#f07f3c';   // media
+  return '#e8b23c';                // baja
+}
+function probEtiqueta(p){
+  if (typeof p !== 'number') return '—';
+  if (p >= 60) return t('probAlta');
+  if (p >= 40) return t('probMedia');
+  return t('probBaja');
+}
+/* Igual que con el resto de fuentes de NOAA: no se confía en el
+ * nombre exacto del campo, se buscan alias y se valida el contenido
+ * (un porcentaje tiene que estar entre 0 y 100). */
+function propPorcentaje(props, alias){
+  for (var i = 0; i < alias.length; i++){
+    var keys = Object.keys(props);
+    for (var j = 0; j < keys.length; j++){
+      if (keys[j].toLowerCase().indexOf(alias[i]) === -1) continue;
+      var v = parseFloat(String(props[keys[j]]).replace('%','').replace(',','.'));
+      if (isFinite(v) && v >= 0 && v <= 100) return v;
+    }
+  }
+  return null;
+}
+function loadDisturbios(){
+  function q(id){
+    return fetchJsonProxied(GIS_SUMMARY + '/' + id + '/query?where=1%3D1&outFields=*&f=geojson', GIS_PROXY)
+      .catch(function(){ return null; });
+  }
+  return Promise.all([q(TWO_CAPAS.dosDias), q(TWO_CAPAS.sieteDias), q(TWO_CAPAS.region)])
+    .then(function(r){
+      if (!disturbiosLayer) disturbiosLayer = L.layerGroup().addTo(map);
+      disturbiosLayer.clearLayers();
+      disturbios = [];
+
+      // región de posible desarrollo: el área sombreada
+      if (r[2] && r[2].features){
+        r[2].features.forEach(function(f){
+          if (!f.geometry) return;
+          var pr = f.properties || {};
+          var p7 = propPorcentaje(pr, ['prob7', '7day']);
+          var col = probColor(p7);
+          L.geoJSON(f, { style: { color: col, weight: 1, fillColor: col, fillOpacity: .12, dashArray: '3,4' } })
+            .bindPopup('<b>' + t('regionDesarrollo') + '</b><br>' + (p7 != null ? p7 + '% ' + t('en7dias') : ''))
+            .addTo(disturbiosLayer);
+        });
+      }
+
+      // puntos: posición actual de cada perturbación vigilada
+      [r[0], r[1]].forEach(function(geo, idx){
+        if (!geo || !geo.features) return;
+        geo.features.forEach(function(f){
+          if (!f.geometry || f.geometry.type !== 'Point') return;
+          var lon = f.geometry.coordinates[0], lat = f.geometry.coordinates[1];
+          if (typeof lat !== 'number' || typeof lon !== 'number') return;
+          var pr = f.properties || {};
+          var p2 = propPorcentaje(pr, ['prob2', '2day']);
+          var p7 = propPorcentaje(pr, ['prob7', '7day']);
+          var idUnico = lat.toFixed(2) + ',' + lon.toFixed(2);
+          // el mismo sistema aparece en la capa de 2 y de 7 días: se fusiona
+          var ya = disturbios.find(function(d){ return d.id === idUnico; });
+          if (ya){
+            if (p2 != null && ya.p2 == null) ya.p2 = p2;
+            if (p7 != null && ya.p7 == null) ya.p7 = p7;
+            return;
+          }
+          disturbios.push({ id: idUnico, lat: lat, lon: lon, p2: p2, p7: p7, props: pr });
+        });
+      });
+
+      disturbios.forEach(function(d){
+        var peor = Math.max(d.p2 == null ? -1 : d.p2, d.p7 == null ? -1 : d.p7);
+        var col = probColor(peor < 0 ? null : peor);
+        var icon = L.divIcon({
+          className: '',
+          html: '<div class="distPin" style="color:' + col + ';border-color:' + col + '">✕</div>',
+          iconSize: [24, 24], iconAnchor: [12, 12]
+        });
+        L.marker([d.lat, d.lon], { icon: icon, zIndexOffset: 150 })
+          .bindPopup('<b>' + t('perturbacion') + '</b><br>' +
+            (d.p2 != null ? t('en2dias') + ': <b>' + d.p2 + '%</b> (' + probEtiqueta(d.p2) + ')<br>' : '') +
+            (d.p7 != null ? t('en7dias') + ': <b>' + d.p7 + '%</b> (' + probEtiqueta(d.p7) + ')<br>' : '') +
+            '<span style="color:var(--muted);font-size:10px">' + t('perturbacionNota') + '</span><br>' +
+            '<a href="https://www.nhc.noaa.gov/gtwo.php" target="_blank" rel="noopener">' + t('verOficial') + '</a>')
+          .addTo(disturbiosLayer);
+      });
+      renderDisturbiosLista();
+      return disturbios.length;
+    });
+}
+function renderDisturbiosLista(){
+  var wrap = document.getElementById('disturbiosList');
+  if (!wrap) return;
+  if (!disturbios.length){ wrap.innerHTML = ''; return; }
+  var html = '<div class="section-title">' + t('perturbacionesTitulo') + ' (' + disturbios.length + ')</div>';
+  disturbios.forEach(function(d){
+    var peor = Math.max(d.p2 == null ? -1 : d.p2, d.p7 == null ? -1 : d.p7);
+    var col = probColor(peor < 0 ? null : peor);
+    html += '<div class="distCard" data-lat="' + d.lat + '" data-lon="' + d.lon + '">' +
+      '<div class="distCabecera"><span class="distX" style="color:' + col + '">✕</span>' +
+      '<span>' + t('perturbacion') + '</span>' +
+      '<span class="distProb" style="background:' + col + '">' + (peor >= 0 ? Math.round(peor) + '%' : '—') + '</span></div>' +
+      '<div class="distMeta">' +
+        (d.p2 != null ? t('en2dias') + ' ' + d.p2 + '% · ' : '') +
+        (d.p7 != null ? t('en7dias') + ' ' + d.p7 + '%' : '') +
+      '</div></div>';
+  });
+  html += '<div class="distNota">' + t('perturbacionNota') + '</div>';
+  wrap.innerHTML = html;
+  Array.prototype.forEach.call(wrap.querySelectorAll('.distCard'), function(c){
+    c.addEventListener('click', function(){
+      map.setView([parseFloat(this.getAttribute('data-lat')), parseFloat(this.getAttribute('data-lon'))], 5);
+    });
+  });
+}
+
+/* ============================================================
  * CAPA CIUDADES — condición climática sobre el mapa
  * ------------------------------------------------------------
  * Un icono por ciudad con su condición actual (sol, nube, lluvia,
@@ -4034,6 +4270,7 @@ function runDiagnostico(){
     { n: 'Open-Meteo (marino)', u: OM_MARINE + '?latitude=10.7&longitude=-66.9&current=wave_height&forecast_days=1' },
     { n: 'RainViewer (radar)', u: RAINVIEWER_META },
     { n: 'GDACS (alertas)', u: GDACS_API + '?eventlist=TC;FL&alertlevel=orange;red' },
+    { n: 'NHC perturbaciones (outlook)', u: (GIS_PROXY ? GIS_PROXY + '?url=' + encodeURIComponent(GIS_SUMMARY + '/' + TWO_CAPAS.sieteDias + '/query?where=1%3D1&outFields=*&f=geojson') : GIS_SUMMARY + '/' + TWO_CAPAS.sieteDias + '/query?where=1%3D1&outFields=*&f=geojson') },
     { n: 'USGS (sismos 24 h)', u: USGS_FEED },
     { n: 'EMSC (sismos)', u: EMSC_FEED + new Date(Date.now() - 86400000).toISOString().slice(0,19) },
     { n: 'FUNVISIS (proxy)', u: FUNVISIS_PROXY }
@@ -4107,6 +4344,13 @@ function renderLegend(){
   html += '<div class="legendRow"><span class="legendLine" style="border-color:#f07f3c;border-top-style:dashed"></span>' + t('leyendaPronostico') + '</div>';
   html += '<div class="legendRow"><span class="legendSwatch" style="background:#f0a83c;opacity:.4"></span>' + t('leyendaCono') + '</div>';
   html += '<div class="legendRow"><span class="legendDot" style="background:#f0a83c"></span>' + t('legPuntoPronostico') + '</div>';
+  html += '</div>';
+
+  html += '<div class="legendSection"><h3>' + t('perturbacionesTitulo') + '</h3>';
+  html += '<div class="legendRow"><span style="color:#e8b23c;font-weight:700">✕</span> ' + t('probBaja') + ' (&lt;40%)</div>';
+  html += '<div class="legendRow"><span style="color:#f07f3c;font-weight:700">✕</span> ' + t('probMedia') + ' (40–60%)</div>';
+  html += '<div class="legendRow"><span style="color:#e8484f;font-weight:700">✕</span> ' + t('probAlta') + ' (&gt;60%)</div>';
+  html += '<div class="legendRow"><span style="color:var(--muted);font-size:11px">' + t('perturbacionNota') + '</span></div>';
   html += '</div>';
 
   html += '<div class="legendSection"><h3>' + t('legAvisos') + '</h3>';

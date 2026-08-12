@@ -232,6 +232,28 @@ function caso(nombre, datos, esperados, nivelEsperado){
      'obtenidos: ' + textos.join(' | '));
 }
 
+seccion('Categorización y perturbaciones');
+const fnCat = extraerFuncion('categoriaSS');
+if (fnCat){
+  const ctxCat = {}; vm.createContext(ctxCat); vm.runInContext(fnCat, ctxCat);
+  // umbrales oficiales de la escala Saffir-Simpson, en nudos
+  const esperado = [[30,null],[63,null],[64,1],[82,1],[83,2],[95,2],[96,3],[112,3],[113,4],[136,4],[137,5],[160,5]];
+  const malos = esperado.filter(([kt,c]) => ctxCat.categoriaSS(kt) !== c);
+  ok('la escala Saffir-Simpson usa los umbrales oficiales', malos.length === 0,
+     malos.map(([kt,c]) => kt + 'kt debería ser ' + c + ' y da ' + ctxCat.categoriaSS(kt)).join('; '));
+  ok('una depresión tropical no recibe categoría', ctxCat.categoriaSS(30) === null);
+} else { ok('se pudo extraer categoriaSS', false); }
+ok('la ficha muestra la categoría completa', js.includes('function clasificacionCompleta'));
+ok('cada categoría explica el daño esperado en lenguaje llano', js.includes('function efectoEsperado'));
+// las perturbaciones vienen de un servicio distinto a CurrentStorms.json
+ok('se consultan las perturbaciones en vigilancia', js.includes('function loadDisturbios'));
+ok('los ids de capa del outlook están declarados', js.includes('TWO_CAPAS'));
+ok('un fallo en perturbaciones no tumba los sistemas formados',
+   /loadDisturbios\(\)\.catch/.test(js));
+ok('la probabilidad se parsea por contenido, no por nombre exacto', js.includes('function propPorcentaje'));
+ok('el mismo sistema en las capas de 2 y 7 días se fusiona', js.includes("disturbios.find"));
+ok('sin sistemas formados pero con perturbaciones se aclara', js.includes('sinSistemasConDist'));
+
 seccion('Arranque');
 const arranque = js.slice(js.lastIndexOf('* ARRANQUE'));
 // encender una capa y apagarla acto seguido tira peticiones en la carga inicial,

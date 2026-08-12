@@ -9,6 +9,9 @@
 ## ✨ Características (versión actual)
 
 ### Modo Ciclones
+- **Categorización completa**: cada sistema muestra su clasificación exacta —«Huracán categoría 3», «Depresión tropical»— con la escala Saffir-Simpson aplicada sobre el viento máximo sostenido, y una descripción del **daño esperado en lenguaje llano** («daño devastador: agua y electricidad no disponibles por días o semanas»). Para una depresión tropical se aclara lo que suele ignorarse: el riesgo principal es la lluvia acumulada, no el viento.
+- **Perturbaciones en vigilancia** ✕: las áreas que el NHC observa por su posibilidad de convertirse en ciclón, con probabilidad de formación a 2 y 7 días y su región de posible desarrollo. `CurrentStorms.json` solo lista sistemas ya formados; estas perturbaciones vienen del servicio `NHC_tropical_weather_summary` (ids de capa confirmados contra la definición oficial del servicio). Para Protección Civil son justamente lo que da margen de preparación: cuando el sistema ya es depresión, se perdieron varios días de aviso.
+- Colores según la convención oficial del NHC: amarillo probabilidad baja, naranja media, rojo alta.
 - **Mapa oscuro** (Leaflet + teselas CARTO): sistemas activos con color por categoría Saffir-Simpson.
 - **Trayectoria y cono oficiales del NHC**: trayecto recorrido, pronóstico y cono de incertidumbre reales, vía el GIS oficial de NOAA (ArcGIS REST) — no una aproximación.
 - **Watch/Warning oficiales**: tramos de costa bajo aviso o alerta de tormenta tropical/huracán, coloreados por tipo.
