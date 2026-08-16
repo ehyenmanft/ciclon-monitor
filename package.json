@@ -1,0 +1,11 @@
+{
+  "name": "ciclon-monitor",
+  "private": true,
+  "description": "Herramientas de verificación. La aplicación (index.html) NO usa npm ni proceso de compilación: se despliega tal cual en GitHub Pages.",
+  "scripts": {
+    "test": "node test.js && node audit.js && node e2e.js"
+  },
+  "devDependencies": {
+    "jsdom": "^24.0.0"
+  }
+}

@@ -21,6 +21,17 @@
 - **Capa experimental WeatherNext** (Google DeepMind, vía Open-Meteo): dispersión del ensamble de 64 miembros de viento/presión en el punto del sistema. Etiquetada explícitamente como experimental — nunca se usa como fuente de la posición del ciclón.
 - **Modo demo**: sistema de ejemplo, claramente etiquetado, para probar la interfaz cuando no hay ciclones activos reales.
 
+### Compartir en redes sociales 📤
+Genera un mensaje listo para WhatsApp, Telegram, X, Facebook o correo con lo que se esté viendo: la ficha del ciclón seleccionado, el clima y análisis de una ciudad, o un resumen general. En móvil usa el selector nativo del sistema (un toque, cualquier app instalada); en escritorio ofrece los enlaces por red. El texto es editable antes de enviarlo.
+
+También genera una **tarjeta de imagen PNG** (1080×1080, sin marco) con los datos del sitio o del ciclón seleccionado, sus indicadores de riesgo, la hora y la fuente. Se previsualiza antes de enviar y se comparte como archivo por el selector nativo del sistema, o se descarga si el navegador no lo permite.
+
+No es una captura del mapa a propósito: sus teselas vienen de servidores externos y el navegador bloquea la exportación de un lienzo que las contenga, así que una captura fallaría de forma intermitente justo con el radar y el satélite. La tarjeta se dibuja con formas propias —incluidos los símbolos de condición meteorológica, porque en canvas no siempre hay fuente de emoji disponible— y por eso funciona siempre.
+
+**Cada mensaje incluye siempre**, no como opción: la fuente del dato, la hora en local y UTC, el aviso de que no sustituye a los avisos oficiales, y un enlace de vuelta a la vista exacta. El motivo es concreto: un mensaje reenviado viaja sin el mapa, sin las fuentes y sin los avisos, así que todo lo que le da contexto tiene que ir dentro del propio texto.
+
+Si el modo simulacro está activo, el mensaje se encabeza en mayúsculas con «ESTO ES UN EJERCICIO. LOS DATOS NO SON REALES. NO DIFUNDIR COMO INFORMACIÓN VERDADERA» — un ejercicio reenviado sin marcar podría provocar pánico real.
+
 ### Modo simulacro 🎓
 Ejercicio de entrenamiento con tres escenarios: sistema lejano en vigilancia, huracán al norte de Venezuela, y huracán mayor con dos sistemas simultáneos y Venezuela en zona de aviso.
 
@@ -141,9 +152,22 @@ Todo corre en infraestructura gratuita: GitHub Pages + (opcionalmente) Google Ap
 ## 🧪 Verificación
 
 ```bash
-node test.js    # 84 comprobaciones: reglas del proyecto
+node test.js    # 121 comprobaciones estructurales: reglas del proyecto
 node audit.js   # auditoría estática: código muerto, ids huérfanos, listeners duplicados
+node e2e.js     #  47 comprobaciones EJECUTANDO la página en un navegador simulado
 ```
+
+Las tres son complementarias. `test.js` y `audit.js` analizan el código sin ejecutarlo; `e2e.js` carga `index.html` en jsdom con Leaflet y la red sustituidos por dobles, y ejercita los flujos reales: arranque, carga de datos, pulsación de todos los botones, simulacro, fuentes caídas, datos degenerados, sin ciclones activos, vista compartida por URL y recorrido en inglés.
+
+Instalar las herramientas (solo para desarrollo — la aplicación no usa npm ni compilación):
+
+```bash
+npm install
+```
+
+`e2e.js` ya ha encontrado fallos que el análisis estático no podía ver: campos nulos que llegaban a pantalla como «Sensación NaN°C».
+
+Lo que **no** cubre: apariencia, CORS real, gestos táctiles y rendimiento. Eso sigue necesitando un navegador de verdad.
 
 44 comprobaciones sin dependencias: sintaxis de todos los archivos, ids usados vs. definidos, etiquetas balanceadas, paridad de traducciones ES/EN, dominios de datos excluidos del caché del service worker, accesibilidad (aria-labels, severidad no dependiente solo del color) y los requisitos de honestidad del proyecto (avisos de "experimental", enlaces a fuentes oficiales, etiquetado del modo demo).
 

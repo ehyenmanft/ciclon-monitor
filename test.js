@@ -123,7 +123,15 @@ ok('no hay funciones/variables globales duplicadas', globDup.length === 0, [...n
 // ---------------------------------------------------------------
 seccion('Reglas del proyecto');
 // ---------------------------------------------------------------
-ok('un solo archivo, sin proceso de compilación', !html.includes('type="module"') && !fs.existsSync(path.join(DIR, 'package.json')));
+// La aplicación no debe necesitar compilación. package.json puede existir para
+// las herramientas de verificación, pero solo con devDependencies: si aparece
+// una dependencia de producción, la aplicación habría dejado de ser autónoma.
+const pj = fs.existsSync(path.join(DIR, 'package.json'))
+  ? JSON.parse(fs.readFileSync(path.join(DIR, 'package.json'), 'utf8')) : null;
+ok('la aplicación no necesita proceso de compilación',
+   !html.includes('type="module"') && (!pj || !pj.dependencies || Object.keys(pj.dependencies).length === 0),
+   'package.json declara dependencias de producción');
+ok('index.html no importa nada local', !/<script src="(?!http)/.test(html));
 ok('sin claves de API incrustadas', !/['"]AIza[0-9A-Za-z_-]{20,}['"]/.test(html), 'parece haber una clave de Google en el HTML');
 
 const sw = fs.existsSync(path.join(DIR, 'sw.js')) ? fs.readFileSync(path.join(DIR, 'sw.js'), 'utf8') : '';
@@ -231,6 +239,41 @@ function caso(nombre, datos, esperados, nivelEsperado){
      (!nivelOk ? 'nivel esperado ' + nivelEsperado + ', obtenido ' + (r && r.resumen) + ' · ' : '') +
      'obtenidos: ' + textos.join(' | '));
 }
+
+seccion('Compartir en redes sociales');
+// un mensaje reenviado por WhatsApp viaja SIN el mapa, las fuentes ni los
+// avisos: todo lo que le da contexto tiene que ir dentro del propio texto
+const fnPie = extraerFuncion('pieMensaje') || '';
+const fnCab = extraerFuncion('cabeceraSimulacro') || '';
+ok('cada mensaje lleva la hora del dato', /fmtTimeDual/.test(fnPie));
+ok('cada mensaje lleva el aviso de que no es oficial', /compDisclaimer/.test(fnPie));
+ok('cada mensaje lleva enlace a la vista', /buildShareUrl/.test(fnPie));
+ok('cada mensaje declara su fuente', js.includes("t('compFuente')"));
+// un ejercicio reenviado sin marcar podría provocar pánico real
+ok('en simulacro el mensaje se marca como ejercicio', /simulacroOn/.test(fnCab) && /simNoCompartir/.test(fnCab));
+ok('la marca de simulacro va al PRINCIPIO del mensaje',
+   /cabeceraSimulacro\(\)\s*\+/.test(js), 'debe anteponerse, no añadirse al final');
+const conCab = (js.match(/cabeceraSimulacro\(\)/g) || []).length;
+ok('todos los tipos de mensaje llevan la marca de simulacro', conCab >= 4, 'encontrados: ' + conCab);
+ok('se usa la API nativa de compartir cuando existe', js.includes('navigator.share'));
+ok('hay alternativa por red para escritorio', /whatsapp[\s\S]{0,400}telegram[\s\S]{0,400}facebook/.test(js));
+ok('el texto es editable antes de enviar', html.includes('id="rrssTexto"'));
+
+seccion('Tarjeta de imagen');
+// capturar el mapa no es viable: sus teselas vienen de otros dominios y el
+// navegador bloquea la exportación del canvas. Se dibuja una tarjeta propia.
+ok('la tarjeta se dibuja, no captura el mapa', js.includes('function generarTarjeta') && !js.includes('html2canvas'));
+ok('la tarjeta usa los colores del tema activo', js.includes('function tarjetaColores'));
+ok('sin marco: el fondo cubre todo el lienzo', /fillRect\(0, 0, TARJETA_W, TARJETA_H\)/.test(js));
+// en canvas no siempre hay fuente de emoji: quedaría un hueco donde va el icono
+ok('los símbolos del clima se dibujan con formas', js.includes('function dibujarSimboloClima'));
+ok('se comprueba si un emoji renderiza antes de usarlo', js.includes('function emojiRenderiza'));
+ok('la tarjeta lleva hora, fuente y aviso', /fmtTimeDual[\s\S]{0,400}compFuente[\s\S]{0,400}compDisclaimer/.test(js));
+ok('en simulacro la imagen sale marcada', js.includes('function marcarTarjetaSimulacro'));
+ok('la marca de simulacro se aplica siempre que corresponda', /if \(simulacroOn\) marcarTarjetaSimulacro/.test(js));
+ok('se comparte como archivo si el navegador lo permite', js.includes('navigator.canShare'));
+ok('si no se puede compartir, se descarga', /a\.download = nombreArchivoTarjeta\(\)/.test(js));
+ok('se previsualiza antes de enviar', js.includes('function previsualizarTarjeta'));
 
 seccion('Categorización y perturbaciones');
 const fnCat = extraerFuncion('categoriaSS');

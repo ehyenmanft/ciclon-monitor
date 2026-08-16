@@ -564,6 +564,25 @@ body.kiosko #vzAlertBanner{font-size:16px;padding:14px}
   font-size:11px;color:var(--muted)}
 body.kiosko #kioskoHint{display:block}
 
+/* Compartir en redes */
+#rrssModal{display:none;position:fixed;inset:0;z-index:60;background:#00000099;align-items:center;justify-content:center;padding:16px}
+#rrssModal.on{display:flex}
+#rrssCard{background:var(--panel);border:1px solid var(--line);border-radius:14px;max-width:430px;width:100%;
+  max-height:88vh;overflow-y:auto;padding:16px;backdrop-filter:blur(10px)}
+#rrssCard h2{display:flex;justify-content:space-between;align-items:center;font-size:14px;margin-bottom:8px}
+#rrssCard h2 button{background:none;border:none;color:var(--muted);font-size:15px;cursor:pointer}
+#rrssPreview{display:none;margin-bottom:9px}
+#rrssPreview.on{display:block}
+#rrssPreview canvas{width:100%;height:auto;border-radius:10px;display:block}
+#rrssTexto{width:100%;background:#0a0d12;color:var(--text);border:1px solid var(--line);border-radius:8px;
+  padding:9px;font-family:inherit;font-size:11px;line-height:1.5;resize:vertical}
+.rrssRed{display:flex;gap:6px;margin-top:6px}
+.rrssBtn{flex:1;text-align:center;padding:9px;border-radius:8px;background:#161d26;border:1px solid var(--line);
+  color:var(--text);text-decoration:none;font-size:11.5px;cursor:pointer;font-family:inherit}
+.rrssBtn:hover{border-color:var(--accent)}
+html[data-theme="light"] #rrssTexto{background:#f4f7fa}
+html[data-theme="light"] .rrssBtn{background:#f4f7fa}
+
 /* #2 modal de diagnóstico */
 #diagModal{display:none;position:fixed;inset:0;z-index:60;background:#00000099;align-items:center;justify-content:center;padding:16px}
 #diagModal.on{display:flex}
@@ -684,6 +703,7 @@ body.kiosko #kioskoHint{display:block}
     </div>
     <div class="layerBtns">
       <button id="btnShareView" title="Copiar enlace de esta vista" aria-label="Copiar enlace de esta vista">🔗 <span data-i18n="compartirVista">Enlace</span></button>
+      <button id="btnRRSS" title="Compartir en redes sociales" aria-label="Compartir en redes sociales">📤 <span data-i18n="compartirRRSS">Difundir</span></button>
       <button id="btnKiosko" title="Modo kiosko (Ctrl+K)" aria-label="Activar modo kiosko">📺 <span data-i18n="modoKiosko">Kiosko</span></button>
     </div>
     <div class="layerBtns">
@@ -763,6 +783,34 @@ body.kiosko #kioskoHint{display:block}
   </div>
 </div>
 
+<div id="rrssModal">
+  <div id="rrssCard">
+    <h2><span data-i18n="rrssTitulo">Compartir información</span><button id="rrssClose" aria-label="Cerrar">✕</button></h2>
+    <div style="font-size:11px;color:var(--muted);line-height:1.5;margin-bottom:7px" data-i18n="rrssAyuda">
+      Puedes editar el texto antes de enviarlo. Se incluyen siempre la fuente, la hora y el aviso
+      de que no sustituye a los avisos oficiales, porque el mensaje viaja sin el contexto de la aplicación.
+    </div>
+    <div id="rrssPreview" aria-hidden="true"></div>
+    <div class="rrssRed">
+      <button class="rrssBtn" id="rrssImagen" data-i18n="rrssImagen">🖼️ Compartir imagen</button>
+    </div>
+    <textarea id="rrssTexto" rows="10" aria-label="Texto a compartir"></textarea>
+    <button id="rrssNativo" class="shareBtn" data-i18n="rrssCompartir">📲 Compartir…</button>
+    <div class="rrssRed">
+      <a class="rrssBtn" id="rrssWa" target="_blank" rel="noopener">WhatsApp</a>
+      <a class="rrssBtn" id="rrssTg" target="_blank" rel="noopener">Telegram</a>
+    </div>
+    <div class="rrssRed">
+      <a class="rrssBtn" id="rrssX" target="_blank" rel="noopener">X</a>
+      <a class="rrssBtn" id="rrssFb" target="_blank" rel="noopener">Facebook</a>
+    </div>
+    <div class="rrssRed">
+      <a class="rrssBtn" id="rrssMail" target="_blank" rel="noopener" data-i18n="rrssCorreo">Correo</a>
+      <button class="rrssBtn" id="rrssCopiar" data-i18n="rrssCopiar">Copiar</button>
+    </div>
+  </div>
+</div>
+
 <div id="diagModal">
   <div id="diagCard">
     <h2><span data-i18n="diagTitulo">Diagnóstico de fuentes</span><button id="diagClose" aria-label="Cerrar">✕</button></h2>
@@ -824,6 +872,7 @@ body.kiosko #kioskoHint{display:block}
  *    CAPA SÍSMICA             sismos 24h + placas (SISMO·MONITOR)
  *    CAPA RECURSOS            hospitales, bomberos, refugios
  *    COMPARTIR VISTA          enlace con estado del mapa
+ *    COMPARTIR EN REDES       mensajes con fuente, hora y aviso
  *    MODO KIOSKO              sala de situación
  *    DIAGNÓSTICO              prueba cada fuente en vivo
  *    PANELES                  mover, ocultar, pantalla completa
@@ -1015,7 +1064,7 @@ var GIS_BASE = 'https://mapservices.weather.noaa.gov/tropical/rest/services/trop
  * ============================================================ */
 var GIS_SUMMARY = 'https://mapservices.weather.noaa.gov/tropical/rest/services/tropical/NHC_tropical_weather_summary/MapServer';
 var TWO_CAPAS = { dosDias: 1, sieteDias: 2, region: 3, movimiento: 33 };
-var GIS_PROXY = ''; // ídem; configurable desde el panel 🩺
+var GIS_PROXY = 'https://script.google.com/macros/s/AKfycbzRjBVXsQuU5TVES-m__udLR_riX2krd33fADaFxAe2h2JKbzra2tmLz67CDMfXZza4/exec'; // ídem; configurable desde el panel 🩺
 var GIS_BASIN_OFFSET = { AT: 4, EP: 134, CP: 264 };
 var GIS_FIELD_OFFSET = { points: 2, track: 3, cone: 4, watchWarning: 5, pastPoints: 7, pastTrack: 8, arrivalEarliest: 15, arrivalMostLikely: 16 };
 // Bounding box aproximado de Venezuela continental + insular, para cruzar contra la
@@ -1143,6 +1192,13 @@ var I18N = {
     legTSWatch: 'Vigilancia de tormenta tropical', legBannerVz: 'Banner rojo arriba: Venezuela dentro de una zona de aviso',
     legRadarLigera: 'lluvia dispersa', legRadarModerada: 'lluvia sostenida', legRadarFuerte: 'aguacero', legRadarExtrema: 'tormenta severa',
     legSimbolos: 'Otros símbolos', legMarcadorVz: 'Referencia central de Venezuela', legMarcadorClima: 'Ubicación consultada en modo Clima',
+    compartirRRSS: 'Difundir', rrssTitulo: 'Compartir información', rrssCompartir: '📲 Compartir…',
+    rrssImagen: '🖼️ Compartir imagen',
+    rrssCopiar: 'Copiar', rrssCorreo: 'Correo',
+    rrssAyuda: 'Puedes editar el texto antes de enviarlo. Se incluyen siempre la fuente, la hora y el aviso de que no sustituye a los avisos oficiales, porque el mensaje viaja sin el contexto de la aplicación.',
+    compFuente: 'Fuente', compFuenteHora: 'Datos de', compSistemasActivos: 'sistemas activos',
+    compDisclaimer: 'ℹ️ Información de referencia, NO es un aviso oficial. Sigue siempre a Protección Civil e INAMEH.',
+    simNoCompartir: 'ESTO ES UN EJERCICIO. LOS DATOS NO SON REALES. NO DIFUNDIR COMO INFORMACIÓN VERDADERA.',
     compartirUbi: 'Compartir', compartirUbiTitulo: 'Compartir ubicación', compartirUbiCargando: 'Obteniendo ubicación…',
     compartirUbiCentroMapa: 'No se pudo obtener tu GPS — usando el centro actual del mapa.',
     compartirUbiMsg: 'Mi ubicación', compartirUbiCopiar: 'Copiar', compartirUbiCopiado: 'Copiado',
@@ -1307,6 +1363,13 @@ var I18N = {
     legTSWatch: 'Tropical Storm Watch', legBannerVz: 'Red banner above: Venezuela inside a warning zone',
     legRadarLigera: 'scattered rain', legRadarModerada: 'sustained rain', legRadarFuerte: 'downpour', legRadarExtrema: 'severe storm',
     legSimbolos: 'Other symbols', legMarcadorVz: 'Venezuela central reference', legMarcadorClima: 'Location queried in Weather mode',
+    compartirRRSS: 'Share', rrssTitulo: 'Share information', rrssCompartir: '📲 Share…',
+    rrssImagen: '🖼️ Share image',
+    rrssCopiar: 'Copy', rrssCorreo: 'Email',
+    rrssAyuda: 'You can edit the text before sending. The source, the time and the notice that this does not replace official advisories are always included, because the message travels without the context of the application.',
+    compFuente: 'Source', compFuenteHora: 'Data as of', compSistemasActivos: 'active systems',
+    compDisclaimer: 'ℹ️ Reference information, NOT an official advisory. Always follow Civil Protection and INAMEH.',
+    simNoCompartir: 'THIS IS A DRILL. THE DATA IS NOT REAL. DO NOT SHARE AS GENUINE INFORMATION.',
     compartirUbi: 'Share', compartirUbiTitulo: 'Share location', compartirUbiCargando: 'Getting location…',
     compartirUbiCentroMapa: 'Could not get your GPS — using the current map center instead.',
     compartirUbiMsg: 'My location', compartirUbiCopiar: 'Copy', compartirUbiCopiado: 'Copied',
@@ -2630,6 +2693,17 @@ function findNowIndex(times){
   return 0;
 }
 function kvRow(label, val){ return '<div class="kv"><span>' + label + '</span><span>' + val + '</span></div>'; }
+/* Da formato solo si el valor es realmente un número. Sin esto, un campo que
+ * llega null o con texto acaba en pantalla como "NaN" o como un 0 inventado,
+ * que en una ficha de riesgo es peor que un guion: parece un dato válido. */
+function num(v, dec){
+  if (typeof v !== 'number' || !isFinite(v)) return null;
+  return dec ? v.toFixed(dec) : String(Math.round(v));
+}
+function fmtNum(v, sufijo, dec){
+  var n = num(v, dec);
+  return n === null ? '—' : n + (sufijo || '');
+}
 function aqiColorEU(v){
   if (typeof v !== 'number') return 'var(--muted)';
   if (v < 20) return '#3ec6a8'; if (v < 40) return '#8fd13c'; if (v < 60) return '#e8b23c'; if (v < 80) return '#f07f3c'; return '#e8484f';
@@ -2651,18 +2725,18 @@ function renderClima(){
 
   html += '<div class="wxNow">' +
     '<div class="wxIcon">' + wmoIcon(c.weather_code) + '</div>' +
-    '<div class="wxTemp">' + Math.round(c.temperature_2m) + '°C</div>' +
+    '<div class="wxTemp">' + fmtNum(c.temperature_2m, '°C') + '</div>' +
     '<div class="wxDesc">' + escapeHtml(wmoDesc(c.weather_code)) + '</div>' +
-    '<div class="wxFeels">' + t('sensacion') + ' ' + Math.round(c.apparent_temperature) + '°C</div>' +
+    '<div class="wxFeels">' + t('sensacion') + ' ' + fmtNum(c.apparent_temperature, '°C') + '</div>' +
   '</div>';
 
   html += '<div class="wxGrid">';
-  html += kvRow(t('humedad'), Math.round(c.relative_humidity_2m) + '%');
+  html += kvRow(t('humedad'), fmtNum(c.relative_humidity_2m, '%'));
   html += kvRow(t('viento'), fmtVientoKmh(c.wind_speed_10m));
   html += kvRow(t('rafagas'), fmtVientoKmh(c.wind_gusts_10m));
-  html += kvRow(t('presionClima'), Math.round(c.pressure_msl) + ' hPa');
-  html += kvRow(t('nubosidad'), Math.round(c.cloud_cover) + '%');
-  html += kvRow(t('precipitacion'), (c.precipitation||0).toFixed(1) + ' mm');
+  html += kvRow(t('presionClima'), fmtNum(c.pressure_msl, ' hPa'));
+  html += kvRow(t('nubosidad'), fmtNum(c.cloud_cover, '%'));
+  html += kvRow(t('precipitacion'), fmtNum(c.precipitation, ' mm', 1));
   html += '</div>';
 
   html += '<div class="section-title">' + t('anTitulo') + '</div>';
@@ -2677,8 +2751,8 @@ function renderClima(){
       html += '<div class="hourCard">' +
         '<div>' + hh + '</div>' +
         '<div class="hIcon">' + wmoIcon(f.hourly.weather_code[i]) + '</div>' +
-        '<div class="hTemp">' + Math.round(f.hourly.temperature_2m[i]) + '°</div>' +
-        '<div class="hPop">' + Math.round(f.hourly.precipitation_probability[i]||0) + '%</div>' +
+        '<div class="hTemp">' + fmtNum(f.hourly.temperature_2m[i], '°') + '</div>' +
+        '<div class="hPop">' + fmtNum(f.hourly.precipitation_probability[i], '%') + '</div>' +
       '</div>';
     }
   }
@@ -2692,8 +2766,8 @@ function renderClima(){
       html += '<div class="dayRow">' +
         '<div class="dName">' + dayLabel + '</div>' +
         '<div class="dIcon">' + wmoIcon(f.daily.weather_code[i]) + '</div>' +
-        '<div class="dPop">' + Math.round(f.daily.precipitation_probability_max[i]||0) + '%</div>' +
-        '<div class="dTemp">' + Math.round(f.daily.temperature_2m_max[i]) + '° <span>' + Math.round(f.daily.temperature_2m_min[i]) + '°</span></div>' +
+        '<div class="dPop">' + fmtNum(f.daily.precipitation_probability_max[i], '%') + '</div>' +
+        '<div class="dTemp">' + fmtNum(f.daily.temperature_2m_max[i], '°') + ' <span>' + fmtNum(f.daily.temperature_2m_min[i], '°') + '</span></div>' +
       '</div>';
     });
   }
@@ -4221,6 +4295,378 @@ function applyShareUrl(){
 }
 
 /* ============================================================
+ * COMPARTIR EN REDES SOCIALES
+ * ------------------------------------------------------------
+ * Un mensaje compartido viaja SIN el contexto de la aplicación:
+ * quien lo recibe por WhatsApp no ve el mapa, ni las fuentes, ni
+ * los avisos. Por eso cada mensaje generado incluye siempre, y no
+ * como opción:
+ *   - la fuente del dato (NHC, Open-Meteo…),
+ *   - la hora en local y UTC, para que se note si está viejo,
+ *   - la advertencia de que no sustituye avisos oficiales,
+ *   - un enlace de vuelta a la vista exacta.
+ * Y si el modo simulacro está activo, el aviso encabeza el mensaje
+ * en mayúsculas: un ejercicio reenviado sin marcar podría provocar
+ * pánico real.
+ * ============================================================ */
+function cabeceraSimulacro(){
+  return simulacroOn ? ('⚠️ ' + t('simBannerTitulo') + ' ⚠️\n' + t('simNoCompartir') + '\n\n') : '';
+}
+function pieMensaje(){
+  return '\n' + t('compFuenteHora') + ': ' + fmtTimeDual(Date.now()) +
+         '\n' + t('compDisclaimer') +
+         '\n' + buildShareUrl();
+}
+/* Texto del sistema seleccionado */
+function textoCompartirCiclon(s){
+  if (!s) return null;
+  var l = [];
+  l.push('🌀 ' + s.name + ' — ' + clasificacionCompleta(s.classification, s.windKt));
+  if (typeof s.windKt === 'number') l.push(t('vientos') + ': ' + fmtVientoKt(s.windKt));
+  if (typeof s.pressureMb === 'number') l.push(t('presion') + ': ' + Math.round(s.pressureMb) + ' hPa');
+  if (typeof s.moveSpeed === 'number') l.push(t('movimiento') + ': ' + fmtVientoKt(s.moveSpeed) + (s.moveDir != null ? ' @ ' + Math.round(s.moveDir) + '°' : ''));
+  if (s._hasPosition){
+    var d = Math.round(haversine(s.lat, s.lon, VZ_REF.lat, VZ_REF.lon));
+    l.push(t('vzTitle') + ': ' + d + ' km');
+  }
+  var ef = efectoEsperado(s.classification, s.windKt);
+  if (ef) l.push('\n' + ef);
+  if (vzAlerts[s.id]) l.push('\n⚠️ ' + (vzAlerts[s.id] === 'warning' ? t('vzBannerAviso') : t('vzBannerLlegada')));
+  l.push('\n' + t('compFuente') + ': NHC/NOAA');
+  return cabeceraSimulacro() + l.join('\n') + pieMensaje();
+}
+/* Texto del clima de la ubicación seleccionada, con su análisis */
+function textoCompartirClima(){
+  if (!climaLocation || !lastClimaData || !lastClimaData.forecast) return null;
+  var c = lastClimaData.forecast.current || {}, d = lastClimaData.forecast.daily || {};
+  var l = [];
+  l.push('🌦️ ' + climaLocation.name);
+  l.push(wmoIcon(c.weather_code) + ' ' + wmoDesc(c.weather_code) + ' · ' + Math.round(c.temperature_2m) + '°C (' + t('sensacion').toLowerCase() + ' ' + Math.round(c.apparent_temperature) + '°)');
+  if (d.temperature_2m_max) l.push(t('hoy') + ': ' + Math.round(d.temperature_2m_max[0]) + '° / ' + Math.round(d.temperature_2m_min[0]) + '°' +
+    (d.precipitation_probability_max ? ' · ' + Math.round(d.precipitation_probability_max[0]) + '% ' + t('precipitacion').toLowerCase() : ''));
+  if (typeof c.wind_speed_10m === 'number') l.push(t('viento') + ': ' + fmtVientoKmh(c.wind_speed_10m) + ' · ' + t('rafagas').toLowerCase() + ' ' + fmtVientoKmh(c.wind_gusts_10m));
+  var an = analizarCondiciones();
+  if (an && an.hallazgos.length){
+    l.push('\n' + t('anTitulo') + ':');
+    an.hallazgos.slice(0, 4).forEach(function(h){
+      l.push(nivelIcono(h.nivel) + ' ' + h.texto + ' (' + h.dato + ')');
+    });
+  }
+  l.push('\n' + t('compFuente') + ': Open-Meteo');
+  return cabeceraSimulacro() + l.join('\n') + pieMensaje();
+}
+/* Resumen general: lo que se comparte si no hay nada seleccionado */
+function textoCompartirResumen(){
+  var l = ['🌀 CICLÓN·MONITOR'];
+  if (storms.length){
+    l.push(storms.length + ' ' + t('compSistemasActivos') + ':');
+    storms.forEach(function(s){ l.push('• ' + s.name + ' — ' + clasificacionCompleta(s.classification, s.windKt)); });
+  } else {
+    l.push(t('sinSistemas'));
+  }
+  if (disturbios.length) l.push('\n✕ ' + disturbios.length + ' ' + t('perturbacionesTitulo').toLowerCase());
+  var activas = Object.keys(vzAlerts).filter(function(k){ return vzAlerts[k]; });
+  if (activas.length) l.push('\n⚠️ ' + t('vzBannerAviso'));
+  l.push('\n' + t('compFuente') + ': NHC/NOAA');
+  return cabeceraSimulacro() + l.join('\n') + pieMensaje();
+}
+function textoCompartirActual(){
+  if (appMode === 'ciclones' && selectedStorm) return textoCompartirCiclon(selectedStorm);
+  if (appMode === 'clima' && climaLocation && lastClimaData) return textoCompartirClima();
+  return textoCompartirResumen();
+}
+/* ============================================================
+ * TARJETA DE IMAGEN PARA REDES
+ * ------------------------------------------------------------
+ * Se dibuja en un canvas propio en vez de capturar el mapa: las
+ * teselas vienen de servidores externos (CARTO, RainViewer, NASA)
+ * y el navegador bloquea la exportación de un canvas que las
+ * contenga. Capturar el mapa fallaría justo con las capas que más
+ * importan, de forma intermitente. Esto siempre funciona.
+ * Sin marco ni recuadro: el fondo cubre todo el lienzo.
+ * ============================================================ */
+var TARJETA_W = 1080, TARJETA_H = 1080;
+function tarjetaColores(){
+  var cs = getComputedStyle(document.documentElement);
+  function v(n, d){ var x = cs.getPropertyValue(n).trim(); return x || d; }
+  return {
+    bg: v('--bg', '#0b0f14'), text: v('--text', '#dde7ef'),
+    muted: v('--muted', '#76879a'), line: v('--line', '#1e2833'),
+    accent: v('--accent', '#f07f3c'), danger: v('--danger', '#e8484f')
+  };
+}
+/* ¿Este emoji se dibuja de verdad? En canvas no siempre hay fuente de emoji
+ * (deja un hueco o un cuadro). Se compara su ancho con el de un carácter
+ * inexistente: si coinciden, no hay glifo real y conviene no usarlo. */
+function emojiRenderiza(x, ch){
+  var previo = x.font;
+  x.font = '100px sans-serif';
+  var a = x.measureText(ch).width;
+  var b = x.measureText('\uFFFF').width;
+  x.font = previo;
+  return a > 4 && Math.abs(a - b) > 1;
+}
+/* Símbolo de condición dibujado con formas, sin depender de fuentes de emoji.
+ * code es el código WMO que ya usamos en el resto de la aplicación. */
+function dibujarSimboloClima(x, code, cx, cy, r, col){
+  var c = typeof code === 'number' ? code : 0;
+  function sol(px, py, pr, color){
+    x.fillStyle = color; x.beginPath(); x.arc(px, py, pr, 0, Math.PI * 2); x.fill();
+    x.strokeStyle = color; x.lineWidth = Math.max(3, pr * 0.14);
+    for (var i = 0; i < 8; i++){
+      var a = i * Math.PI / 4;
+      x.beginPath();
+      x.moveTo(px + Math.cos(a) * pr * 1.35, py + Math.sin(a) * pr * 1.35);
+      x.lineTo(px + Math.cos(a) * pr * 1.75, py + Math.sin(a) * pr * 1.75);
+      x.stroke();
+    }
+  }
+  function nube(px, py, pr, color){
+    x.fillStyle = color; x.beginPath();
+    x.arc(px - pr * .55, py + pr * .18, pr * .52, 0, Math.PI * 2);
+    x.arc(px + pr * .05, py - pr * .22, pr * .68, 0, Math.PI * 2);
+    x.arc(px + pr * .72, py + pr * .16, pr * .5, 0, Math.PI * 2);
+    x.rect(px - pr * .55, py + pr * .16, pr * 1.3, pr * .55);
+    x.fill();
+  }
+  function gotas(px, py, pr, color, n){
+    x.strokeStyle = color; x.lineWidth = Math.max(4, pr * 0.13); x.lineCap = 'round';
+    for (var i = 0; i < n; i++){
+      var gx = px - pr * .5 + i * (pr * .5);
+      x.beginPath(); x.moveTo(gx, py); x.lineTo(gx - pr * .16, py + pr * .42); x.stroke();
+    }
+    x.lineCap = 'butt';
+  }
+  if (c === 0 || c === 1){ sol(cx, cy, r * .52, '#f0c040'); return; }
+  if (c === 2){ sol(cx + r * .38, cy - r * .3, r * .34, '#f0c040'); nube(cx - r * .12, cy + r * .18, r * .78, '#9fb4c9'); return; }
+  if (c === 3 || c === 45 || c === 48){ nube(cx, cy, r * .9, '#9fb4c9'); return; }
+  if (c >= 95){ nube(cx, cy - r * .18, r * .82, '#7d8e9f');
+    x.fillStyle = '#f0c040'; x.beginPath();
+    x.moveTo(cx - r * .1, cy + r * .3); x.lineTo(cx + r * .22, cy + r * .3);
+    x.lineTo(cx + r * .02, cy + r * .95); x.lineTo(cx + r * .3, cy + r * .28);
+    x.lineTo(cx - r * .02, cy + r * .28); x.closePath(); x.fill(); return; }
+  if (c >= 71 && c <= 86){ nube(cx, cy - r * .16, r * .82, '#9fb4c9'); gotas(cx, cy + r * .48, r * .8, '#cfe3f2', 3); return; }
+  nube(cx, cy - r * .16, r * .82, '#9fb4c9'); gotas(cx, cy + r * .48, r * .8, '#6fb8e0', 3);
+}
+
+/* Parte el texto en líneas que caben en el ancho dado */
+function envolverTexto(ctx, texto, maxW){
+  var palabras = String(texto).split(/\s+/), lineas = [], actual = '';
+  palabras.forEach(function(p){
+    var prueba = actual ? actual + ' ' + p : p;
+    if (ctx.measureText(prueba).width > maxW && actual){ lineas.push(actual); actual = p; }
+    else actual = prueba;
+  });
+  if (actual) lineas.push(actual);
+  return lineas;
+}
+function generarTarjeta(){
+  var c = document.createElement('canvas');
+  c.width = TARJETA_W; c.height = TARJETA_H;
+  var x = c.getContext('2d');
+  var col = tarjetaColores();
+  var M = 84, y = 0;
+  var mono = "'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace";
+
+  // fondo a sangre, sin marco
+  x.fillStyle = col.bg;
+  x.fillRect(0, 0, TARJETA_W, TARJETA_H);
+
+  // marca
+  x.textBaseline = 'top';
+  x.fillStyle = col.accent;
+  x.font = '600 34px ' + mono;
+  var marca = emojiRenderiza(x, '🌀') ? '🌀 CICLÓN·MONITOR' : 'CICLÓN·MONITOR';
+  x.fillText(marca, M, 74);
+  y = 150;
+
+  var datos = (appMode === 'ciclones' && selectedStorm) ? tarjetaCiclon(x, col, M, y, mono)
+                                                       : tarjetaClima(x, col, M, y, mono);
+  y = datos;
+
+  // pie: hora, fuente y aviso — siempre presentes
+  var pieY = TARJETA_H - 200;
+  x.strokeStyle = col.line; x.lineWidth = 2;
+  x.beginPath(); x.moveTo(M, pieY - 34); x.lineTo(TARJETA_W - M, pieY - 34); x.stroke();
+  x.fillStyle = col.muted; x.font = '400 25px ' + mono;
+  x.fillText(fmtTimeDual(Date.now()), M, pieY);
+  var fuente = (appMode === 'ciclones' && selectedStorm) ? 'NHC/NOAA' : 'Open-Meteo';
+  x.fillText(t('compFuente') + ': ' + fuente, M, pieY + 38);
+  x.font = '400 23px ' + mono;
+  var disc = t('compDisclaimer').replace(/^[^A-Za-zÁÉÍÓÚÑ]+/, ''); // fuera el emoji inicial
+  envolverTexto(x, disc, TARJETA_W - M * 2).slice(0, 2).forEach(function(l, i){
+    x.fillText(l, M, pieY + 84 + i * 32);
+  });
+
+  if (simulacroOn) marcarTarjetaSimulacro(x, col, mono);
+  return c;
+}
+function tarjetaClima(x, col, M, y, mono){
+  var f = lastClimaData && lastClimaData.forecast;
+  var cur = (f && f.current) || {};
+  x.fillStyle = col.text; x.font = '700 68px ' + mono;
+  envolverTexto(x, climaLocation ? climaLocation.name : '—', TARJETA_W - M * 2).slice(0, 2).forEach(function(l){
+    x.fillText(l, M, y); y += 78;
+  });
+  y += 24;
+  if (typeof cur.temperature_2m === 'number'){
+    dibujarSimboloClima(x, cur.weather_code, M + 74, y + 66, 74, col);
+    x.fillStyle = col.text; x.font = '700 132px ' + mono;
+    x.fillText(Math.round(cur.temperature_2m) + '°', M + 190, y);
+    y += 168;
+    x.fillStyle = col.muted; x.font = '400 34px ' + mono;
+    x.fillText(wmoDesc(cur.weather_code), M, y); y += 50;
+    var linea = t('sensacion') + ' ' + Math.round(cur.apparent_temperature) + '° · ' +
+                t('viento') + ' ' + fmtVientoKmh(cur.wind_speed_10m);
+    x.fillText(linea, M, y); y += 64;
+  }
+  var an = analizarCondiciones();
+  if (an && an.hallazgos.length){
+    an.hallazgos.slice(0, 4).forEach(function(h){
+      var c2 = h.nivel === 'alerta' ? col.danger : h.nivel === 'atencion' ? col.accent : col.muted;
+      x.fillStyle = c2;
+      x.beginPath(); x.arc(M + 11, y + 16, 11, 0, Math.PI * 2); x.fill();
+      x.fillStyle = c2; x.textAlign = 'right'; x.font = '700 27px ' + mono;
+      x.fillText(h.dato, TARJETA_W - M, y);
+      x.textAlign = 'left';
+      x.fillStyle = col.text; x.font = '400 27px ' + mono;
+      // hasta dos líneas: cortar con puntos suspensivos escondía el motivo real
+      var lineas = envolverTexto(x, h.texto, TARJETA_W - M * 2 - 210).slice(0, 2);
+      lineas.forEach(function(l, i){ x.fillText(l, M + 40, y + i * 34); });
+      y += 34 * lineas.length + 16;
+    });
+  }
+  return y;
+}
+function tarjetaCiclon(x, col, M, y, mono){
+  var s = selectedStorm;
+  var color = catColor(s.classification, s.windKt || 0);
+  x.fillStyle = col.text; x.font = '700 74px ' + mono;
+  envolverTexto(x, s.name, TARJETA_W - M * 2).slice(0, 2).forEach(function(l){ x.fillText(l, M, y); y += 84; });
+  y += 12;
+  x.fillStyle = color; x.font = '700 44px ' + mono;
+  envolverTexto(x, clasificacionCompleta(s.classification, s.windKt), TARJETA_W - M * 2).forEach(function(l){
+    x.fillText(l, M, y); y += 54;
+  });
+  y += 34;
+  x.fillStyle = col.muted; x.font = '400 32px ' + mono;
+  var filas = [];
+  if (typeof s.windKt === 'number') filas.push([t('vientos'), fmtVientoKt(s.windKt)]);
+  if (typeof s.pressureMb === 'number') filas.push([t('presion'), Math.round(s.pressureMb) + ' hPa']);
+  if (typeof s.moveSpeed === 'number') filas.push([t('movimiento'), fmtVientoKt(s.moveSpeed) + (s.moveDir != null ? ' @ ' + Math.round(s.moveDir) + '°' : '')]);
+  if (s._hasPosition) filas.push([t('vzTitle'), Math.round(haversine(s.lat, s.lon, VZ_REF.lat, VZ_REF.lon)) + ' km']);
+  filas.forEach(function(fa){
+    x.fillStyle = col.muted; x.fillText(fa[0], M, y);
+    x.fillStyle = col.text; x.textAlign = 'right'; x.font = '700 32px ' + mono;
+    x.fillText(fa[1], TARJETA_W - M, y);
+    x.textAlign = 'left'; x.font = '400 32px ' + mono;
+    y += 52;
+  });
+  var ef = efectoEsperado(s.classification, s.windKt);
+  if (ef){
+    y += 18; x.fillStyle = col.text; x.font = '400 27px ' + mono;
+    envolverTexto(x, ef, TARJETA_W - M * 2).slice(0, 3).forEach(function(l){ x.fillText(l, M, y); y += 38; });
+  }
+  if (vzAlerts[s.id]){
+    y += 20; x.fillStyle = col.danger; x.font = '700 30px ' + mono;
+    var pref = emojiRenderiza(x, '⚠') ? '⚠ ' : '';
+    envolverTexto(x, pref + (vzAlerts[s.id] === 'warning' ? t('vzBannerAviso') : t('vzBannerLlegada')), TARJETA_W - M * 2)
+      .slice(0, 2).forEach(function(l){ x.fillText(l, M, y); y += 40; });
+  }
+  return y;
+}
+/* Una imagen circulando por WhatsApp es aún más difícil de desmentir
+ * que un texto: el ejercicio se marca de forma inequívoca. */
+function marcarTarjetaSimulacro(x, col, mono){
+  x.save();
+  x.globalAlpha = .16;
+  x.translate(TARJETA_W / 2, TARJETA_H / 2);
+  x.rotate(-Math.PI / 6);
+  for (var i = -14; i < 14; i++){
+    x.fillStyle = i % 2 ? '#7a1fa2' : '#5d1780';
+    x.fillRect(-900, i * 90, 1800, 90);
+  }
+  x.restore();
+  x.fillStyle = '#7a1fa2';
+  x.fillRect(0, TARJETA_H / 2 - 92, TARJETA_W, 184);
+  x.fillStyle = '#fff'; x.textAlign = 'center';
+  x.font = '700 46px ' + mono;
+  x.fillText('SIMULACRO', TARJETA_W / 2, TARJETA_H / 2 - 66);
+  x.font = '700 27px ' + mono;
+  envolverTexto(x, t('simNoCompartir'), TARJETA_W - 120).slice(0, 2).forEach(function(l, i){
+    x.fillText(l, TARJETA_W / 2, TARJETA_H / 2 + 4 + i * 36);
+  });
+  x.textAlign = 'left';
+}
+function tarjetaABlob(){
+  return new Promise(function(res, rej){
+    try { generarTarjeta().toBlob(function(b){ b ? res(b) : rej(new Error('sin blob')); }, 'image/png'); }
+    catch(e){ rej(e); }
+  });
+}
+function nombreArchivoTarjeta(){
+  var base = (appMode === 'ciclones' && selectedStorm) ? selectedStorm.name
+           : (climaLocation ? climaLocation.name : 'ciclon-monitor');
+  return 'ciclon-monitor-' + base.toLowerCase().replace(/[^\w]+/g, '-').replace(/^-|-$/g, '') + '.png';
+}
+function previsualizarTarjeta(){
+  var cont = document.getElementById('rrssPreview');
+  cont.innerHTML = '';
+  try { cont.appendChild(generarTarjeta()); cont.classList.add('on'); }
+  catch(e){ console.error('No se pudo generar la tarjeta:', e); cont.classList.remove('on'); }
+}
+function compartirTarjeta(){
+  tarjetaABlob().then(function(blob){
+    var file = new File([blob], nombreArchivoTarjeta(), { type: 'image/png' });
+    var txt = document.getElementById('rrssTexto').value;
+    // compartir archivos requiere soporte explícito; si no, se descarga
+    if (navigator.canShare && navigator.canShare({ files: [file] })){
+      return navigator.share({ files: [file], text: txt, title: 'CICLÓN·MONITOR' });
+    }
+    var a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = nombreArchivoTarjeta();
+    a.click();
+    setTimeout(function(){ URL.revokeObjectURL(a.href); }, 4000);
+  }).catch(function(e){
+    if (e && e.name === 'AbortError') return;
+    console.error('Error al compartir la imagen:', e);
+  });
+}
+
+/* La API nativa del navegador abre el selector del sistema (WhatsApp,
+ * Telegram, X, correo…) con un solo toque. En escritorio no suele
+ * existir, así que se ofrecen los enlaces directos como alternativa. */
+function abrirCompartirRRSS(){
+  var txt = textoCompartirActual();
+  if (!txt) return;
+  document.getElementById('rrssTexto').value = txt;
+  document.getElementById('rrssModal').classList.add('on');
+  document.getElementById('rrssNativo').style.display = navigator.share ? '' : 'none';
+  previsualizarTarjeta(); // se ve exactamente lo que se va a enviar
+}
+function compartirNativo(){
+  var txt = document.getElementById('rrssTexto').value;
+  if (!navigator.share) return;
+  navigator.share({ title: 'CICLÓN·MONITOR', text: txt }).catch(function(e){
+    if (e && e.name !== 'AbortError') console.warn('Compartir cancelado o fallido:', e);
+  });
+}
+function enlaceRed(red){
+  var txt = document.getElementById('rrssTexto').value;
+  var enc = encodeURIComponent(txt);
+  var url = encodeURIComponent(buildShareUrl());
+  switch (red){
+    case 'whatsapp': return 'https://wa.me/?text=' + enc;
+    case 'telegram': return 'https://t.me/share/url?url=' + url + '&text=' + enc;
+    case 'x':        return 'https://twitter.com/intent/tweet?text=' + enc;
+    case 'facebook': return 'https://www.facebook.com/sharer/sharer.php?u=' + url;
+    case 'email':    return 'mailto:?subject=' + encodeURIComponent('CICLÓN·MONITOR') + '&body=' + enc;
+  }
+  return '#';
+}
+
+/* ============================================================
  * #12 MODO KIOSKO (pantalla de sala de situación)
  * Oculta todos los controles, deja el mapa a pantalla completa y
  * rota automáticamente entre los sistemas activos. Se sale con
@@ -4484,6 +4930,27 @@ document.getElementById('btnShareView').addEventListener('click', function(){
       setTimeout(function(){ sp.textContent = prev; }, 1500);
     })
     .catch(function(){ prompt(t('compartirVista'), url); });
+});
+document.getElementById('btnRRSS').addEventListener('click', abrirCompartirRRSS);
+document.getElementById('rrssClose').addEventListener('click', function(){
+  document.getElementById('rrssModal').classList.remove('on');
+});
+document.getElementById('rrssModal').addEventListener('click', function(e){
+  if (e.target === this) this.classList.remove('on');
+});
+document.getElementById('rrssNativo').addEventListener('click', compartirNativo);
+document.getElementById('rrssImagen').addEventListener('click', compartirTarjeta);
+/* Los enlaces se recalculan al pulsar, para recoger las ediciones del texto */
+[['rrssWa','whatsapp'],['rrssTg','telegram'],['rrssX','x'],['rrssFb','facebook'],['rrssMail','email']].forEach(function(par){
+  var el = document.getElementById(par[0]);
+  el.addEventListener('click', function(){ this.href = enlaceRed(par[1]); });
+  el.href = '#';
+});
+document.getElementById('rrssCopiar').addEventListener('click', function(){
+  var btn = this, txt = document.getElementById('rrssTexto').value;
+  (navigator.clipboard ? navigator.clipboard.writeText(txt) : Promise.reject())
+    .then(function(){ btn.textContent = '✓ ' + t('compartirUbiCopiado'); setTimeout(function(){ btn.textContent = t('rrssCopiar'); }, 1600); })
+    .catch(function(){ document.getElementById('rrssTexto').select(); });
 });
 document.getElementById('btnKiosko').addEventListener('click', toggleKiosko);
 document.getElementById('btnDiag').addEventListener('click', function(){

@@ -40,12 +40,18 @@ defs.forEach(f=>{
 });
 
 // 3) funciones llamadas y no definidas (solo código, métodos excluidos por (?<!\.))
-const nativas=new Set(['if','for','while','switch','catch','return','typeof','function','parseInt','parseFloat','isFinite','isNaN','String','Number','Array','Object','Date','Math','JSON','Promise','Set','Map','RegExp','Error','encodeURIComponent','setTimeout','setInterval','clearTimeout','clearInterval','fetch','alert','prompt','requestAnimationFrame','getComputedStyle','URLSearchParams','Image','Notification','AudioContext','webkitAudioContext','L','Boolean']);
+const nativas=new Set(['if','for','while','switch','catch','return','typeof','function','parseInt','parseFloat','isFinite','isNaN','String','Number','Array','Object','Date','Math','JSON','Promise','Set','Map','RegExp','Error','encodeURIComponent','setTimeout','setInterval','clearTimeout','clearInterval','fetch','alert','prompt','requestAnimationFrame','getComputedStyle','URLSearchParams','Image','Notification','AudioContext','webkitAudioContext','L','Boolean','File','Blob','FileReader','URL','FormData']);
 // var puede declarar varias en una línea: var a = 1, b = 2;
 const varsGlob=new Set([...js.matchAll(/\bvar\s+([\w$]+)/g)].map(m=>m[1])
   .concat([...js.matchAll(/,\s*([\w$]+)\s*=/g)].map(m=>m[1])));
+// los parámetros de las funciones son variables locales válidas: sin esto,
+// callbacks como function(res, rej){...} se reportan como no definidos
+const parametros=new Set();
+[...js.matchAll(/function\s*\w*\s*\(([^)]*)\)/g)].forEach(m=>{
+  m[1].split(',').map(p=>p.trim()).filter(Boolean).forEach(p=>parametros.add(p));
+});
 new Set([...js.matchAll(/(?<![\w.$])([a-zA-Z_$][\w$]*)\s*\(/g)].map(m=>m[1])).forEach(c=>{
-  if(nativas.has(c)||defs.includes(c)||varsGlob.has(c)) return;
+  if(nativas.has(c)||defs.includes(c)||varsGlob.has(c)||parametros.has(c)) return;
   flag('CRITICA','Llamada a función no definida',c+'()');
 });
 
@@ -63,7 +69,11 @@ new Set([...css.matchAll(/#([a-zA-Z][\w-]*)/g)].map(m=>m[1])).forEach(i=>{
 });
 
 // 6) ids del HTML sin estilo ni uso en JS (posible resto de refactor)
+// también cuentan los ids referenciados desde arrays o variables, no solo los
+// literales dentro de getElementById(): sin esto, un id usado como
+// [['rrssWa','whatsapp'],...] se reportaría como huérfano
 const jsIds=new Set([...jsRaw.matchAll(/getElementById\('([^']+)'\)/g)].map(m=>m[1]));
+[...jsRaw.matchAll(/'([A-Za-z][\w-]{2,})'/g)].forEach(m=>jsIds.add(m[1]));
 const cssIds=new Set([...css.matchAll(/#([a-zA-Z][\w-]*)/g)].map(m=>m[1]));
 htmlIds.forEach(i=>{ if(!jsIds.has(i)&&!cssIds.has(i)) flag('BAJA','id del HTML sin uso en JS ni CSS','#'+i); });
 
