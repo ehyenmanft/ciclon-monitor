@@ -351,6 +351,22 @@ html[data-theme="light"] .cityWx{text-shadow:0 0 3px #fff,0 0 3px #fff,0 0 5px #
 #topbar .dot.live{background:var(--c-td);box-shadow:0 0 6px var(--c-td)}
 #topbar .dot.err{background:var(--danger);box-shadow:0 0 6px var(--danger)}
 #lastUpdateTxt{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#tgBtn{
+  display:inline-flex;align-items:center;gap:5px;flex:0 0 auto;
+  background:#229ED9;border:1px solid #229ED9;color:#fff;text-decoration:none;
+  border-radius:6px;padding:4px 9px;font-family:inherit;font-size:11px;font-weight:700;
+  min-height:28px;transition:filter .15s, transform .15s;
+}
+#tgBtn:hover{filter:brightness(1.12);transform:translateY(-1px)}
+#tgBtn svg{display:block}
+/* Llama la atención las primeras veces y luego se calma: un canal de avisos
+   merece verse, pero un botón parpadeando para siempre acaba ignorándose. */
+#tgBtn.nuevo{animation:tgPulso 2.4s ease-out 3}
+@keyframes tgPulso{
+  0%,100%{box-shadow:0 0 0 0 #229ED900}
+  35%{box-shadow:0 0 0 6px #229ED955}
+  70%{box-shadow:0 0 0 10px #229ED900}
+}
 #langBtn,#notifBtn,#printBtn,#hideAllBtn,#geoTopBtn,#themeBtn{background:#161d26;border:1px solid var(--line);color:var(--text);border-radius:6px;padding:4px 8px;cursor:pointer;font-family:inherit;font-size:11px;flex:0 0 auto;min-height:28px}
 #notifBtn.act{border-color:#3ec6a8;color:#3ec6a8}
 #hideAllBtn.act{border-color:#6fb8e0;color:#6fb8e0}
@@ -383,6 +399,17 @@ html[data-theme="light"] .cityWx{text-shadow:0 0 3px #fff,0 0 3px #fff,0 0 5px #
 .stormCard:hover{border-color:var(--accent)}
 .stormCard.sel{border-color:var(--accent);background:#1b2430}
 .stormCard .name{font-weight:700;font-size:13px;margin-bottom:3px}
+.tgCard{
+  display:flex;align-items:center;gap:10px;margin:10px 0;padding:10px 11px;
+  border:1px solid #229ED9;border-radius:10px;background:#229ED91a;
+  color:var(--text);text-decoration:none;transition:background .15s;
+}
+.tgCard:hover{background:#229ED930}
+.tgCardIco{color:#229ED9;flex:0 0 auto;display:flex}
+.tgCardTxt{flex:1;min-width:0}
+.tgCardTxt b{display:block;font-size:11.5px;margin-bottom:2px}
+.tgCardTxt small{display:block;font-size:10px;color:var(--muted);line-height:1.4}
+.tgCardFlecha{color:#229ED9;flex:0 0 auto;font-size:14px}
 .stormEfecto{font-size:10.5px;color:var(--muted);line-height:1.45;margin-top:5px;padding-top:5px;border-top:1px dashed var(--line)}
 .distPin{
   width:24px;height:24px;border-radius:50%;border:2px solid;background:#10151ce6;
@@ -473,6 +500,8 @@ html[data-theme="light"] .cityWx{text-shadow:0 0 3px #fff,0 0 3px #fff,0 0 5px #
      idioma). En pantallas angostas se recorta por prioridad operativa: primero
      la hora, luego imprimir (lo menos crítico en un teléfono). */
   @media (max-width:420px){
+    #tgBtnTxt{display:none}
+    #tgBtn{padding:4px 7px}
     #lastUpdateTxt{display:none}
     #topbar{gap:5px;padding:6px 9px}
     #notifBtn,#printBtn,#geoTopBtn,#hideAllBtn,#themeBtn{padding:4px 6px}
@@ -622,6 +651,13 @@ html[data-theme="light"] .rrssBtn{background:#f4f7fa}
   <span class="dot" id="statusDot"></span>
   <b>CICLÓN·MONITOR</b>
   <span id="lastUpdateTxt" style="color:var(--muted);font-size:11px"></span>
+  <a id="tgBtn" href="https://t.me/ciclonmonitor" target="_blank" rel="noopener"
+     title="Únete al canal de avisos en Telegram" aria-label="Únete al canal de avisos en Telegram">
+    <svg viewBox="0 0 24 24" width="15" height="15" aria-hidden="true" focusable="false">
+      <path fill="currentColor" d="M21.94 4.3 18.9 19.1c-.23 1.02-.84 1.27-1.7.79l-4.7-3.46-2.27 2.18c-.25.25-.46.46-.94.46l.34-4.78 8.7-7.86c.38-.34-.08-.53-.59-.19L6.98 12.9 2.34 11.45c-1.01-.32-1.03-1.01.21-1.5L20.63 2.9c.84-.31 1.57.2 1.31 1.4Z"/>
+    </svg>
+    <span id="tgBtnTxt" data-i18n="tgUnete">Avisos</span>
+  </a>
   <button id="themeBtn" title="Tema claro/oscuro" aria-label="Cambiar entre tema claro y oscuro">🌙</button>
   <button id="geoTopBtn" title="Mi ubicación" aria-label="Ir a mi ubicación">📍</button>
   <button id="hideAllBtn" title="Ocultar/mostrar todos los paneles" aria-label="Ocultar o mostrar todos los paneles">👁</button>
@@ -642,6 +678,19 @@ html[data-theme="light"] .rrssBtn{background:#f4f7fa}
     <div id="stormList"></div>
     <div id="disturbiosList"></div>
     <div id="emptyState"></div>
+    <a class="tgCard" href="https://t.me/ciclonmonitor" target="_blank" rel="noopener">
+      <span class="tgCardIco" aria-hidden="true">
+        <svg viewBox="0 0 24 24" width="20" height="20" focusable="false">
+          <path fill="currentColor" d="M21.94 4.3 18.9 19.1c-.23 1.02-.84 1.27-1.7.79l-4.7-3.46-2.27 2.18c-.25.25-.46.46-.94.46l.34-4.78 8.7-7.86c.38-.34-.08-.53-.59-.19L6.98 12.9 2.34 11.45c-1.01-.32-1.03-1.01.21-1.5L20.63 2.9c.84-.31 1.57.2 1.31 1.4Z"/>
+        </svg>
+      </span>
+      <span class="tgCardTxt">
+        <b data-i18n="tgTitulo">Canal de avisos en Telegram</b>
+        <small data-i18n="tgDesc">Boletín diario a las 6:00 con el clima de cada ciudad y aviso si hay un sistema cerca de Venezuela.</small>
+      </span>
+      <span class="tgCardFlecha" aria-hidden="true">→</span>
+    </a>
+
     <div class="warnbox" data-i18n="disclaimerGlobal">
       ⚠ Esta plataforma es una herramienta informativa independiente. <b>No sustituye</b> los avisos oficiales
       de tu autoridad de Protección Civil, tu servicio meteorológico nacional, ni del NHC/NOAA.
@@ -1085,6 +1134,27 @@ var VZ_CITIES = [
 
 
 /* ============================================================
+ * BOTÓN DEL CANAL DE TELEGRAM
+ * ------------------------------------------------------------
+ * El pulso solo se muestra las primeras visitas: un elemento que
+ * parpadea para siempre acaba ignorándose, y en un panel de riesgo
+ * lo que debe destacar es la alerta, no la promoción del canal.
+ * ============================================================ */
+(function(){
+  var visto = false;
+  try { visto = localStorage.getItem('ciclon_tg_visto') === '1'; } catch(e){}
+  var btn = document.getElementById('tgBtn');
+  if (btn && !visto) btn.classList.add('nuevo');
+  function marcarVisto(){
+    try { localStorage.setItem('ciclon_tg_visto', '1'); } catch(e){}
+    if (btn) btn.classList.remove('nuevo');
+  }
+  if (btn) btn.addEventListener('click', marcarVisto);
+  var card = document.querySelector('.tgCard');
+  if (card) card.addEventListener('click', marcarVisto);
+})();
+
+/* ============================================================
  * CONFIGURACIÓN DE PROXY PERSISTENTE
  * ------------------------------------------------------------
  * Las URLs de proxy vivían solo en constantes del código, así que
@@ -1131,6 +1201,8 @@ var I18N = {
     regionDesarrollo: 'Región de posible desarrollo',
     perturbacionNota: 'Aún no es un ciclón: es un área que el NHC vigila por su posibilidad de convertirse en uno.',
     sinSistemasConDist: 'No hay ciclones formados, pero sí áreas en vigilancia (ver abajo).',
+    tgUnete: 'Avisos', tgTitulo: 'Canal de avisos en Telegram',
+    tgDesc: 'Boletín diario a las 6:00 con el clima de cada ciudad y aviso si hay un sistema cerca de Venezuela.',
     panelSistemas: 'Sistemas activos',
     navMapa: 'Mapa', navSistemas: 'Sistemas', navFicha: 'Ficha', navCapas: 'Capas',
     disclaimerGlobal: '⚠ Esta plataforma es una herramienta informativa independiente. No sustituye los avisos oficiales de tu autoridad de Protección Civil, tu servicio meteorológico nacional, ni del NHC/NOAA. Ante un sistema activo, sigue siempre las fuentes oficiales.',
@@ -1302,6 +1374,8 @@ var I18N = {
     regionDesarrollo: 'Potential development region',
     perturbacionNota: 'Not a cyclone yet: an area the NHC is watching for possible development.',
     sinSistemasConDist: 'No formed cyclones, but there are areas being watched (see below).',
+    tgUnete: 'Alerts', tgTitulo: 'Telegram alerts channel',
+    tgDesc: 'Daily 6:00 bulletin with each city\'s weather, plus a heads-up if a system approaches Venezuela.',
     panelSistemas: 'Active systems',
     navMapa: 'Map', navSistemas: 'Systems', navFicha: 'Details', navCapas: 'Layers',
     disclaimerGlobal: '⚠ This platform is an independent informational tool. It does not replace official advisories from your civil protection authority, your national weather service, or the NHC/NOAA. During an active system, always follow official sources.',
@@ -2835,6 +2909,11 @@ function renderClima(){
   }
 
   html += '<div class="warnbox" style="margin-top:12px">' + t('fuenteClima') + '</div>';
+  html += '<a class="tgCard" href="https://t.me/ciclonmonitor" target="_blank" rel="noopener">' +
+    '<span class="tgCardIco" aria-hidden="true"><svg viewBox="0 0 24 24" width="20" height="20" focusable="false">' +
+    '<path fill="currentColor" d="M21.94 4.3 18.9 19.1c-.23 1.02-.84 1.27-1.7.79l-4.7-3.46-2.27 2.18c-.25.25-.46.46-.94.46l.34-4.78 8.7-7.86c.38-.34-.08-.53-.59-.19L6.98 12.9 2.34 11.45c-1.01-.32-1.03-1.01.21-1.5L20.63 2.9c.84-.31 1.57.2 1.31 1.4Z"/>' +
+    '</svg></span><span class="tgCardTxt"><b>' + t('tgTitulo') + '</b><small>' + t('tgDesc') + '</small></span>' +
+    '<span class="tgCardFlecha" aria-hidden="true">→</span></a>';
 
   var body = document.getElementById('climaBody');
   if (body) body.innerHTML = html;
@@ -4315,7 +4394,8 @@ function cabeceraSimulacro(){
 function pieMensaje(){
   return '\n' + t('compFuenteHora') + ': ' + fmtTimeDual(Date.now()) +
          '\n' + t('compDisclaimer') +
-         '\n' + buildShareUrl();
+         '\n' + buildShareUrl() +
+         '\n📢 ' + t('tgTitulo') + ': https://t.me/ciclonmonitor';
 }
 /* Texto del sistema seleccionado */
 function textoCompartirCiclon(s){

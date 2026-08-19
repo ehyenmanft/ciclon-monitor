@@ -6,6 +6,6 @@
     "test": "node test.js && node audit.js && node e2e.js"
   },
   "devDependencies": {
-    "jsdom": "^24.0.0"
+    "jsdom": "^24.1.3"
   }
 }

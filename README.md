@@ -173,6 +173,20 @@ Lo que **no** cubre: apariencia, CORS real, gestos táctiles y rendimiento. Eso 
 
 Ejecútalo antes de cada `git push`. Ya ha cazado errores reales: claves de traducción usadas pero nunca definidas, y espejos de Overpass que se estaban cacheando cuando no debían.
 
+## 📢 Canal de Telegram
+
+La web enlaza al canal desde tres sitios: un botón en la barra superior (que llama la atención las primeras visitas y luego se calma), una tarjeta explicativa en el panel de ciclones y otra al pie de la ficha de clima. El icono es un SVG propio, sin depender de recursos externos.
+
+`telegram-boletin.gs` publica cada mañana a las **6:00 (hora de Venezuela)** un boletín en un canal de Telegram: primero una cabecera con los ciclones activos según el NHC y qué ciudades amanecen con condiciones de atención, y después una ficha por ciudad —imagen + texto— con su condición, pronóstico e indicadores de riesgo. Cubre **70 ciudades** en las 23 entidades federales más el Distrito Capital, incluidas las 23 capitales de estado. El listado va organizado con una sección por entidad, en orden alfabético; La Guaira figura como estado propio y no como parte de Caracas: la separa la cordillera, su clima costero es marcadamente distinto y es la zona del deslave de 1999 y del terremoto de 2026.
+
+Para que el canal siga siendo legible, cada ciudad lleva una prioridad: 28 reciben ficha completa cada mañana y el resto entra en un resumen agrupado por estado. **Una ciudad en alerta recibe siempre ficha completa, sea cual sea su prioridad.**
+
+Se instala en Apps Script; las instrucciones paso a paso están en la cabecera del propio archivo. El token del bot va en las propiedades del script, nunca en el código.
+
+**Sobre la imagen:** Apps Script no tiene canvas, así que la ficha no se puede dibujar como en la web. Se compone en una diapositiva de Google Slides y se exporta a PNG mediante la API de miniaturas — la única vía dentro de la cuenta gratuita. Si esa generación falla por lo que sea, **el boletín se publica igualmente en texto**: un canal de riesgo que se calla porque no pudo renderizar una imagen sería un fallo peor que uno feo.
+
+Otras decisiones: el clima de las 16 ciudades se pide en una sola llamada; no se repite el boletín si Apps Script reintenta el disparador; los indicadores más graves van primero y, si hubiera que recortar por el límite de 1024 caracteres de Telegram, el recorte va por el medio para que nunca se pierdan la fuente ni el aviso de que no es un aviso oficial. Si el canal se vuelve ruidoso, `SOLO_DESTACABLES = true` publica ficha solo de las ciudades con algo que reportar.
+
 ## 🔌 Configuración de proxy
 
 Las URLs de los proxys de Apps Script se configuran desde el panel **🩺 Diagnóstico**, no editando el código. Se guardan en el navegador y **sobreviven a las actualizaciones de `index.html`**, así que actualizar la aplicación ya no borra la configuración.

@@ -48,7 +48,7 @@ seccion('Sintaxis');
 try { new vm.Script(js); ok('index.html: el JavaScript embebido compila'); }
 catch (e) { ok('index.html: el JavaScript embebido compila', false, e.message); }
 
-['sw.js', 'nhc-proxy.gs'].forEach(f => {
+['sw.js', 'nhc-proxy.gs', 'telegram-boletin.gs'].forEach(f => {
   const p = path.join(DIR, f);
   if (!fs.existsSync(p)) { ok(f + ': existe', false); return; }
   try { new vm.Script(fs.readFileSync(p, 'utf8')); ok(f + ': compila'); }
@@ -159,6 +159,94 @@ ok('toda fuente de datos del HTML está excluida del caché del SW',
    noCubiertos.length === 0, 'sin cubrir: ' + noCubiertos.join(', '));
 
 // ---------------------------------------------------------------
+seccion('Boletín de Telegram');
+const tg = fs.existsSync(path.join(DIR, 'telegram-boletin.gs'))
+  ? fs.readFileSync(path.join(DIR, 'telegram-boletin.gs'), 'utf8') : '';
+ok('el script del boletín existe', tg.length > 0);
+// un token filtrado permite publicar en el canal a cualquiera
+ok('el token no está incrustado en el código',
+   !/\d{8,10}:[A-Za-z0-9_-]{30,}/.test(tg) && tg.includes('TELEGRAM_BOT_TOKEN'));
+ok('la configuración vive en propiedades del script', tg.includes('PropertiesService'));
+ok('se programa a las 6:00 hora de Venezuela',
+   /atHour\(6\)/.test(tg) && /America\/Caracas/.test(tg));
+ok('no repite el boletín si el disparador reintenta', tg.includes('ULTIMO_BOLETIN'));
+// el disparador llama a reporteDiario pasándole un objeto de evento: con un
+// simple if(forzar) ese objeto sería truthy y anularía la protección
+ok('la comprobación de envío manual es estricta (=== true)',
+   /var manual = \(forzar === true\)/.test(tg));
+ok('probarAhora ignora la protección para poder probar', /reporteDiario\(true\)/.test(tg));
+ok('se puede reiniciar la marca del día', tg.includes('reiniciarBoletinDeHoy'));
+// el fallo del 19/08: a las 6:00 en punto, las IP compartidas de Apps Script
+// reciben 429 de Open-Meteo. Media hora después el mismo script funciona.
+ok('registra el código real cuando la fuente no responde 200',
+   /Open-Meteo respondió ' \+ code/.test(tg), 'sin esto el fallo es invisible en el registro');
+ok('reintenta ante 429 y errores 5xx', /code !== 429 && code < 500/.test(tg));
+ok('la espera entre reintentos crece', /Math\.pow\(2, intento/.test(tg));
+ok('el clima se pide por lotes', /var LOTE =/.test(tg));
+ok('un lote fallido no tumba el boletín completo',
+   /conDatos > 0 \? resultado : null/.test(tg));
+ok('los huecos mantienen alineados los índices con CIUDADES',
+   /resultado\.push\(null\)/.test(tg));
+// si falla del todo, el día NO debe quedar marcado o nunca se reintentaría
+ok('un fallo total permite reintentar más tarde',
+   /deleteProperty\('ULTIMO_BOLETIN'\)[\s\S]{0,300}No se pudo obtener el clima/.test(tg) ||
+   /No se pudo obtener el clima[\s\S]{0,300}/.test(tg) && /props\.deleteProperty\('ULTIMO_BOLETIN'\)/.test(tg));
+ok('el disparador evita el minuto en punto', /nearMinute\(10\)/.test(tg));
+ok('hay disparador de respaldo', tg.includes('instalarDisparadorRespaldo'));
+// si no puede renderizar la imagen, debe publicar igualmente
+ok('el boletín sale en texto si la imagen falla', /catch[\s\S]{0,200}Sin imagen/.test(tg));
+ok('cada mensaje lleva fuente, hora y aviso de no-oficial',
+   /function pie_\(\)[\s\S]{0,400}NO es un aviso oficial/.test(tg));
+// el recorte por límite de Telegram no puede comerse el aviso
+ok('el recorte preserva el aviso final', /caption = pie\.slice\(0, 1024[\s\S]{0,80}cola/.test(tg));
+ok('los indicadores graves se muestran primero', tg.includes('orden[a.nivel] - orden[b.nivel]'));
+ok('no imprime NaN con datos nulos', /function fmt_[\s\S]{0,160}isFinite/.test(tg));
+ok('usa una sola petición para todas las ciudades',
+   /latitude=' \+ lats\.join\(','\)/.test(tg));
+// cobertura territorial: las 23 capitales de estado y el Distrito Capital
+const estados = ['Amazonas','Anzoátegui','Apure','Aragua','Barinas','Bolívar','Carabobo',
+  'Cojedes','Delta Amacuro','Falcón','Guárico','La Guaira','Lara','Mérida','Miranda',
+  'Monagas','Nueva Esparta','Portuguesa','Sucre','Táchira','Trujillo','Yaracuy','Zulia'];
+const sinEstado = estados.filter(e => !tg.includes("e: '" + e + "'"));
+ok('las 23 entidades federales están cubiertas', sinEstado.length === 0, 'faltan: ' + sinEstado.join(', '));
+ok('incluye el Distrito Capital', tg.includes("e: 'Distrito Capital'"));
+// La Guaira es un estado propio, no parte de Caracas: su clima costero es
+// distinto y es la zona del deslave de 1999 y del terremoto de 2026
+ok('La Guaira es una entidad separada del Distrito Capital',
+   tg.includes("e: 'La Guaira'") && /Caracas[^\n]*Distrito Capital/.test(tg));
+ok('el litoral de La Guaira tiene varias localidades',
+   (tg.match(/e: 'La Guaira'/g) || []).length >= 3);
+// ciudades portuarias y costeras: las más expuestas a marejada
+['Puerto Cabello', 'Puerto La Cruz', 'Punto Fijo', 'Carúpano', 'Güiria', 'Porlamar']
+  .forEach(c => ok('incluye ' + c, tg.includes("'" + c + "'")));
+// una ficha por ciudad con 68 ciudades haría el canal ilegible
+ok('las ciudades se priorizan para no saturar el canal', /pri: 1/.test(tg) && /pri: 2/.test(tg));
+ok('el resto del país se resume agrupado por estado', tg.includes('enviarResumenEstados_'));
+ok('el resumen se parte si supera el límite de Telegram', /3600/.test(tg));
+// una alerta nunca debe quedarse en el resumen
+ok('una ciudad en alerta siempre recibe ficha completa',
+   /an\.resumen !== 'alerta'/.test(tg));
+
+seccion('Canal de Telegram en la interfaz');
+ok('hay botón de Telegram en la barra superior', html.includes('id="tgBtn"'));
+ok('apunta al canal correcto', (html.match(/t\.me\/ciclonmonitor/g) || []).length >= 3,
+   'debe estar en el botón, la tarjeta y la ficha de clima');
+// target=_blank sin noopener deja al sitio destino acceder a window.opener
+ok('los enlaces externos llevan noopener',
+   !/target="_blank"(?![^>]*rel="noopener")/.test(html));
+ok('el icono es un SVG propio, no una imagen externa',
+   /id="tgBtn"[\s\S]{0,400}<svg/.test(html) && !/telegram\.org\/img|cdn[^"]*telegram/i.test(html));
+ok('el botón tiene etiqueta accesible', /id="tgBtn"[^>]*aria-label=/.test(html));
+ok('el SVG decorativo se oculta a lectores de pantalla',
+   /<svg[^>]*aria-hidden="true"/.test(html));
+ok('hay tarjeta explicativa del canal', html.includes('class="tgCard"'));
+// un elemento parpadeando para siempre acaba ignorándose, y en un panel de
+// riesgo lo que debe destacar es la alerta, no la promoción del canal
+ok('el aviso de novedad deja de parpadear tras verlo', js.includes('ciclon_tg_visto'));
+ok('la animación tiene un número finito de repeticiones',
+   /animation:tgPulso[^;}]*\s\d+\b/.test(html), 'no debe ser infinite');
+ok('en móvil angosto se reduce a icono', /#tgBtnTxt\{display:none\}/.test(html));
+
 seccion('Accesibilidad');
 // ---------------------------------------------------------------
 const botonesSoloEmoji = [...html.matchAll(/<button([^>]*)>([^<]*)<\/button>/g)]
