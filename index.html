@@ -239,15 +239,15 @@ a{color:inherit}
 .legendChip{width:12px;height:8px;border-radius:2px;display:inline-block;flex:0 0 12px}
 
 /* ===== barra de zoom con límites visibles ===== */
-/* A la IZQUIERDA, alineada junto al panel izquierdo y sobre el panel de capas.
- * --zoombar-left y --layers-left los ajusta el JS para alinearse automáticamente
- * junto al panel izquierdo o replegarse al margen si este se oculta. */
+/* A la DERECHA de forma predeterminada, alineada para no solapar el panel izquierdo
+ * ni el panel de capas, y autoajustable con respecto a la ficha derecha (#right). */
 #zoomBar{
-  position:fixed;left:var(--zoombar-left, 324px);top:72px;z-index:24;
-  transition:left .18s;
+  position:fixed;right:var(--zoombar-right, 14px);top:72px;z-index:24;
+  transition:right .18s, left .18s;
   background:var(--panel);border:1px solid var(--line);border-radius:12px;
   backdrop-filter:blur(10px);padding:9px 7px;
   display:flex;flex-direction:column;align-items:center;gap:7px;
+  cursor:move;user-select:none;
 }
 #zoomBar button{
   background:#161d26;border:1px solid var(--line);color:var(--text);border-radius:7px;
@@ -4343,49 +4343,69 @@ onMapMove(function(){
 /* ============================================================
  * PANELES: mover, ocultar, restaurar y pantalla completa
  * ------------------------------------------------------------
- * El arrastre solo se activa en escritorio: en móvil los paneles
- * son hojas ancladas al borde inferior y moverlas rompería el
- * patrón de navegación por pestañas.
+ * El arrastre se activa mediante Pointer Events con captura
+ * para máxima fluidez tanto con ratón como con pantalla táctil.
+ * Al tocar cualquier panel se eleva su z-index.
  * ============================================================ */
+var topZIndex = 30;
+function bringToFront(panel){
+  if (!panel) return;
+  topZIndex++;
+  panel.style.zIndex = topZIndex;
+}
+
 function makeDraggable(panelId, handleSel){
   var panel = document.getElementById(panelId);
   if (!panel) return;
   var dragging = false, startX = 0, startY = 0, startL = 0, startT = 0;
 
+  panel.addEventListener('pointerdown', function(e){
+    bringToFront(panel);
+  });
+
   function onDown(e){
     if (window.innerWidth <= 820) return;               // móvil: no arrastrar
-    if (e.target.closest('button')) return;             // no secuestrar los botones del encabezado
+    if (e.target.closest('button, input, select, textarea, a, .quickCities, .unidadBtn, #zoomSlider')) return;
     if (panel.classList.contains('fullscreen')) return; // en pantalla completa no tiene sentido
-    var handle = e.target.closest(handleSel);
+    var handle = handleSel ? e.target.closest(handleSel) : panel;
     if (!handle || !panel.contains(handle)) return;
+
+    bringToFront(panel);
     var r = panel.getBoundingClientRect();
-    // fijar posición explícita antes de mover (los paneles nacen anclados con right/top)
     panel.style.left = r.left + 'px'; panel.style.top = r.top + 'px';
     panel.style.right = 'auto'; panel.style.bottom = 'auto';
     dragging = true; startX = e.clientX; startY = e.clientY; startL = r.left; startT = r.top;
     panel.classList.add('dragging');
+    if (e.pointerId && panel.setPointerCapture) {
+      try { panel.setPointerCapture(e.pointerId); } catch(err){}
+    }
     e.preventDefault();
   }
   function onMove(e){
     if (!dragging) return;
     var nl = startL + (e.clientX - startX), nt = startT + (e.clientY - startY);
-    // mantener siempre una franja visible para que el panel no se pierda fuera de pantalla
-    nl = Math.max(-panel.offsetWidth + 80, Math.min(window.innerWidth - 80, nl));
-    nt = Math.max(0, Math.min(window.innerHeight - 44, nt));
+    nl = Math.max(4, Math.min(window.innerWidth - panel.offsetWidth - 4, nl));
+    nt = Math.max(4, Math.min(window.innerHeight - 44, nt));
     panel.style.left = nl + 'px'; panel.style.top = nt + 'px';
   }
-  function onUp(){
-    if (dragging) updateZoomBarPos();
+  function onUp(e){
+    if (!dragging) return;
     dragging = false; panel.classList.remove('dragging');
+    if (e && e.pointerId && panel.releasePointerCapture) {
+      try { panel.releasePointerCapture(e.pointerId); } catch(err){}
+    }
+    updateZoomBarPos();
   }
 
-  panel.addEventListener('mousedown', onDown);
-  document.addEventListener('mousemove', onMove);
-  document.addEventListener('mouseup', onUp);
+  panel.addEventListener('pointerdown', onDown);
+  window.addEventListener('pointermove', onMove);
+  window.addEventListener('pointerup', onUp);
+  window.addEventListener('pointercancel', onUp);
 }
-makeDraggable('left', 'h2');
+makeDraggable('left', 'h2, #modeSwitch');
 makeDraggable('right', 'h2');
 makeDraggable('layersControl', '#layersControlHeader');
+makeDraggable('zoomBar', '#zoomBar');
 
 function toggleFullscreen(panelId){
   var panel = document.getElementById(panelId);
@@ -4403,30 +4423,38 @@ document.getElementById('leftFull').addEventListener('click', function(e){ e.sto
 document.getElementById('rightFull').addEventListener('click', function(e){ e.stopPropagation(); toggleFullscreen('right'); });
 
 /* ============================================================
- * POSICIÓN DE LA BARRA DE ZOOM Y PANEL DE CAPAS
+ * POSICIÓN DINÁMICA Y ANTI-SOLAPAMIENTO DE PANELES
  * ------------------------------------------------------------
- * Se mide el borde derecho real del panel izquierdo y se colocan
- * la barra de zoom y el panel de capas justo después, para que
- * nunca se solapen ni queden solapados con el panel izquierdo.
- * Si el panel izquierdo se oculta, ambos se repliegan al borde.
+ * Se calcula la separación entre el panel izquierdo (#left),
+ * el panel de capas (#layersControl), la ficha (#right) y la
+ * barra de zoom (#zoomBar) para garantizar que nunca se solapen.
  * ============================================================ */
 function updateZoomBarPos(){
   if (window.innerWidth <= 820){
-    document.documentElement.style.setProperty('--zoombar-left', 'auto');
+    document.documentElement.style.setProperty('--zoombar-right', '10px');
     document.documentElement.style.setProperty('--layers-left', '0px');
     return;
   }
   var leftEl = document.getElementById('left');
   var isLeftHidden = !leftEl || leftEl.classList.contains('hiddenAll') || leftEl.classList.contains('hideDesk') || getComputedStyle(leftEl).display === 'none';
-  var leftRight = 0;
+  var leftPos = 12;
   if (!isLeftHidden){
-    var r = leftEl.getBoundingClientRect();
-    if (r.width > 0 && r.left < window.innerWidth / 2) leftRight = r.right;
+    var rL = leftEl.getBoundingClientRect();
+    if (rL.width > 0 && rL.left < window.innerWidth / 2) leftPos = rL.right + 12;
   }
-  var pos = leftRight > 0 ? (leftRight + 12) : 12;
-  pos = Math.min(pos, Math.round(window.innerWidth / 2) - 80);
-  document.documentElement.style.setProperty('--layers-left', pos + 'px');
-  document.documentElement.style.setProperty('--zoombar-left', pos + 'px');
+  leftPos = Math.min(leftPos, Math.round(window.innerWidth / 2) - 80);
+  document.documentElement.style.setProperty('--layers-left', leftPos + 'px');
+
+  var rightEl = document.getElementById('right');
+  var isRightHidden = !rightEl || !rightEl.classList.contains('on') || rightEl.classList.contains('hiddenAll') || getComputedStyle(rightEl).display === 'none';
+  var rightPos = 14;
+  if (!isRightHidden){
+    var rR = rightEl.getBoundingClientRect();
+    if (rR.width > 0 && rR.right > window.innerWidth / 2){
+      rightPos = (window.innerWidth - rR.left) + 12;
+    }
+  }
+  document.documentElement.style.setProperty('--zoombar-right', rightPos + 'px');
 }
 window.addEventListener('resize', updateZoomBarPos);
 
