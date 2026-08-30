@@ -18,8 +18,8 @@
  * bombero o un voluntario en campo. Se conmuta con el botón ☀/🌙. */
 html[data-theme="light"]{
   --bg:#eef2f6;
-  --panel:#ffffffee;
-  --line:#b9c6d3;
+  --panel:rgba(255, 255, 255, 0.72);
+  --line:rgba(185, 198, 211, 0.65);
   --text:#0d1720;
   --muted:#465866;
   --c-td:#00795c;
@@ -35,9 +35,11 @@ html[data-theme="light"] #layersControl button,
 html[data-theme="light"] #zoomBar button,
 html[data-theme="light"] .quickCities button,
 html[data-theme="light"] #climaSearchInput,
+html[data-theme="light"] #climaSearchBtn,
+html[data-theme="light"] #climaGeoBtn,
 html[data-theme="light"] .linkbtn,
 html[data-theme="light"] .topbarBtns button,
-html[data-theme="light"] .topbarBtns a{background:#f4f7fa;color:#0d1720;border-color:#b9c6d3}
+html[data-theme="light"] .topbarBtns a{background:rgba(255,255,255,0.70);color:#0d1720;border-color:rgba(185,198,211,0.80)}
 html[data-theme="light"] #tgBtn{background:#229ED9;color:#fff;border-color:#229ED9}
 html[data-theme="light"] #sismoTopBtn{border-color:#f07f3c88;color:#c2410c}
 html[data-theme="light"] .topbarBrand b{
@@ -45,17 +47,17 @@ html[data-theme="light"] .topbarBrand b{
   text-shadow:0 0 8px #ffffff, 0 1px 4px #ffffff, 0 0 14px #ffffff, 0 0 20px #ffffff;
 }
 html[data-theme="light"] #lastUpdateTxt{
-  background:#ffffffea;border:1px solid #b9c6d3;
+  background:rgba(255,255,255,0.85);border:1px solid #b9c6d3;
   color:#101a24;font-weight:700;
   box-shadow:0 1px 5px rgba(0,0,0,0.15);
   text-shadow:none;
 }
-html[data-theme="light"] .warnbox{background:#fff4d6;border-color:#c99a2e;color:#4a3708}
-html[data-theme="light"] .wnBox{background:#eaf3f9;border-color:#9dc0d6}
+html[data-theme="light"] .warnbox{background:rgba(255,244,214,0.80);border-color:#c99a2e;color:#4a3708}
+html[data-theme="light"] .wnBox{background:rgba(234,243,249,0.80);border-color:#9dc0d6}
 html[data-theme="light"] .hourCard,
 html[data-theme="light"] .aqiCell,
 html[data-theme="light"] .riverBox{
-  background:#f4f7fa;border:1px solid #b9c6d3;color:#0d1720;
+  background:rgba(255,255,255,0.65);border:1px solid rgba(185,198,211,0.80);color:#0d1720;
 }
 html[data-theme="light"] .hourCard .hTime{color:#55697f}
 html[data-theme="light"] .hourCard .hPop{color:#0077b6}
@@ -64,42 +66,26 @@ html[data-theme="light"] .aqiCell .aqiLabel{color:#55697f}
 html[data-theme="light"] .aqiCell .aqiVal{color:#0d1720}
 html[data-theme="light"] .riverBox .riverVal{color:#0077b6}
 html[data-theme="light"] .riverBox{color:#2a3b4a}
-html[data-theme="light"] .dayRow{border-bottom-color:#d0dce8}
+html[data-theme="light"] .dayRow{border-bottom-color:rgba(208,220,232,0.80)}
 html[data-theme="light"] .dayRow .dName{color:#4a5b6d}
 html[data-theme="light"] .dayRow .dTemp{color:#0d1720}
 html[data-theme="light"] .dayRow .dTemp span{color:#6c7d90}
-html[data-theme="light"] .anResumen.an-alerta{background:#ffebee;border-color:#ef9a9a;color:#c62828}
-html[data-theme="light"] .anResumen.an-atencion{background:#fff8e1;border-color:#ffe082;color:#f57f17}
+html[data-theme="light"] .anResumen.an-alerta{background:rgba(255,235,238,0.78);border-color:#ef9a9a;color:#c62828}
+html[data-theme="light"] .anResumen.an-atencion{background:rgba(255,248,225,0.78);border-color:#ffe082;color:#f57f17}
 html[data-theme="light"] .anResumen.an-info,
-html[data-theme="light"] .anResumen.an-ok{background:#e1f5fe;border-color:#b3e5fc;color:#0277bd}
-html[data-theme="light"] .anItem{border-bottom-color:#d0dce8}
+html[data-theme="light"] .anResumen.an-ok{background:rgba(225,245,254,0.78);border-color:#b3e5fc;color:#0277bd}
+html[data-theme="light"] .anItem{border-bottom-color:rgba(208,220,232,0.80)}
 html[data-theme="light"] .anDato{color:#0d1720}
-html[data-theme="light"] /* Análisis de condiciones: cada línea muestra el dato que la respalda,
- * para que se pueda verificar de un vistazo de dónde sale la afirmación. */
-.anResumen{border-radius:8px;padding:8px 10px;font-size:12px;font-weight:700;margin-bottom:7px}
-.anResumen.an-alerta{background:#3a1518;border:1px solid #8a2a30;color:#ffd9db}
-.anResumen.an-atencion{background:#2a230e;border:1px solid #6a5a1a;color:#f0d9a8}
-.anResumen.an-info,.anResumen.an-ok{background:#0d1a22;border:1px solid #2a3b4a;color:#bcd6e6}
-.anItem{display:flex;align-items:flex-start;gap:7px;padding:5px 0;border-bottom:1px dashed var(--line);font-size:11.5px;line-height:1.45}
-.anItem:last-of-type{border-bottom:none}
-.anIco{flex:0 0 auto;font-size:10px;margin-top:1px}
-.anTexto{flex:1}
-.anDato{flex:0 0 auto;font-weight:700;color:var(--text);font-variant-numeric:tabular-nums;white-space:nowrap}
-.anItem.an-alerta .anDato{color:var(--danger)}
-.anItem.an-atencion .anDato{color:var(--accent)}
-.anNota{font-size:10px;color:var(--muted);line-height:1.45;margin-top:7px;padding-top:6px;border-top:1px dashed var(--line)}
-
-.riverBox{background:#f4f7fa}
-html[data-theme="light"] .gdacsPin,html[data-theme="light"] .recursoPin{background:#ffffffee}
+html[data-theme="light"] .gdacsPin,html[data-theme="light"] .recursoPin{background:rgba(255,255,255,0.85)}
 html[data-theme="light"] .windArrow{text-shadow:0 0 3px #fff, 0 0 3px #fff}
-html[data-theme="light"] .stormCard.sel{background:#dce8f2}
-html[data-theme="light"] #modeSwitch{background:#dfe6ec}
-html[data-theme="light"] #modeSwitch button.act{background:#ffffff}
+html[data-theme="light"] .stormCard.sel{background:rgba(220,232,242,0.75)}
+html[data-theme="light"] #modeSwitch{background:rgba(223,230,236,0.65)}
+html[data-theme="light"] #modeSwitch button.act{background:rgba(255,255,255,0.90)}
 
 :root{
   --bg:#0b0f14;
-  --panel:#10151cdd;
-  --line:#1e2833;
+  --panel:rgba(16, 22, 30, 0.68);
+  --line:rgba(30, 40, 51, 0.70);
   --text:#dde7ef;
   --muted:#76879a;
   /* severidad Saffir-Simpson, mismo lenguaje de color que SISMO·MONITOR (m1..m4) */
@@ -125,7 +111,8 @@ a{color:inherit}
 /* ===== paneles ===== */
 .panel{
   position:fixed;background:var(--panel);border:1px solid var(--line);border-radius:12px;
-  backdrop-filter:blur(10px);z-index:20;max-height:calc(100vh - 24px);overflow-y:auto;
+  backdrop-filter:blur(14px) saturate(150%);-webkit-backdrop-filter:blur(14px) saturate(150%);
+  z-index:20;max-height:calc(100vh - 24px);overflow-y:auto;
 }
 .panel::-webkit-scrollbar{width:10px}
 .panel::-webkit-scrollbar-track{background:#0a0d12;border-radius:5px}
@@ -160,22 +147,22 @@ a{color:inherit}
 #right.on{display:block}
 
 /* ===== selector de modo (Ciclones / Clima) ===== */
-#modeSwitch{display:flex;gap:2px;background:#0a0d12;border:1px solid var(--line);border-radius:8px;padding:2px;margin-bottom:12px}
+#modeSwitch{display:flex;gap:2px;background:rgba(10,13,18,0.60);border:1px solid var(--line);border-radius:8px;padding:2px;margin-bottom:12px}
 #modeSwitch button{
   flex:1;background:none;border:none;color:var(--muted);font-family:inherit;font-size:10.5px;
   padding:6px 4px;border-radius:6px;cursor:pointer;
 }
-#modeSwitch button.act{background:#1b2430;color:var(--text)}
+#modeSwitch button.act{background:rgba(27,36,48,0.85);color:var(--text)}
 
 /* ===== módulo CLIMA: búsqueda ===== */
 .searchRow{display:flex;gap:6px;margin-bottom:8px}
 #climaSearchInput{
-  flex:1;background:#161d26;color:var(--text);border:1px solid var(--line);border-radius:7px;
+  flex:1;background:rgba(22,29,38,0.55);color:var(--text);border:1px solid var(--line);border-radius:7px;
   padding:8px 9px;font-family:inherit;font-size:12px;
 }
 #climaSearchInput::placeholder{color:var(--muted)}
 #climaSearchBtn,#climaGeoBtn{
-  background:#161d26;border:1px solid var(--line);color:var(--text);border-radius:7px;
+  background:rgba(22,29,38,0.60);border:1px solid var(--line);color:var(--text);border-radius:7px;
   padding:0 11px;cursor:pointer;font-size:14px;
 }
 #climaSearchBtn:hover,#climaGeoBtn:hover{border-color:var(--accent)}
@@ -187,11 +174,11 @@ a{color:inherit}
 .searchResult .srMeta{color:var(--muted);font-size:10.5px}
 .quickCities{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
 .quickCities button{
-  background:#161d26;border:1px solid var(--line);color:var(--text);border-radius:20px;
+  background:rgba(22,29,38,0.60);border:1px solid var(--line);color:var(--text);border-radius:20px;
   padding:5px 11px;font-family:inherit;font-size:10.5px;cursor:pointer;
 }
 .quickCities button:hover{border-color:var(--accent)}
-.quickCities button.sel{border-color:var(--accent);background:#1b2430}
+.quickCities button.sel{border-color:var(--accent);background:rgba(27,36,48,0.85)}
 
 /* ===== módulo CLIMA: ficha ===== */
 .wxNow{text-align:center;padding:10px 0 14px;border-bottom:1px dashed var(--line);margin-bottom:12px}
@@ -206,7 +193,7 @@ a{color:inherit}
 .hourStrip::-webkit-scrollbar{height:4px}
 .hourStrip::-webkit-scrollbar-thumb{background:var(--line);border-radius:3px}
 .hourCard{
-  flex:0 0 auto;min-width:52px;text-align:center;background:#161d26;border:1px solid var(--line);
+  flex:0 0 auto;min-width:52px;text-align:center;background:rgba(22,29,38,0.55);border:1px solid var(--line);
   border-radius:8px;padding:7px 5px;font-size:10.5px;
 }
 .hourCard .hIcon{font-size:16px;margin:3px 0}
@@ -223,7 +210,7 @@ a{color:inherit}
 .dayRow .dTemp span{color:var(--muted);font-weight:400}
 
 .aqiBox{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:6px}
-.aqiCell{background:#161d26;border:1px solid var(--line);border-radius:8px;padding:8px;text-align:center}
+.aqiCell{background:rgba(22,29,38,0.55);border:1px solid var(--line);border-radius:8px;padding:8px;text-align:center}
 .aqiCell .aqiVal{font-size:18px;font-weight:700}
 .aqiCell .aqiLabel{font-size:9.5px;color:var(--muted);text-transform:uppercase}
 .aqiPill{display:inline-block;padding:1px 8px;border-radius:20px;font-size:9.5px;font-weight:700;color:#0b0f14;margin-top:3px}
@@ -233,7 +220,8 @@ a{color:inherit}
   position:fixed;left:14px;bottom:14px;z-index:22;
   transition:left .18s;
   background:var(--panel);border:1px solid var(--line);border-radius:12px;
-  backdrop-filter:blur(10px);width:300px;max-width:calc(100vw - 28px);
+  backdrop-filter:blur(14px) saturate(150%);-webkit-backdrop-filter:blur(14px) saturate(150%);
+  width:300px;max-width:calc(100vw - 28px);
   max-height:calc(55vh);overflow-y:auto;
 }
 #layersControlHeader{
@@ -247,27 +235,27 @@ a{color:inherit}
 #layersControl .layerBtns{display:grid;grid-template-columns:1fr 1fr;gap:6px}
 #layersControl .layerBtns.single{grid-template-columns:1fr}
 #layersControl .layerBtns button{
-  background:#161d26;border:1px solid var(--line);color:var(--text);border-radius:8px;
+  background:rgba(22,29,38,0.60);border:1px solid var(--line);color:var(--text);border-radius:8px;
   padding:8px 6px;font-family:inherit;font-size:11.5px;cursor:pointer;white-space:nowrap;
   display:flex;align-items:center;justify-content:center;gap:4px;
   width:100%;box-sizing:border-box;min-height:34px;
 }
 #layersControl .layerBtns button:hover{border-color:var(--accent)}
-#layersControl .layerBtns button.act{border-color:#6fb8e0;background:#0d1a22;color:#6fb8e0}
+#layersControl .layerBtns button.act{border-color:#6fb8e0;background:rgba(13,26,34,0.80);color:#6fb8e0}
 #satModeRow{display:none;gap:5px;padding-top:4px;border-top:1px dashed var(--line)}
 #satModeRow.on{display:flex}
 #satModeRow button{
-  flex:1;background:#161d26;border:1px solid var(--line);color:var(--text);border-radius:6px;
+  flex:1;background:rgba(22,29,38,0.60);border:1px solid var(--line);color:var(--text);border-radius:6px;
   font-family:inherit;font-size:10px !important;padding:6px 4px !important;cursor:pointer;
   white-space:nowrap;text-align:center;
 }
-#satModeRow button.act{border-color:#6fb8e0;background:#0d1a22;color:#6fb8e0}
+#satModeRow button.act{border-color:#6fb8e0;background:rgba(13,26,34,0.80);color:#6fb8e0}
 #radarControls{
   display:none;align-items:center;gap:8px;padding-top:6px;border-top:1px dashed var(--line);
 }
 #radarControls.on{display:flex}
 #radarPlayBtn{
-  background:#161d26;border:1px solid var(--line);color:var(--text);border-radius:6px;
+  background:rgba(22,29,38,0.60);border:1px solid var(--line);color:var(--text);border-radius:6px;
   width:30px;height:30px;min-width:30px;min-height:30px;cursor:pointer;
   font-size:12px;display:flex;align-items:center;justify-content:center;padding:0;flex:0 0 30px;
 }
@@ -292,12 +280,12 @@ a{color:inherit}
   position:fixed;right:var(--zoombar-right, 14px);top:72px;z-index:24;
   transition:right .18s, left .18s;
   background:var(--panel);border:1px solid var(--line);border-radius:12px;
-  backdrop-filter:blur(10px);padding:9px 7px;
+  backdrop-filter:blur(14px) saturate(150%);-webkit-backdrop-filter:blur(14px) saturate(150%);padding:9px 7px;
   display:flex;flex-direction:column;align-items:center;gap:7px;
   cursor:move;user-select:none;
 }
 #zoomBar button{
-  background:#161d26;border:1px solid var(--line);color:var(--text);border-radius:7px;
+  background:rgba(22,29,38,0.60);border:1px solid var(--line);color:var(--text);border-radius:7px;
   width:32px;height:32px;cursor:pointer;font-family:inherit;font-size:15px;line-height:1;
   display:flex;align-items:center;justify-content:center;
 }
@@ -369,9 +357,9 @@ html[data-theme="light"] .cityWx{text-shadow:0 0 3px #fff,0 0 3px #fff,0 0 5px #
 /* Análisis de condiciones: cada línea muestra el dato que la respalda,
  * para que se pueda verificar de un vistazo de dónde sale la afirmación. */
 .anResumen{border-radius:8px;padding:8px 10px;font-size:12px;font-weight:700;margin-bottom:7px}
-.anResumen.an-alerta{background:#3a1518;border:1px solid #8a2a30;color:#ffd9db}
-.anResumen.an-atencion{background:#2a230e;border:1px solid #6a5a1a;color:#f0d9a8}
-.anResumen.an-info,.anResumen.an-ok{background:#0d1a22;border:1px solid #2a3b4a;color:#bcd6e6}
+.anResumen.an-alerta{background:rgba(58,21,24,0.70);border:1px solid #8a2a30;color:#ffd9db}
+.anResumen.an-atencion{background:rgba(42,35,14,0.70);border:1px solid #6a5a1a;color:#f0d9a8}
+.anResumen.an-info,.anResumen.an-ok{background:rgba(13,26,34,0.70);border:1px solid #2a3b4a;color:#bcd6e6}
 .anItem{display:flex;align-items:flex-start;gap:7px;padding:5px 0;border-bottom:1px dashed var(--line);font-size:11.5px;line-height:1.45}
 .anItem:last-of-type{border-bottom:none}
 .anIco{flex:0 0 auto;font-size:10px;margin-top:1px}
@@ -381,7 +369,7 @@ html[data-theme="light"] .cityWx{text-shadow:0 0 3px #fff,0 0 3px #fff,0 0 5px #
 .anItem.an-atencion .anDato{color:var(--accent)}
 .anNota{font-size:10px;color:var(--muted);line-height:1.45;margin-top:7px;padding-top:6px;border-top:1px dashed var(--line)}
 
-.riverBox{border:1px solid #2a3b4a;background:#0d1a22;border-radius:8px;padding:9px;margin-top:8px;font-size:11.5px;line-height:1.6}
+.riverBox{border:1px solid #2a3b4a;background:rgba(13,26,34,0.65);border-radius:8px;padding:9px;margin-top:8px;font-size:11.5px;line-height:1.6}
 .riverBox .riverVal{font-size:17px;font-weight:700;color:#6fb8e0}
 .marineGrid{display:grid;grid-template-columns:1fr 1fr;gap:6px 12px;margin-top:4px}
 .unidadLabel{opacity:.7}
@@ -417,11 +405,14 @@ html[data-theme="light"] .cityWx{text-shadow:0 0 3px #fff,0 0 3px #fff,0 0 5px #
 /* ===== panel compartir ubicación ===== */
 #shareLocPanel{display:none;position:fixed;inset:0;z-index:60;background:#00000099;align-items:center;justify-content:center;padding:16px}
 #shareLocPanel.on{display:flex}
-#shareLocCard{background:var(--panel);border:1px solid var(--line);border-radius:14px;max-width:360px;width:100%;padding:16px}
+#shareLocCard{
+  background:var(--panel);border:1px solid var(--line);border-radius:14px;max-width:360px;width:100%;padding:16px;
+  backdrop-filter:blur(14px) saturate(150%);-webkit-backdrop-filter:blur(14px) saturate(150%);
+}
 #shareLocCard h2{display:flex;justify-content:space-between;align-items:center;font-size:14px;margin-bottom:10px}
 #shareLocCard h2 button{background:none;border:none;color:var(--muted);font-size:15px;cursor:pointer}
 .shareBtn{display:block;width:100%;text-align:center;margin-top:8px;padding:10px;border-radius:8px;
-  background:#161d26;border:1px solid var(--line);color:var(--text);text-decoration:none;font-size:12.5px;cursor:pointer;font-family:inherit}
+  background:rgba(22,29,38,0.60);border:1px solid var(--line);color:var(--text);text-decoration:none;font-size:12.5px;cursor:pointer;font-family:inherit}
 .shareBtn:hover{border-color:var(--accent)}
 #shareLocCoords{font-size:11px;color:var(--muted);text-align:center;margin-bottom:4px;font-variant-numeric:tabular-nums}
 @media (max-width:820px){
@@ -449,10 +440,10 @@ html[data-theme="light"] .cityWx{text-shadow:0 0 3px #fff,0 0 3px #fff,0 0 5px #
 #topbar .dot.err{background:var(--danger);box-shadow:0 0 6px var(--danger)}
 #lastUpdateTxt{
   white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
-  background:#10151cdd;border:1px solid #1e2833;
+  background:rgba(16,21,28,0.72);border:1px solid var(--line);
   color:#c0d1e2;font-size:11px;font-weight:500;
   padding:3px 9px;border-radius:12px;
-  backdrop-filter:blur(8px);
+  backdrop-filter:blur(10px);
   box-shadow:0 1px 4px rgba(0,0,0,0.3);
 }
 
@@ -462,11 +453,11 @@ html[data-theme="light"] .cityWx{text-shadow:0 0 3px #fff,0 0 3px #fff,0 0 5px #
 }
 .topbarBtns::-webkit-scrollbar{display:none}
 .topbarBtns button, .topbarBtns a{
-  background:#161d26dd;border:1px solid var(--line);color:var(--text);border-radius:8px;
+  background:rgba(22,29,38,0.65);border:1px solid var(--line);color:var(--text);border-radius:8px;
   width:34px;height:34px;min-height:34px;min-width:34px;padding:0;
   display:inline-flex;align-items:center;justify-content:center;
   cursor:pointer;font-family:inherit;font-size:13.5px;font-weight:700;line-height:1;
-  text-decoration:none;transition:all .15s;flex:0 0 auto;backdrop-filter:blur(8px);
+  text-decoration:none;transition:all .15s;flex:0 0 auto;backdrop-filter:blur(10px);
   box-shadow:0 2px 6px rgba(0,0,0,0.35);
 }
 .topbarBtns button:hover, .topbarBtns a:hover{
@@ -614,7 +605,8 @@ html[data-theme="light"] .cityWx{text-shadow:0 0 3px #fff,0 0 3px #fff,0 0 5px #
   #right.on{display:block}
   #mobilenav{
     display:flex;position:fixed;left:0;right:0;bottom:0;height:56px;z-index:30;
-    background:var(--panel);border-top:1px solid var(--line);backdrop-filter:blur(10px);
+    background:var(--panel);border-top:1px solid var(--line);
+    backdrop-filter:blur(14px) saturate(150%);-webkit-backdrop-filter:blur(14px) saturate(150%);
     height:calc(56px + env(safe-area-inset-bottom));
     padding-bottom:env(safe-area-inset-bottom);
   }
