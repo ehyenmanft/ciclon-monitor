@@ -226,10 +226,11 @@ a{color:inherit}
 }
 #layersControlHeader{
   display:flex;align-items:center;justify-content:space-between;gap:10px;
-  padding:10px 11px;font-size:12px;font-weight:700;cursor:move;
+  padding:10px 11px;font-size:12px;font-weight:700;cursor:pointer;user-select:none;
+  border-radius:12px 12px 0 0;transition:background .15s;
 }
-#layersCollapseBtn{background:none;border:none;color:var(--muted);font-size:13px;cursor:pointer;transition:transform .15s;padding:2px 6px;border-radius:4px}
-#layersCollapseBtn:hover{color:var(--text);background:#1b2430}
+#layersControlHeader:hover{background:rgba(255,255,255,0.06)}
+#layersCollapseBtn{background:none;border:none;color:var(--muted);font-size:13px;cursor:pointer;transition:transform .15s;padding:2px 6px;border-radius:4px;pointer-events:none}
 #layersControlBody{padding:0 8px 8px;display:flex;flex-direction:column;gap:7px}
 #layersControlBody.collapsed{display:none}
 #layersControl .layerBtns{display:grid;grid-template-columns:1fr 1fr;gap:6px}
@@ -5498,10 +5499,11 @@ function setMobileTab(tab){
     document.getElementById('layersCollapseBtn').textContent = '▾';
   }
 }
-document.getElementById('layersCollapseBtn').addEventListener('click', function(){
+document.getElementById('layersControlHeader').addEventListener('click', function(){
   var body = document.getElementById('layersControlBody');
+  var btn = document.getElementById('layersCollapseBtn');
   var isCollapsed = body.classList.toggle('collapsed');
-  this.textContent = isCollapsed ? '▸' : '▾';
+  if (btn) btn.textContent = isCollapsed ? '▸' : '▾';
 });
 document.getElementById('mnMapa').addEventListener('click', function(){ setMobileTab('mapa'); });
 document.getElementById('mnSistemas').addEventListener('click', function(){ setMobileTab('sistemas'); });
