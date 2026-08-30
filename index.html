@@ -420,7 +420,7 @@ html[data-theme="light"] .cityWx{text-shadow:0 0 3px #fff,0 0 3px #fff,0 0 5px #
 .stormCard.sel{border-color:var(--accent);background:#1b2430}
 .stormCard .name{font-weight:700;font-size:13px;margin-bottom:3px}
 .tgCard{
-  display:flex;align-items:center;gap:10px;margin:10px 0;padding:10px 11px;
+  display:flex;align-items:center;gap:10px;margin:10px 0 6px;padding:10px 11px;
   border:1px solid #229ED9;border-radius:10px;background:#229ED91a;
   color:var(--text);text-decoration:none;transition:background .15s;
 }
@@ -430,6 +430,17 @@ html[data-theme="light"] .cityWx{text-shadow:0 0 3px #fff,0 0 3px #fff,0 0 5px #
 .tgCardTxt b{display:block;font-size:11.5px;margin-bottom:2px}
 .tgCardTxt small{display:block;font-size:10px;color:var(--muted);line-height:1.4}
 .tgCardFlecha{color:#229ED9;flex:0 0 auto;font-size:14px}
+.sismoCard{
+  display:flex;align-items:center;gap:10px;margin:6px 0 10px;padding:10px 11px;
+  border:1px solid #f07f3c66;border-radius:10px;background:#f07f3c14;
+  color:var(--text);text-decoration:none;transition:background .15s,border-color .15s;
+}
+.sismoCard:hover{background:#f07f3c28;border-color:#f07f3c}
+.sismoCardIco{flex:0 0 auto;display:flex;align-items:center;justify-content:center}
+.sismoCardTxt{flex:1;min-width:0}
+.sismoCardTxt b{display:block;font-size:11.5px;margin-bottom:2px;color:var(--text)}
+.sismoCardTxt small{display:block;font-size:10px;color:var(--muted);line-height:1.4}
+.sismoCardFlecha{color:#f07f3c;flex:0 0 auto;font-size:14px}
 .stormEfecto{font-size:10.5px;color:var(--muted);line-height:1.45;margin-top:5px;padding-top:5px;border-top:1px dashed var(--line)}
 .distPin{
   width:24px;height:24px;border-radius:50%;border:2px solid;background:#10151ce6;
@@ -709,6 +720,25 @@ html[data-theme="light"] .rrssBtn{background:#f4f7fa}
         <small data-i18n="tgDesc">Boletín diario a las 6:00 con el clima de cada ciudad y aviso si hay un sistema cerca de Venezuela.</small>
       </span>
       <span class="tgCardFlecha" aria-hidden="true">→</span>
+    </a>
+    <a class="sismoCard" href="https://ehyenmanft.github.io/monitor-sismico/" target="_blank" rel="noopener">
+      <span class="sismoCardIco" aria-hidden="true">
+        <svg viewBox="0 0 100 100" width="24" height="24" focusable="false">
+          <circle cx="50" cy="50" r="32" fill="none" stroke="#4a6078" stroke-width="2.5"/>
+          <ellipse cx="50" cy="50" rx="14" ry="32" fill="none" stroke="#4a6078" stroke-width="2.2"/>
+          <line x1="18" y1="50" x2="82" y2="50" stroke="#4a6078" stroke-width="2.2"/>
+          <line x1="50" y1="18" x2="50" y2="82" stroke="#4a6078" stroke-width="2.2"/>
+          <circle cx="63" cy="37" r="23" fill="none" stroke="#7a4521" stroke-width="2.5"/>
+          <circle cx="63" cy="37" r="17" fill="none" stroke="#c6722d" stroke-width="2.5"/>
+          <circle cx="63" cy="37" r="11" fill="none" stroke="#f07f3c" stroke-width="2.8"/>
+          <circle cx="63" cy="37" r="5.5" fill="#e8484f"/>
+        </svg>
+      </span>
+      <span class="sismoCardTxt">
+        <b data-i18n="sismoTitulo">SISMO·MONITOR</b>
+        <small data-i18n="sismoDesc">Monitoreo sísmico en tiempo real, sismos 24h, fallas y placas tectónicas.</small>
+      </span>
+      <span class="sismoCardFlecha" aria-hidden="true">→</span>
     </a>
 
     <div class="warnbox" data-i18n="disclaimerGlobal">
@@ -1229,6 +1259,8 @@ var I18N = {
     sinSistemasConDist: 'No hay ciclones formados, pero sí áreas en vigilancia (ver abajo).',
     tgUnete: 'Avisos', tgTitulo: 'Canal de avisos en Telegram',
     tgDesc: 'Boletín diario a las 6:00 con el clima de cada ciudad y aviso si hay un sistema cerca de Venezuela.',
+    sismoTitulo: 'SISMO·MONITOR',
+    sismoDesc: 'Monitoreo sísmico en tiempo real, sismos 24h, fallas y placas tectónicas.',
     panelSistemas: 'Sistemas activos',
     navMapa: 'Mapa', navSistemas: 'Sistemas', navFicha: 'Ficha', navCapas: 'Capas',
     disclaimerGlobal: '⚠ Esta plataforma es una herramienta informativa independiente. No sustituye los avisos oficiales de tu autoridad de Protección Civil, tu servicio meteorológico nacional, ni del NHC/NOAA. Ante un sistema activo, sigue siempre las fuentes oficiales.',
@@ -1402,6 +1434,8 @@ var I18N = {
     sinSistemasConDist: 'No formed cyclones, but there are areas being watched (see below).',
     tgUnete: 'Alerts', tgTitulo: 'Telegram alerts channel',
     tgDesc: 'Daily 6:00 bulletin with each city\'s weather, plus a heads-up if a system approaches Venezuela.',
+    sismoTitulo: 'SISMO·MONITOR',
+    sismoDesc: 'Real-time seismic monitoring, 24h earthquakes, faults and tectonic plates.',
     panelSistemas: 'Active systems',
     navMapa: 'Map', navSistemas: 'Systems', navFicha: 'Details', navCapas: 'Layers',
     disclaimerGlobal: '⚠ This platform is an independent informational tool. It does not replace official advisories from your civil protection authority, your national weather service, or the NHC/NOAA. During an active system, always follow official sources.',
@@ -2954,6 +2988,18 @@ function renderClima(){
     '<path fill="currentColor" d="M21.94 4.3 18.9 19.1c-.23 1.02-.84 1.27-1.7.79l-4.7-3.46-2.27 2.18c-.25.25-.46.46-.94.46l.34-4.78 8.7-7.86c.38-.34-.08-.53-.59-.19L6.98 12.9 2.34 11.45c-1.01-.32-1.03-1.01.21-1.5L20.63 2.9c.84-.31 1.57.2 1.31 1.4Z"/>' +
     '</svg></span><span class="tgCardTxt"><b>' + t('tgTitulo') + '</b><small>' + t('tgDesc') + '</small></span>' +
     '<span class="tgCardFlecha" aria-hidden="true">→</span></a>';
+  html += '<a class="sismoCard" href="https://ehyenmanft.github.io/monitor-sismico/" target="_blank" rel="noopener">' +
+    '<span class="sismoCardIco" aria-hidden="true"><svg viewBox="0 0 100 100" width="24" height="24" focusable="false">' +
+    '<circle cx="50" cy="50" r="32" fill="none" stroke="#4a6078" stroke-width="2.5"/>' +
+    '<ellipse cx="50" cy="50" rx="14" ry="32" fill="none" stroke="#4a6078" stroke-width="2.2"/>' +
+    '<line x1="18" y1="50" x2="82" y2="50" stroke="#4a6078" stroke-width="2.2"/>' +
+    '<line x1="50" y1="18" x2="50" y2="82" stroke="#4a6078" stroke-width="2.2"/>' +
+    '<circle cx="63" cy="37" r="23" fill="none" stroke="#7a4521" stroke-width="2.5"/>' +
+    '<circle cx="63" cy="37" r="17" fill="none" stroke="#c6722d" stroke-width="2.5"/>' +
+    '<circle cx="63" cy="37" r="11" fill="none" stroke="#f07f3c" stroke-width="2.8"/>' +
+    '<circle cx="63" cy="37" r="5.5" fill="#e8484f"/>' +
+    '</svg></span><span class="sismoCardTxt"><b>' + t('sismoTitulo') + '</b><small>' + t('sismoDesc') + '</small></span>' +
+    '<span class="sismoCardFlecha" aria-hidden="true">→</span></a>';
 
   var body = document.getElementById('climaBody');
   if (body) body.innerHTML = html;

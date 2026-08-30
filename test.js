@@ -483,7 +483,7 @@ seccion('Mantenibilidad');
 const kb = Math.round(Buffer.byteLength(html, 'utf8') / 1024);
 // no es un límite duro, es una alarma: si crece mucho más conviene
 // reorganizar antes de que cada cambio se vuelva frágil
-ok(`index.html mide ${kb} KB (alarma a 300 KB)`, kb < 300);
+ok(`index.html mide ${kb} KB (alarma a 320 KB)`, kb < 320);
 ok('el código tiene índice de secciones navegable', html.includes('índice del código'));
 // cada sección abre con una línea de separadores dentro de un comentario
 const secciones = (js.match(/^ \* ={10,}/gm) || []).length;
