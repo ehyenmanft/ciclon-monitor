@@ -1,4 +1,4 @@
-# 🌀 CICLÓN·MONITOR
+# CICLÓN·MONITOR
 
 **Monitoreo de ciclones tropicales y huracanes en tiempo real** — mapa con sistemas activos, trayectoria y cono de incertidumbre, ficha por sistema, capa experimental de IA (WeatherNext) y foco en Venezuela y el Caribe.
 
@@ -116,7 +116,7 @@ Los umbrales están todos agrupados en la constante `UMBRALES` dentro de `index.
 
 - **`nhc-proxy.gs`** — mismo patrón que `funvisis-proxy.gs` de SISMO·MONITOR: Google Apps Script que lee la fuente oficial, la cachea 3 minutos y la sirve sin problema de CORS.
 
-## 🌀 Sobre WeatherNext (Google DeepMind)
+## Sobre WeatherNext (Google DeepMind)
 
 WeatherNext Cyclones se liberó como código abierto el 6 de agosto de 2026 (Apache 2.0, junto a un artículo en *Nature*). Es tentador querer sus trayectorias de ciclón aquí, así que conviene dejar claro **qué se puede y qué no** con infraestructura gratuita:
 

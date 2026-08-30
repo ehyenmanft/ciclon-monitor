@@ -4820,7 +4820,7 @@ function pieMensaje(){
 function textoCompartirCiclon(s){
   if (!s) return null;
   var l = [];
-  l.push('🌀 ' + s.name + ' — ' + clasificacionCompleta(s.classification, s.windKt));
+  l.push(s.name + ' — ' + clasificacionCompleta(s.classification, s.windKt));
   if (typeof s.windKt === 'number') l.push(t('vientos') + ': ' + fmtVientoKt(s.windKt));
   if (typeof s.pressureMb === 'number') l.push(t('presion') + ': ' + Math.round(s.pressureMb) + ' hPa');
   if (typeof s.moveSpeed === 'number') l.push(t('movimiento') + ': ' + fmtVientoKt(s.moveSpeed) + (s.moveDir != null ? ' @ ' + Math.round(s.moveDir) + '°' : ''));
@@ -4856,7 +4856,7 @@ function textoCompartirClima(){
 }
 /* Resumen general: lo que se comparte si no hay nada seleccionado */
 function textoCompartirResumen(){
-  var l = ['🌀 CICLÓN·MONITOR'];
+  var l = ['CICLÓN·MONITOR'];
   if (storms.length){
     l.push(storms.length + ' ' + t('compSistemasActivos') + ':');
     storms.forEach(function(s){ l.push('• ' + s.name + ' — ' + clasificacionCompleta(s.classification, s.windKt)); });
@@ -4975,7 +4975,7 @@ function generarTarjeta(){
   x.textBaseline = 'top';
   x.fillStyle = col.accent;
   x.font = '600 34px ' + mono;
-  var marca = emojiRenderiza(x, '🌀') ? '🌀 CICLÓN·MONITOR' : 'CICLÓN·MONITOR';
+  var marca = 'CICLÓN·MONITOR';
   x.fillText(marca, M, 74);
   y = 150;
 
@@ -5333,7 +5333,7 @@ function renderLegend(){
   html += '<div class="legendSection"><h3>' + t('capaAlertas') + ' (GDACS)</h3>';
   html += '<div class="legendRow"><span class="legendSwatch" style="background:#e8484f"></span>' + t('legAlertaRoja') + '</div>';
   html += '<div class="legendRow"><span class="legendSwatch" style="background:#f07f3c"></span>' + t('legAlertaNaranja') + '</div>';
-  html += '<div class="legendRow"><span style="font-size:12px">🌀 🌊 ⛰️ 🌋 🔥 ☀️</span> ' + t('legTiposGdacs') + '</div>';
+  html += '<div class="legendRow"><span style="font-size:12px"><img src="icon-192.png" width="13" height="13" style="border-radius:50%;vertical-align:-1px" alt=""> 🌊 ⛰️ 🌋 🔥 ☀️</span> ' + t('legTiposGdacs') + '</div>';
   html += '</div>';
 
   html += '<div class="legendSection"><h3>' + t('capaRecursos') + '</h3>';

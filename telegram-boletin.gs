@@ -550,14 +550,14 @@ function enviarResumenEstados_(cfg, lista) {
 }
 
 function construirCabecera_(datos) {
-  var l = ['🌀 *CICLÓN·MONITOR* — boletín de las 6:00', fechaLarga_(), ''];
+  var l = ['*CICLÓN·MONITOR* — boletín de las 6:00', fechaLarga_(), ''];
   var storms = obtenerCiclones_();
   if (storms === null) {
     l.push('_No se pudo consultar el NHC esta mañana._');
   } else if (!storms.length) {
     l.push('✅ Sin ciclones tropicales activos reportados por el NHC.');
   } else {
-    l.push('🌀 *' + storms.length + ' sistema(s) activo(s)* según el NHC:');
+    l.push('*' + storms.length + ' sistema(s) activo(s)* según el NHC:');
     for (var i = 0; i < storms.length; i++) {
       l.push('• ' + (storms[i].name || '—') + ' — ' + tipoCiclon_(storms[i].classification));
     }
