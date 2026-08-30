@@ -199,29 +199,44 @@ a{color:inherit}
 #layersControlBody.collapsed{display:none}
 #layersControl .layerBtns{display:grid;grid-template-columns:1fr 1fr;gap:6px}
 #layersControl .layerBtns.single{grid-template-columns:1fr}
-#layersControl button{
+#layersControl .layerBtns button{
   background:#161d26;border:1px solid var(--line);color:var(--text);border-radius:8px;
   padding:8px 6px;font-family:inherit;font-size:11.5px;cursor:pointer;white-space:nowrap;
   display:flex;align-items:center;justify-content:center;gap:4px;
   width:100%;box-sizing:border-box;min-height:34px;
 }
-#layersControl button:hover{border-color:var(--accent)}
-#layersControl button.act{border-color:#6fb8e0;background:#0d1a22;color:#6fb8e0}
-#satModeRow{display:none;gap:5px}
+#layersControl .layerBtns button:hover{border-color:var(--accent)}
+#layersControl .layerBtns button.act{border-color:#6fb8e0;background:#0d1a22;color:#6fb8e0}
+#satModeRow{display:none;gap:5px;padding-top:4px;border-top:1px dashed var(--line)}
 #satModeRow.on{display:flex}
-#satModeRow button{flex:1;font-size:9.5px !important;padding:5px 4px !important}
-#radarControls{display:none;align-items:center;gap:7px;font-size:11px;color:#8fa3b8;padding-top:4px;border-top:1px dashed var(--line)}
+#satModeRow button{
+  flex:1;background:#161d26;border:1px solid var(--line);color:var(--text);border-radius:6px;
+  font-family:inherit;font-size:10px !important;padding:6px 4px !important;cursor:pointer;
+  white-space:nowrap;text-align:center;
+}
+#satModeRow button.act{border-color:#6fb8e0;background:#0d1a22;color:#6fb8e0}
+#radarControls{
+  display:none;align-items:center;gap:8px;padding-top:6px;border-top:1px dashed var(--line);
+}
 #radarControls.on{display:flex}
-#radarPlayBtn{background:#161d26;border:1px solid var(--line);color:var(--text);border-radius:6px;
-  width:26px;height:26px;cursor:pointer;font-size:11px;flex:0 0 auto}
-#radarTime{min-width:44px}
-#radarAttrib{font-size:10px;opacity:.85}
-#satAttrib,#satGoesAviso,#vientoLeyenda,#nubesLeyenda,#gdacsLeyenda,#recursosLeyenda,#sismosLeyenda,#ciudadesLeyenda{display:none;font-size:10.5px;color:#8fa3b8;padding-top:4px;border-top:1px dashed var(--line);max-width:210px;line-height:1.5}
+#radarPlayBtn{
+  background:#161d26;border:1px solid var(--line);color:var(--text);border-radius:6px;
+  width:30px;height:30px;min-width:30px;min-height:30px;cursor:pointer;
+  font-size:12px;display:flex;align-items:center;justify-content:center;padding:0;flex:0 0 30px;
+}
+#radarPlayBtn:hover{border-color:var(--accent);color:var(--accent)}
+#radarInfo{display:flex;flex-direction:column;gap:2px;min-width:0;flex:1;line-height:1.25}
+#radarTime{font-size:11px;font-weight:600;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#radarAttrib{font-size:9.5px;color:var(--muted)}
+#satAttrib,#satGoesAviso,#vientoLeyenda,#nubesLeyenda,#gdacsLeyenda,#recursosLeyenda,#sismosLeyenda,#ciudadesLeyenda{display:none;font-size:10.5px;color:#8fa3b8;padding-top:4px;border-top:1px dashed var(--line);max-width:240px;line-height:1.5}
 #satAttrib.on,#satGoesAviso.on,#vientoLeyenda.on,#nubesLeyenda.on,#gdacsLeyenda.on,#recursosLeyenda.on,#sismosLeyenda.on,#ciudadesLeyenda.on{display:block}
 #satGoesAviso{color:#e0b840}
-#radarLegend{display:none;align-items:center;gap:5px;font-size:10.5px;color:#8fa3b8;flex-wrap:wrap}
+#radarLegend{display:none;flex-direction:column;gap:4px;padding-top:6px;border-top:1px dashed var(--line)}
 #radarLegend.on{display:flex}
-.legendChip{width:12px;height:8px;border-radius:2px;display:inline-block}
+.radarLegendTitle{font-size:10px;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:.03em}
+.radarLegendGrid{display:grid;grid-template-columns:1fr 1fr;gap:4px 6px}
+.legendItem{display:inline-flex;align-items:center;gap:4px;font-size:10.5px;color:#8fa3b8;white-space:nowrap}
+.legendChip{width:12px;height:8px;border-radius:2px;display:inline-block;flex:0 0 12px}
 
 /* ===== barra de zoom con límites visibles ===== */
 /* A la IZQUIERDA, alineada junto al panel izquierdo y sobre el panel de capas.
@@ -772,15 +787,19 @@ html[data-theme="light"] .rrssBtn{background:#f4f7fa}
     </div>
     <div id="radarControls">
       <button id="radarPlayBtn" aria-label="Reproducir o pausar la animación del radar">▶</button>
-      <span id="radarTime">—</span>
-      <span id="radarAttrib">RainViewer.com</span>
+      <div id="radarInfo">
+        <span id="radarTime">—</span>
+        <span id="radarAttrib">RainViewer.com</span>
+      </div>
     </div>
     <div id="radarLegend">
-      <span data-i18n="radarLeyenda">Intensidad:</span>
-      <span class="legendItem"><span class="legendChip" style="background:#3ec6a8"></span><span data-i18n="intLigera">Ligera</span></span>
-      <span class="legendItem"><span class="legendChip" style="background:#e8b23c"></span><span data-i18n="intModerada">Moderada</span></span>
-      <span class="legendItem"><span class="legendChip" style="background:#f07f3c"></span><span data-i18n="intFuerte">Fuerte</span></span>
-      <span class="legendItem"><span class="legendChip" style="background:#e8484f"></span><span data-i18n="intExtrema">Extrema</span></span>
+      <span class="radarLegendTitle" data-i18n="radarLeyenda">Intensidad:</span>
+      <div class="radarLegendGrid">
+        <span class="legendItem"><span class="legendChip" style="background:#3ec6a8"></span><span data-i18n="intLigera">Ligera</span></span>
+        <span class="legendItem"><span class="legendChip" style="background:#e8b23c"></span><span data-i18n="intModerada">Moderada</span></span>
+        <span class="legendItem"><span class="legendChip" style="background:#f07f3c"></span><span data-i18n="intFuerte">Fuerte</span></span>
+        <span class="legendItem"><span class="legendChip" style="background:#e8484f"></span><span data-i18n="intExtrema">Extrema</span></span>
+      </div>
     </div>
     <div id="satAttrib" data-i18n="satAviso"></div>
     <div id="satGoesAviso" data-i18n="satGoesAviso"></div>
