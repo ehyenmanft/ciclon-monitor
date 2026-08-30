@@ -225,14 +225,10 @@ a{color:inherit}
   max-height:calc(55vh);overflow-y:auto;
 }
 #layersControlHeader{
-  display:flex;align-items:center;justify-content:space-between;gap:10px;
-  padding:10px 11px;font-size:12px;font-weight:700;cursor:pointer;user-select:none;
-  border-radius:12px 12px 0 0;transition:background .15s;
+  display:flex;align-items:center;gap:10px;
+  padding:10px 11px 6px;font-size:12px;font-weight:700;
 }
-#layersControlHeader:hover{background:rgba(255,255,255,0.06)}
-#layersCollapseBtn{background:none;border:none;color:var(--muted);font-size:13px;cursor:pointer;transition:transform .15s;padding:2px 6px;border-radius:4px;pointer-events:none}
 #layersControlBody{padding:0 8px 8px;display:flex;flex-direction:column;gap:7px}
-#layersControlBody.collapsed{display:none}
 #layersControl .layerBtns{display:grid;grid-template-columns:1fr 1fr;gap:6px}
 #layersControl .layerBtns.single{grid-template-columns:1fr}
 #layersControl .layerBtns button{
@@ -669,7 +665,6 @@ html[data-theme="light"] .cityWxName{text-shadow:0 0 2px #fff, 0 0 4px #fff}
   }
   #layersControl.on{display:block}
   #layersControlHeader{cursor:default}
-  #layersCollapseBtn{display:none} /* en hoja inferior el colapso no aporta */
   #layersControl button{min-height:38px}
   #radarPlayBtn{width:34px;height:34px;min-height:34px}
   #climaSearchBtn,#climaGeoBtn{min-height:40px;min-width:40px}
@@ -918,11 +913,10 @@ html[data-theme="light"] .rrssBtn{background:#f4f7fa}
 <div id="sourceBanner" role="status" aria-live="polite"></div>
 
 <div id="layersControl">
-  <div id="layersControlHeader" onclick="toggleLayersControl(event)">
+  <div id="layersControlHeader">
     <span>🗺️ <span data-i18n="capasTitulo">Capas del mapa</span></span>
-    <button id="layersCollapseBtn" type="button" aria-label="Contraer o expandir el panel de capas">▸</button>
   </div>
-  <div id="layersControlBody" class="collapsed">
+  <div id="layersControlBody">
     <div class="layerBtns">
       <button id="btnRadar" title="Radar de lluvia (RainViewer)">🌧️ <span data-i18n="capaRadar">Radar</span></button>
       <button id="btnSat" title="Satélite (NASA)">🛰️ <span data-i18n="capaSatelite">Satélite</span></button>
@@ -1945,18 +1939,6 @@ document.getElementById('zoomInBtn').addEventListener('click', function(){ map.z
 document.getElementById('zoomOutBtn').addEventListener('click', function(){ map.zoomOut(); });
 map.on('zoomend', syncZoomBar);
 syncZoomBar();
-
-/* Panel de capas colapsable — con tantos controles acumulados, en
- * pantallas chicas conviene poder reducirlo a solo el encabezado. */
-/* El colapso vive en el BOTÓN, no en todo el encabezado: el encabezado ahora
- * es el asa para arrastrar el panel y ambos gestos se pisarían. */
-document.getElementById('layersCollapseBtn').addEventListener('click', function(e){
-  e.stopPropagation();
-  var body = document.getElementById('layersControlBody');
-  var collapsed = body.classList.toggle('collapsed');
-  this.style.transform = collapsed ? 'rotate(-90deg)' : 'rotate(0deg)';
-  updateZoomBarPos();
-});
 
 var markersLayer = L.layerGroup().addTo(map);
 var coneLayer = L.layerGroup().addTo(map);
@@ -4731,8 +4713,6 @@ document.getElementById('restoreAllBtn').addEventListener('click', function(){
   });
   document.getElementById('right').classList.add('on');
   document.getElementById('reopenLeftBtn').style.display = 'none';
-  document.getElementById('layersControlBody').classList.remove('collapsed');
-  document.getElementById('layersCollapseBtn').style.transform = 'rotate(0deg)';
   updateRestoreBar();
   updateZoomBarPos();
   setTimeout(function(){ map.invalidateSize(); }, 60);
@@ -5509,20 +5489,8 @@ function setMobileTab(tab){
   if (tab === 'capas'){
     document.getElementById('layersControl').classList.add('on');
     document.getElementById('mnCapas').classList.add('act');
-    document.getElementById('layersControlBody').classList.remove('collapsed');
-    document.getElementById('layersCollapseBtn').textContent = '▾';
   }
 }
-function toggleLayersControl(e){
-  if (e && e.stopPropagation) e.stopPropagation();
-  var body = document.getElementById('layersControlBody');
-  var btn = document.getElementById('layersCollapseBtn');
-  if (!body) return;
-  var isCollapsed = body.classList.toggle('collapsed');
-  if (btn) btn.textContent = isCollapsed ? '▸' : '▾';
-}
-window.toggleLayersControl = toggleLayersControl;
-document.getElementById('layersControlHeader').addEventListener('click', toggleLayersControl);
 document.getElementById('mnMapa').addEventListener('click', function(){ setMobileTab('mapa'); });
 document.getElementById('mnSistemas').addEventListener('click', function(){ setMobileTab('sistemas'); });
 document.getElementById('mnFicha').addEventListener('click', function(){ setMobileTab('ficha'); });
