@@ -186,7 +186,7 @@ a{color:inherit}
   position:fixed;left:var(--layers-left, 324px);bottom:12px;z-index:22;
   transition:left .18s;
   background:var(--panel);border:1px solid var(--line);border-radius:12px;
-  backdrop-filter:blur(10px);max-width:230px;
+  backdrop-filter:blur(10px);width:260px;max-width:calc(100vw - 24px);
   max-height:calc(100vh - 90px);overflow-y:auto;
 }
 #layersControlHeader{
@@ -197,11 +197,15 @@ a{color:inherit}
 #layersCollapseBtn:hover{color:var(--text);background:#1b2430}
 #layersControlBody{padding:0 8px 8px;display:flex;flex-direction:column;gap:7px}
 #layersControlBody.collapsed{display:none}
-#layersControl .layerBtns{display:flex;gap:6px}
+#layersControl .layerBtns{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+#layersControl .layerBtns.single{grid-template-columns:1fr}
 #layersControl button{
   background:#161d26;border:1px solid var(--line);color:var(--text);border-radius:8px;
-  padding:8px 10px;font-family:inherit;font-size:12px;cursor:pointer;white-space:nowrap;
+  padding:8px 6px;font-family:inherit;font-size:11.5px;cursor:pointer;white-space:nowrap;
+  display:flex;align-items:center;justify-content:center;gap:4px;
+  width:100%;box-sizing:border-box;min-height:34px;
 }
+#layersControl button:hover{border-color:var(--accent)}
 #layersControl button.act{border-color:#6fb8e0;background:#0d1a22;color:#6fb8e0}
 #satModeRow{display:none;gap:5px}
 #satModeRow.on{display:flex}
@@ -754,10 +758,12 @@ html[data-theme="light"] .rrssBtn{background:#f4f7fa}
     <div class="layerBtns">
       <button id="btnShareView" title="Copiar enlace de esta vista" aria-label="Copiar enlace de esta vista">🔗 <span data-i18n="compartirVista">Enlace</span></button>
       <button id="btnRRSS" title="Compartir en redes sociales" aria-label="Compartir en redes sociales">📤 <span data-i18n="compartirRRSS">Difundir</span></button>
-      <button id="btnKiosko" title="Modo kiosko (Ctrl+K)" aria-label="Activar modo kiosko">📺 <span data-i18n="modoKiosko">Kiosko</span></button>
     </div>
     <div class="layerBtns">
+      <button id="btnKiosko" title="Modo kiosko (Ctrl+K)" aria-label="Activar modo kiosko">📺 <span data-i18n="modoKiosko">Kiosko</span></button>
       <button id="btnDiag" title="Diagnóstico de fuentes" aria-label="Ejecutar diagnóstico de fuentes">🩺 <span data-i18n="diagnostico">Diagnóstico</span></button>
+    </div>
+    <div class="layerBtns single">
       <button id="btnSimulacro" title="Modo simulacro (ejercicio)" aria-label="Iniciar modo simulacro de entrenamiento">🎓 <span data-i18n="simulacro">Simulacro</span></button>
     </div>
     <div id="satModeRow">
