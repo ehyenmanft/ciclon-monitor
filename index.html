@@ -918,9 +918,9 @@ html[data-theme="light"] .rrssBtn{background:#f4f7fa}
 <div id="sourceBanner" role="status" aria-live="polite"></div>
 
 <div id="layersControl">
-  <div id="layersControlHeader">
+  <div id="layersControlHeader" onclick="toggleLayersControl(event)">
     <span>🗺️ <span data-i18n="capasTitulo">Capas del mapa</span></span>
-    <button id="layersCollapseBtn" aria-label="Contraer o expandir el panel de capas">▸</button>
+    <button id="layersCollapseBtn" type="button" aria-label="Contraer o expandir el panel de capas">▸</button>
   </div>
   <div id="layersControlBody" class="collapsed">
     <div class="layerBtns">
@@ -5499,12 +5499,16 @@ function setMobileTab(tab){
     document.getElementById('layersCollapseBtn').textContent = '▾';
   }
 }
-document.getElementById('layersControlHeader').addEventListener('click', function(){
+function toggleLayersControl(e){
+  if (e && e.stopPropagation) e.stopPropagation();
   var body = document.getElementById('layersControlBody');
   var btn = document.getElementById('layersCollapseBtn');
+  if (!body) return;
   var isCollapsed = body.classList.toggle('collapsed');
   if (btn) btn.textContent = isCollapsed ? '▸' : '▾';
-});
+}
+window.toggleLayersControl = toggleLayersControl;
+document.getElementById('layersControlHeader').addEventListener('click', toggleLayersControl);
 document.getElementById('mnMapa').addEventListener('click', function(){ setMobileTab('mapa'); });
 document.getElementById('mnSistemas').addEventListener('click', function(){ setMobileTab('sistemas'); });
 document.getElementById('mnFicha').addEventListener('click', function(){ setMobileTab('ficha'); });
