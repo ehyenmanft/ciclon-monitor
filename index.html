@@ -52,7 +52,28 @@ html[data-theme="light"] #lastUpdateTxt{
 }
 html[data-theme="light"] .warnbox{background:#fff4d6;border-color:#c99a2e;color:#4a3708}
 html[data-theme="light"] .wnBox{background:#eaf3f9;border-color:#9dc0d6}
-html[data-theme="light"] .hourCard,html[data-theme="light"] .aqiCell,
+html[data-theme="light"] .hourCard,
+html[data-theme="light"] .aqiCell,
+html[data-theme="light"] .riverBox{
+  background:#f4f7fa;border:1px solid #b9c6d3;color:#0d1720;
+}
+html[data-theme="light"] .hourCard .hTime{color:#55697f}
+html[data-theme="light"] .hourCard .hPop{color:#0077b6}
+html[data-theme="light"] .hourCard .hTemp{color:#0d1720}
+html[data-theme="light"] .aqiCell .aqiLabel{color:#55697f}
+html[data-theme="light"] .aqiCell .aqiVal{color:#0d1720}
+html[data-theme="light"] .riverBox .riverVal{color:#0077b6}
+html[data-theme="light"] .riverBox{color:#2a3b4a}
+html[data-theme="light"] .dayRow{border-bottom-color:#d0dce8}
+html[data-theme="light"] .dayRow .dName{color:#4a5b6d}
+html[data-theme="light"] .dayRow .dTemp{color:#0d1720}
+html[data-theme="light"] .dayRow .dTemp span{color:#6c7d90}
+html[data-theme="light"] .anResumen.an-alerta{background:#ffebee;border-color:#ef9a9a;color:#c62828}
+html[data-theme="light"] .anResumen.an-atencion{background:#fff8e1;border-color:#ffe082;color:#f57f17}
+html[data-theme="light"] .anResumen.an-info,
+html[data-theme="light"] .anResumen.an-ok{background:#e1f5fe;border-color:#b3e5fc;color:#0277bd}
+html[data-theme="light"] .anItem{border-bottom-color:#d0dce8}
+html[data-theme="light"] .anDato{color:#0d1720}
 html[data-theme="light"] /* Análisis de condiciones: cada línea muestra el dato que la respalda,
  * para que se pueda verificar de un vistazo de dónde sale la afirmación. */
 .anResumen{border-radius:8px;padding:8px 10px;font-size:12px;font-weight:700;margin-bottom:7px}
@@ -890,9 +911,9 @@ html[data-theme="light"] .rrssBtn{background:#f4f7fa}
 <div id="layersControl">
   <div id="layersControlHeader">
     <span>🗺️ <span data-i18n="capasTitulo">Capas del mapa</span></span>
-    <button id="layersCollapseBtn" aria-label="Contraer o expandir el panel de capas">▾</button>
+    <button id="layersCollapseBtn" aria-label="Contraer o expandir el panel de capas">▸</button>
   </div>
-  <div id="layersControlBody">
+  <div id="layersControlBody" class="collapsed">
     <div class="layerBtns">
       <button id="btnRadar" title="Radar de lluvia (RainViewer)">🌧️ <span data-i18n="capaRadar">Radar</span></button>
       <button id="btnSat" title="Satélite (NASA)">🛰️ <span data-i18n="capaSatelite">Satélite</span></button>
@@ -5462,8 +5483,18 @@ function setMobileTab(tab){
   if (tab === 'mapa'){ document.getElementById('mnMapa').classList.add('act'); }
   if (tab === 'sistemas'){ document.getElementById('left').classList.add('on'); document.getElementById('mnSistemas').classList.add('act'); }
   if (tab === 'ficha'){ document.getElementById('right').classList.add('on'); document.getElementById('mnFicha').classList.add('act'); }
-  if (tab === 'capas'){ document.getElementById('layersControl').classList.add('on'); document.getElementById('mnCapas').classList.add('act'); }
+  if (tab === 'capas'){
+    document.getElementById('layersControl').classList.add('on');
+    document.getElementById('mnCapas').classList.add('act');
+    document.getElementById('layersControlBody').classList.remove('collapsed');
+    document.getElementById('layersCollapseBtn').textContent = '▾';
+  }
 }
+document.getElementById('layersCollapseBtn').addEventListener('click', function(){
+  var body = document.getElementById('layersControlBody');
+  var isCollapsed = body.classList.toggle('collapsed');
+  this.textContent = isCollapsed ? '▸' : '▾';
+});
 document.getElementById('mnMapa').addEventListener('click', function(){ setMobileTab('mapa'); });
 document.getElementById('mnSistemas').addEventListener('click', function(){ setMobileTab('sistemas'); });
 document.getElementById('mnFicha').addEventListener('click', function(){ setMobileTab('ficha'); });
