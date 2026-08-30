@@ -644,7 +644,12 @@ function generarImagen_(ciudad, d) {
   var an = analizar_(d);
   var W = 540; // puntos: la presentación se crea cuadrada de 540×540
 
-  txt_(slide, 'CICLÓN·MONITOR', 40, 30, W - 80, 30, 16, COLORES.acento, true);
+  try {
+    slide.insertImage(WEB_URL + 'icon-192.png', 40, 30, 22, 22);
+    txt_(slide, 'CICLÓN·MONITOR', 68, 30, W - 108, 26, 16, COLORES.acento, true);
+  } catch (e) {
+    txt_(slide, 'CICLÓN·MONITOR', 40, 30, W - 80, 30, 16, COLORES.acento, true);
+  }
   txt_(slide, ciudad.n.toUpperCase(), 40, 62, W - 80, 50, 34, COLORES.texto, true);
 
   txt_(slide, iconoWMO_(c.weather_code), 40, 120, 90, 80, 48, COLORES.texto, false);
