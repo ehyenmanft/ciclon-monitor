@@ -36,9 +36,10 @@ html[data-theme="light"] #zoomBar button,
 html[data-theme="light"] .quickCities button,
 html[data-theme="light"] #climaSearchInput,
 html[data-theme="light"] .linkbtn,
-html[data-theme="light"] #langBtn,html[data-theme="light"] #notifBtn,
-html[data-theme="light"] #hideAllBtn,
-html[data-theme="light"] #geoTopBtn{background:#f4f7fa;color:#0d1720}
+html[data-theme="light"] .topbarBtns button,
+html[data-theme="light"] .topbarBtns a{background:#f4f7fa;color:#0d1720;border-color:#b9c6d3}
+html[data-theme="light"] #tgBtn{background:#229ED9;color:#fff;border-color:#229ED9}
+html[data-theme="light"] #sismoTopBtn{border-color:#f07f3c88;color:#c2410c}
 html[data-theme="light"] .warnbox{background:#fff4d6;border-color:#c99a2e;color:#4a3708}
 html[data-theme="light"] .wnBox{background:#eaf3f9;border-color:#9dc0d6}
 html[data-theme="light"] .hourCard,html[data-theme="light"] .aqiCell,
@@ -384,44 +385,47 @@ html[data-theme="light"] .cityWx{text-shadow:0 0 3px #fff,0 0 3px #fff,0 0 5px #
 /* ===== topbar ===== */
 #topbar{
   position:fixed;left:50%;top:calc(12px + var(--vzbanner-h, 0px) + var(--simbanner-h, 0px));transform:translateX(-50%);z-index:25;
-  display:flex;align-items:center;gap:10px;background:var(--panel);border:1px solid var(--line);
-  border-radius:12px;padding:8px 14px;backdrop-filter:blur(10px);
+  display:flex;align-items:center;gap:14px;background:var(--panel);border:1px solid var(--line);
+  border-radius:12px;padding:7px 14px;backdrop-filter:blur(10px);
   max-width:calc(100vw - 24px);box-sizing:border-box;
-  padding-top:calc(8px + env(safe-area-inset-top));
+  padding-top:calc(7px + env(safe-area-inset-top));
   transition:top .2s;
 }
-#topbar b{font-size:13px;letter-spacing:.03em;white-space:nowrap}
+.topbarBrand{display:inline-flex;align-items:center;gap:8px;flex:0 0 auto}
+#topbar b{font-size:12.5px;letter-spacing:.08em;font-weight:800;white-space:nowrap}
 #topbar .dot{width:7px;height:7px;border-radius:50%;background:var(--muted);flex:0 0 auto}
 #topbar .dot.live{background:var(--c-td);box-shadow:0 0 6px var(--c-td)}
 #topbar .dot.err{background:var(--danger);box-shadow:0 0 6px var(--danger)}
 #lastUpdateTxt{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-#tgBtn{
-  display:inline-flex;align-items:center;gap:5px;flex:0 0 auto;
-  background:#229ED9;border:1px solid #229ED9;color:#fff;text-decoration:none;
-  border-radius:6px;padding:4px 9px;font-family:inherit;font-size:11px;font-weight:700;
-  min-height:28px;transition:filter .15s, transform .15s;
+
+.topbarBtns{display:inline-flex;align-items:center;gap:5px;flex:0 0 auto}
+.topbarBtns button, .topbarBtns a{
+  background:#161d26;border:1px solid var(--line);color:var(--text);border-radius:7px;
+  width:30px;height:30px;min-height:30px;min-width:30px;padding:0;
+  display:inline-flex;align-items:center;justify-content:center;
+  cursor:pointer;font-family:inherit;font-size:11px;font-weight:700;
+  text-decoration:none;transition:all .15s;flex:0 0 auto;
 }
+.topbarBtns button:hover, .topbarBtns a:hover{
+  border-color:var(--accent);color:#fff;transform:translateY(-1px);
+}
+#langBtn{font-size:10.5px;font-weight:800}
+#sismoTopBtn{border-color:#f07f3c66;color:#f07f3c}
+#sismoTopBtn:hover{background:#f07f3c22;border-color:#f07f3c;color:#fff}
+#sismoTopBtn svg{display:block}
+#tgBtn{background:#229ED9;border-color:#229ED9;color:#fff}
 #tgBtn:hover{filter:brightness(1.12);transform:translateY(-1px)}
 #tgBtn svg{display:block}
-#sismoTopBtn{
-  display:inline-flex;align-items:center;gap:4px;flex:0 0 auto;
-  background:#161d26;border:1px solid #f07f3c88;color:#f07f3c;text-decoration:none;
-  border-radius:6px;padding:3px 7px;font-family:inherit;font-size:10.5px;font-weight:700;
-  min-height:26px;cursor:pointer;transition:all .15s;
-}
-#sismoTopBtn:hover{background:#f07f3c22;border-color:#f07f3c;color:#fff;transform:translateY(-1px)}
-#sismoTopBtn svg{display:block}
-/* Llama la atención las primeras veces y luego se calma: un canal de avisos
-   merece verse, pero un botón parpadeando para siempre acaba ignorándose. */
 #tgBtn.nuevo{animation:tgPulso 2.4s ease-out 3}
 @keyframes tgPulso{
   0%,100%{box-shadow:0 0 0 0 #229ED900}
   35%{box-shadow:0 0 0 6px #229ED955}
   70%{box-shadow:0 0 0 10px #229ED900}
 }
-#langBtn,#notifBtn,#hideAllBtn,#geoTopBtn,#themeBtn{background:#161d26;border:1px solid var(--line);color:var(--text);border-radius:6px;padding:4px 8px;cursor:pointer;font-family:inherit;font-size:11px;flex:0 0 auto;min-height:28px}
 #notifBtn.act{border-color:#3ec6a8;color:#3ec6a8}
 #hideAllBtn.act{border-color:#6fb8e0;color:#6fb8e0}
+#sismoTopBtnTxt{display:none}
+#tgBtnTxt{display:none}
 #reopenLeftBtn{flex:0 0 auto}
 
 /* ===== banner de estado de fuente (honestidad: nunca mostrar datos viejos como actuales) ===== */
@@ -557,18 +561,22 @@ html[data-theme="light"] .cityWx{text-shadow:0 0 3px #fff,0 0 3px #fff,0 0 5px #
   #mobilenav button.act{color:var(--accent)}
   #mobilenav .ico{font-size:16px}
   #sourceBanner{bottom:calc(64px + env(safe-area-inset-bottom))}
-  /* La barra superior lleva botones operativos (ubicación, ocultar, alertas,
-     tema, idioma). */
-  @media (max-width:420px){
+  /* En móvil la barra superior separa el nombre del monitor de la botonera en dos filas */
+  @media (max-width:680px){
+    #topbar{
+      flex-direction:column;align-items:flex-start;gap:7px;padding:8px 12px;
+      width:auto;max-width:calc(100vw - 20px);
+    }
+    .topbarBrand{width:100%;justify-content:flex-start;gap:7px}
+    .topbarBtns{width:100%;justify-content:flex-start;gap:5px;flex-wrap:wrap}
+    .topbarBtns button, .topbarBtns a{width:29px;height:29px;min-width:29px;min-height:29px;font-size:10.5px}
     #tgBtnTxt{display:none}
     #sismoTopBtnTxt{display:none}
-    #tgBtn,#sismoTopBtn{padding:4px 7px}
     #lastUpdateTxt{display:none}
-    #topbar{gap:5px;padding:6px 9px}
-    #notifBtn,#geoTopBtn,#hideAllBtn,#themeBtn{padding:4px 6px}
-    #topbar b{font-size:12px}
+    #topbar b{font-size:12px;letter-spacing:.08em}
   }
   @media (max-width:370px){
+    .topbarBtns button, .topbarBtns a{width:27px;height:27px;min-width:27px;min-height:27px;font-size:10px}
     #topbar b{font-size:11px}
   }
   /* En móvil el panel de capas DEJA de ser flotante: se comporta como una hoja
@@ -716,36 +724,40 @@ html[data-theme="light"] .rrssBtn{background:#f4f7fa}
 <div id="printReport"></div>
 
 <div id="topbar">
-  <span class="dot" id="statusDot"></span>
-  <b>CICLÓN·MONITOR</b>
-  <span id="lastUpdateTxt" style="color:var(--muted);font-size:11px"></span>
-  <a id="tgBtn" href="https://t.me/ciclonmonitor" target="_blank" rel="noopener"
-     title="Únete al canal de avisos en Telegram" aria-label="Únete al canal de avisos en Telegram">
-    <svg viewBox="0 0 24 24" width="15" height="15" aria-hidden="true" focusable="false">
-      <path fill="currentColor" d="M21.94 4.3 18.9 19.1c-.23 1.02-.84 1.27-1.7.79l-4.7-3.46-2.27 2.18c-.25.25-.46.46-.94.46l.34-4.78 8.7-7.86c.38-.34-.08-.53-.59-.19L6.98 12.9 2.34 11.45c-1.01-.32-1.03-1.01.21-1.5L20.63 2.9c.84-.31 1.57.2 1.31 1.4Z"/>
-    </svg>
-    <span id="tgBtnTxt" data-i18n="tgUnete">Avisos</span>
-  </a>
-  <button id="sismoTopBtn"
-     title="SISMO·MONITOR (Monitoreo sísmico en tiempo real)" aria-label="Abrir información de SISMO·MONITOR">
-    <svg viewBox="0 0 100 100" width="14" height="14" aria-hidden="true" focusable="false">
-      <circle cx="50" cy="50" r="32" fill="none" stroke="#4a6078" stroke-width="3"/>
-      <ellipse cx="50" cy="50" rx="14" ry="32" fill="none" stroke="#4a6078" stroke-width="2.5"/>
-      <line x1="18" y1="50" x2="82" y2="50" stroke="#4a6078" stroke-width="2.5"/>
-      <line x1="50" y1="18" x2="50" y2="82" stroke="#4a6078" stroke-width="2.5"/>
-      <circle cx="63" cy="37" r="23" fill="none" stroke="#7a4521" stroke-width="3"/>
-      <circle cx="63" cy="37" r="17" fill="none" stroke="#c6722d" stroke-width="3"/>
-      <circle cx="63" cy="37" r="11" fill="none" stroke="#f07f3c" stroke-width="3.5"/>
-      <circle cx="63" cy="37" r="6" fill="#e8484f"/>
-    </svg>
-    <span id="sismoTopBtnTxt" data-i18n="sismoTopBtn">Sismos</span>
-  </button>
-  <button id="themeBtn" title="Tema claro/oscuro" aria-label="Cambiar entre tema claro y oscuro">🌙</button>
-  <button id="geoTopBtn" title="Mi ubicación" aria-label="Ir a mi ubicación">📍</button>
-  <button id="hideAllBtn" title="Ocultar/mostrar todos los paneles" aria-label="Ocultar o mostrar todos los paneles">👁</button>
-  <button id="notifBtn" title="Alertas del navegador" aria-label="Activar alertas del navegador">🔔</button>
-  <button id="reopenLeftBtn" style="display:none" aria-label="Mostrar panel lateral">☰</button>
-  <button id="langBtn">EN</button>
+  <div class="topbarBrand">
+    <span class="dot" id="statusDot"></span>
+    <b>CICLÓN·MONITOR</b>
+    <span id="lastUpdateTxt" style="color:var(--muted);font-size:11px"></span>
+  </div>
+  <div class="topbarBtns">
+    <button id="langBtn" title="Cambiar idioma (ES/EN)" aria-label="Cambiar idioma">EN</button>
+    <button id="themeBtn" title="Tema claro/oscuro" aria-label="Cambiar entre tema claro y oscuro">🌙</button>
+    <button id="geoTopBtn" title="Mi ubicación" aria-label="Ir a mi ubicación">📍</button>
+    <button id="hideAllBtn" title="Ocultar/mostrar todos los paneles" aria-label="Ocultar o mostrar todos los paneles">👁</button>
+    <button id="notifBtn" title="Alertas del navegador" aria-label="Activar alertas del navegador">🔔</button>
+    <a id="tgBtn" href="https://t.me/ciclonmonitor" target="_blank" rel="noopener"
+       title="Únete al canal de avisos en Telegram" aria-label="Únete al canal de avisos en Telegram">
+      <svg viewBox="0 0 24 24" width="15" height="15" aria-hidden="true" focusable="false">
+        <path fill="currentColor" d="M21.94 4.3 18.9 19.1c-.23 1.02-.84 1.27-1.7.79l-4.7-3.46-2.27 2.18c-.25.25-.46.46-.94.46l.34-4.78 8.7-7.86c.38-.34-.08-.53-.59-.19L6.98 12.9 2.34 11.45c-1.01-.32-1.03-1.01.21-1.5L20.63 2.9c.84-.31 1.57.2 1.31 1.4Z"/>
+      </svg>
+      <span id="tgBtnTxt" data-i18n="tgUnete">Avisos</span>
+    </a>
+    <button id="sismoTopBtn"
+       title="SISMO·MONITOR (Monitoreo sísmico en tiempo real)" aria-label="Abrir información de SISMO·MONITOR">
+      <svg viewBox="0 0 100 100" width="15" height="15" aria-hidden="true" focusable="false">
+        <circle cx="50" cy="50" r="32" fill="none" stroke="#4a6078" stroke-width="3"/>
+        <ellipse cx="50" cy="50" rx="14" ry="32" fill="none" stroke="#4a6078" stroke-width="2.5"/>
+        <line x1="18" y1="50" x2="82" y2="50" stroke="#4a6078" stroke-width="2.5"/>
+        <line x1="50" y1="18" x2="50" y2="82" stroke="#4a6078" stroke-width="2.5"/>
+        <circle cx="63" cy="37" r="23" fill="none" stroke="#7a4521" stroke-width="3"/>
+        <circle cx="63" cy="37" r="17" fill="none" stroke="#c6722d" stroke-width="3"/>
+        <circle cx="63" cy="37" r="11" fill="none" stroke="#f07f3c" stroke-width="3.5"/>
+        <circle cx="63" cy="37" r="6" fill="#e8484f"/>
+      </svg>
+      <span id="sismoTopBtnTxt" data-i18n="sismoTopBtn">Sismos</span>
+    </button>
+    <button id="reopenLeftBtn" style="display:none" aria-label="Mostrar panel lateral">☰</button>
+  </div>
 </div>
 
 <aside class="panel on" id="left">
