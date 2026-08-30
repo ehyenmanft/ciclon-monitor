@@ -40,6 +40,14 @@ html[data-theme="light"] .topbarBtns button,
 html[data-theme="light"] .topbarBtns a{background:#f4f7fa;color:#0d1720;border-color:#b9c6d3}
 html[data-theme="light"] #tgBtn{background:#229ED9;color:#fff;border-color:#229ED9}
 html[data-theme="light"] #sismoTopBtn{border-color:#f07f3c88;color:#c2410c}
+html[data-theme="light"] .topbarBrand b{
+  color:#07111a;
+  text-shadow:0 0 8px #ffffff, 0 1px 4px #ffffff, 0 0 14px #ffffff, 0 0 20px #ffffff;
+}
+html[data-theme="light"] #lastUpdateTxt{
+  color:#2c3e50;
+  text-shadow:0 0 6px #ffffff;
+}
 html[data-theme="light"] .warnbox{background:#fff4d6;border-color:#c99a2e;color:#4a3708}
 html[data-theme="light"] .wnBox{background:#eaf3f9;border-color:#9dc0d6}
 html[data-theme="light"] .hourCard,html[data-theme="light"] .aqiCell,
@@ -199,11 +207,11 @@ a{color:inherit}
 
 /* ===== control de capas: radar + satélite ===== */
 #layersControl{
-  position:fixed;left:var(--layers-left, 324px);bottom:12px;z-index:22;
+  position:fixed;left:14px;bottom:14px;z-index:22;
   transition:left .18s;
   background:var(--panel);border:1px solid var(--line);border-radius:12px;
-  backdrop-filter:blur(10px);width:260px;max-width:calc(100vw - 24px);
-  max-height:calc(100vh - 90px);overflow-y:auto;
+  backdrop-filter:blur(10px);width:300px;max-width:calc(100vw - 28px);
+  max-height:calc(55vh);overflow-y:auto;
 }
 #layersControlHeader{
   display:flex;align-items:center;justify-content:space-between;gap:10px;
@@ -400,7 +408,7 @@ html[data-theme="light"] .cityWx{text-shadow:0 0 3px #fff,0 0 3px #fff,0 0 5px #
 /* ===== topbar ===== */
 #topbar{
   position:fixed;left:14px;top:calc(12px + var(--vzbanner-h, 0px) + var(--simbanner-h, 0px));z-index:35;
-  display:flex;align-items:center;gap:16px;
+  display:flex;align-items:center;gap:32px;
   background:none;border:none;border-radius:0;padding:0;backdrop-filter:none;
   box-sizing:border-box;pointer-events:none;
   padding-top:env(safe-area-inset-top);
@@ -408,13 +416,18 @@ html[data-theme="light"] .cityWx{text-shadow:0 0 3px #fff,0 0 3px #fff,0 0 5px #
 }
 .topbarBrand{
   display:inline-flex;align-items:center;gap:8px;flex:0 0 auto;pointer-events:auto;
-  text-shadow:0 1px 4px rgba(0,0,0,0.85);
 }
-#topbar b{font-size:13px;letter-spacing:.08em;font-weight:800;white-space:nowrap;color:var(--text)}
+#topbar b{
+  font-size:13px;letter-spacing:.08em;font-weight:800;white-space:nowrap;color:#ffffff;
+  text-shadow:0 1px 4px rgba(0,0,0,0.95), 0 0 10px rgba(0,0,0,0.85);
+}
 #topbar .dot{width:7px;height:7px;border-radius:50%;background:var(--muted);flex:0 0 auto}
 #topbar .dot.live{background:var(--c-td);box-shadow:0 0 6px var(--c-td)}
 #topbar .dot.err{background:var(--danger);box-shadow:0 0 6px var(--danger)}
-#lastUpdateTxt{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:var(--muted);font-size:11px}
+#lastUpdateTxt{
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:#a5b5c7;font-size:11px;
+  text-shadow:0 1px 3px rgba(0,0,0,0.9);
+}
 
 .topbarBtns{
   display:inline-flex;align-items:center;gap:5px;flex:0 0 auto;pointer-events:auto;
@@ -591,7 +604,7 @@ html[data-theme="light"] .cityWx{text-shadow:0 0 3px #fff,0 0 3px #fff,0 0 5px #
   @media (max-width:680px){
     #topbar{
       left:12px;right:12px;top:calc(10px + var(--vzbanner-h, 0px) + var(--simbanner-h, 0px));
-      flex-direction:column;align-items:flex-start;justify-content:flex-start;gap:7px;
+      flex-direction:column;align-items:flex-start;justify-content:flex-start;gap:10px;
     }
     .topbarBrand{width:100%;justify-content:flex-start;gap:7px}
     .topbarBrand b{font-size:12px;letter-spacing:.07em}
