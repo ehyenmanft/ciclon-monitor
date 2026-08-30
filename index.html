@@ -45,8 +45,10 @@ html[data-theme="light"] .topbarBrand b{
   text-shadow:0 0 8px #ffffff, 0 1px 4px #ffffff, 0 0 14px #ffffff, 0 0 20px #ffffff;
 }
 html[data-theme="light"] #lastUpdateTxt{
-  color:#2c3e50;
-  text-shadow:0 0 6px #ffffff;
+  background:#ffffffea;border:1px solid #b9c6d3;
+  color:#101a24;font-weight:700;
+  box-shadow:0 1px 5px rgba(0,0,0,0.15);
+  text-shadow:none;
 }
 html[data-theme="light"] .warnbox{background:#fff4d6;border-color:#c99a2e;color:#4a3708}
 html[data-theme="light"] .wnBox{background:#eaf3f9;border-color:#9dc0d6}
@@ -425,33 +427,37 @@ html[data-theme="light"] .cityWx{text-shadow:0 0 3px #fff,0 0 3px #fff,0 0 5px #
 #topbar .dot.live{background:var(--c-td);box-shadow:0 0 6px var(--c-td)}
 #topbar .dot.err{background:var(--danger);box-shadow:0 0 6px var(--danger)}
 #lastUpdateTxt{
-  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:#a5b5c7;font-size:11px;
-  text-shadow:0 1px 3px rgba(0,0,0,0.9);
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+  background:#10151cdd;border:1px solid #1e2833;
+  color:#c0d1e2;font-size:11px;font-weight:500;
+  padding:3px 9px;border-radius:12px;
+  backdrop-filter:blur(8px);
+  box-shadow:0 1px 4px rgba(0,0,0,0.3);
 }
 
 .topbarBtns{
-  display:inline-flex;align-items:center;gap:5px;flex:0 0 auto;pointer-events:auto;
+  display:inline-flex;align-items:center;gap:6px;flex:0 0 auto;pointer-events:auto;
   max-width:100%;overflow-x:auto;scrollbar-width:none;-webkit-overflow-scrolling:touch;
 }
 .topbarBtns::-webkit-scrollbar{display:none}
 .topbarBtns button, .topbarBtns a{
-  background:#161d26dd;border:1px solid var(--line);color:var(--text);border-radius:7px;
-  width:30px;height:30px;min-height:30px;min-width:30px;padding:0;
+  background:#161d26dd;border:1px solid var(--line);color:var(--text);border-radius:8px;
+  width:34px;height:34px;min-height:34px;min-width:34px;padding:0;
   display:inline-flex;align-items:center;justify-content:center;
-  cursor:pointer;font-family:inherit;font-size:11px;font-weight:700;
+  cursor:pointer;font-family:inherit;font-size:13.5px;font-weight:700;line-height:1;
   text-decoration:none;transition:all .15s;flex:0 0 auto;backdrop-filter:blur(8px);
   box-shadow:0 2px 6px rgba(0,0,0,0.35);
 }
 .topbarBtns button:hover, .topbarBtns a:hover{
   border-color:var(--accent);color:#fff;transform:translateY(-1px);
 }
-#langBtn{font-size:10.5px;font-weight:800}
+#langBtn{font-size:11px;font-weight:800;letter-spacing:.02em}
 #sismoTopBtn{border-color:#f07f3c66;color:#f07f3c}
 #sismoTopBtn:hover{background:#f07f3c22;border-color:#f07f3c;color:#fff}
-#sismoTopBtn svg{display:block}
+#sismoTopBtn svg{display:block;width:18px;height:18px}
 #tgBtn{background:#229ED9;border-color:#229ED9;color:#fff}
 #tgBtn:hover{filter:brightness(1.12);transform:translateY(-1px)}
-#tgBtn svg{display:block}
+#tgBtn svg{display:block;width:17px;height:17px}
 #tgBtn.nuevo{animation:tgPulso 2.4s ease-out 3}
 @keyframes tgPulso{
   0%,100%{box-shadow:0 0 0 0 #229ED900}
@@ -612,14 +618,14 @@ html[data-theme="light"] .cityWx{text-shadow:0 0 3px #fff,0 0 3px #fff,0 0 5px #
       width:100%;justify-content:flex-start;gap:4px;flex-wrap:nowrap;
       overflow-x:auto;padding-bottom:2px;
     }
-    .topbarBtns button, .topbarBtns a{width:29px;height:29px;min-width:29px;min-height:29px;font-size:10px;border-radius:6px}
+    .topbarBtns button, .topbarBtns a{width:32px;height:32px;min-width:32px;min-height:32px;font-size:12px;border-radius:7px}
     #tgBtnTxt{display:none}
     #sismoTopBtnTxt{display:none}
     #lastUpdateTxt{display:none}
   }
   @media (max-width:360px){
     .topbarBtns{gap:3px}
-    .topbarBtns button, .topbarBtns a{width:27px;height:27px;min-width:27px;min-height:27px;font-size:9.5px}
+    .topbarBtns button, .topbarBtns a{width:29px;height:29px;min-width:29px;min-height:29px;font-size:11px}
     .topbarBrand b{font-size:11px}
   }
   /* En móvil el panel de capas DEJA de ser flotante: se comporta como una hoja
