@@ -4565,7 +4565,7 @@ function bringToFront(panel){
 function makeDraggable(panelId, handleSel){
   var panel = document.getElementById(panelId);
   if (!panel) return;
-  var dragging = false, startX = 0, startY = 0, startL = 0, startT = 0;
+  var isPointerDown = false, dragging = false, startX = 0, startY = 0, startL = 0, startT = 0;
 
   panel.addEventListener('pointerdown', function(e){
     bringToFront(panel);
@@ -4580,25 +4580,39 @@ function makeDraggable(panelId, handleSel){
 
     bringToFront(panel);
     var r = panel.getBoundingClientRect();
-    panel.style.left = r.left + 'px'; panel.style.top = r.top + 'px';
-    panel.style.right = 'auto'; panel.style.bottom = 'auto';
-    dragging = true; startX = e.clientX; startY = e.clientY; startL = r.left; startT = r.top;
-    panel.classList.add('dragging');
-    if (e.pointerId && panel.setPointerCapture) {
-      try { panel.setPointerCapture(e.pointerId); } catch(err){}
-    }
-    e.preventDefault();
+    isPointerDown = true;
+    dragging = false;
+    startX = e.clientX; startY = e.clientY; startL = r.left; startT = r.top;
   }
   function onMove(e){
-    if (!dragging) return;
-    var nl = startL + (e.clientX - startX), nt = startT + (e.clientY - startY);
-    nl = Math.max(4, Math.min(window.innerWidth - panel.offsetWidth - 4, nl));
-    nt = Math.max(4, Math.min(window.innerHeight - 44, nt));
-    panel.style.left = nl + 'px'; panel.style.top = nt + 'px';
+    if (!isPointerDown) return;
+    var dx = e.clientX - startX, dy = e.clientY - startY;
+    if (!dragging && Math.hypot(dx, dy) > 5){
+      dragging = true;
+      var r = panel.getBoundingClientRect();
+      panel.style.left = r.left + 'px'; panel.style.top = r.top + 'px';
+      panel.style.right = 'auto'; panel.style.bottom = 'auto';
+      panel.classList.add('dragging');
+      if (e.pointerId && panel.setPointerCapture) {
+        try { panel.setPointerCapture(e.pointerId); } catch(err){}
+      }
+    }
+    if (dragging){
+      var nl = startL + dx, nt = startT + dy;
+      nl = Math.max(4, Math.min(window.innerWidth - panel.offsetWidth - 4, nl));
+      nt = Math.max(4, Math.min(window.innerHeight - 44, nt));
+      panel.style.left = nl + 'px'; panel.style.top = nt + 'px';
+    }
   }
   function onUp(e){
-    if (!dragging) return;
-    dragging = false; panel.classList.remove('dragging');
+    if (isPointerDown && !dragging){
+      isPointerDown = false;
+      return;
+    }
+    if (!dragging) { isPointerDown = false; return; }
+    isPointerDown = false;
+    dragging = false;
+    panel.classList.remove('dragging');
     if (e && e.pointerId && panel.releasePointerCapture) {
       try { panel.releasePointerCapture(e.pointerId); } catch(err){}
     }
