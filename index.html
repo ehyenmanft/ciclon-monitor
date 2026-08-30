@@ -437,8 +437,14 @@ html[data-theme="light"] .cityWxName{text-shadow:0 0 2px #fff, 0 0 4px #fff}
   transition:top .2s;
 }
 .topbarBrand{
-  display:inline-flex;align-items:center;gap:8px;flex:0 0 auto;pointer-events:auto;
+  display:inline-flex;align-items:center;gap:7px;flex:0 0 auto;pointer-events:auto;
 }
+.topbarBrandLogo{
+  width:18px;height:18px;border-radius:50%;object-fit:contain;flex:0 0 auto;display:inline-block;
+  box-shadow:0 0 8px rgba(240,127,60,0.4);
+}
+.modeBtnIco{width:13px;height:13px;border-radius:50%;vertical-align:-2px;margin-right:3px;display:inline-block}
+.mobIcoImg{width:16px;height:16px;border-radius:50%;vertical-align:middle;display:block}
 #topbar b{
   font-size:13px;letter-spacing:.08em;font-weight:800;white-space:nowrap;color:#ffffff;
   text-shadow:0 1px 4px rgba(0,0,0,0.95), 0 0 10px rgba(0,0,0,0.85);
@@ -798,6 +804,7 @@ html[data-theme="light"] .rrssBtn{background:#f4f7fa}
 
 <div id="topbar">
   <div class="topbarBrand">
+    <img src="icon-192.png" width="18" height="18" alt="Logo" class="topbarBrandLogo">
     <span class="dot" id="statusDot"></span>
     <b>CICLÓN·MONITOR</b>
     <span id="lastUpdateTxt" style="color:var(--muted);font-size:11px"></span>
@@ -835,7 +842,7 @@ html[data-theme="light"] .rrssBtn{background:#f4f7fa}
 
 <aside class="panel on" id="left">
   <div id="modeSwitch">
-    <button id="modeBtnCiclones" data-i18n="modeCiclones">🌀 Ciclones</button>
+    <button id="modeBtnCiclones"><img src="icon-192.png" width="13" height="13" class="modeBtnIco" alt=""> <span data-i18n="modeCiclones">Ciclones</span></button>
     <button id="modeBtnClima" class="act" data-i18n="modeClima">🌦️ Clima</button>
   </div>
 
@@ -1082,7 +1089,7 @@ html[data-theme="light"] .rrssBtn{background:#f4f7fa}
 
 <nav id="mobilenav" aria-label="Navegación principal">
   <button id="mnMapa" class="act"><span class="ico">◉</span><span data-i18n="navMapa">Mapa</span></button>
-  <button id="mnSistemas"><span class="ico">☰</span><span data-i18n="navSistemas">Sistemas</span></button>
+  <button id="mnSistemas"><span class="ico"><img src="icon-192.png" width="16" height="16" class="mobIcoImg" alt=""></span><span data-i18n="navSistemas">Sistemas</span></button>
   <button id="mnFicha"><span class="ico">▤</span><span data-i18n="navFicha">Ficha</span></button>
   <button id="mnCapas"><span class="ico">🗺️</span><span data-i18n="navCapas">Capas</span></button>
 </nav>
@@ -1439,7 +1446,7 @@ var I18N = {
     inameh: 'INAMEH (Venezuela) →', proteccion: 'Protección Civil Venezuela →',
     selecciona: 'Selecciona un sistema en la lista para ver su ficha completa.',
 
-    modeCiclones: '🌀 Ciclones', modeClima: '🌦️ Clima',
+    modeCiclones: 'Ciclones', modeClima: '🌦️ Clima',
     panelClimaBuscar: 'Buscar ubicación', climaBuscarPh: 'Ciudad, país…',
     climaAccesoRapido: 'Acceso rápido — Venezuela',
     navBuscar: 'Buscar', navClima: 'Clima',
@@ -1619,7 +1626,7 @@ var I18N = {
     inameh: 'INAMEH (Venezuela) →', proteccion: 'Venezuela Civil Protection →',
     selecciona: 'Select a system from the list to see its full profile.',
 
-    modeCiclones: '🌀 Cyclones', modeClima: '🌦️ Weather',
+    modeCiclones: 'Cyclones', modeClima: '🌦️ Weather',
     panelClimaBuscar: 'Search location', climaBuscarPh: 'City, country…',
     climaAccesoRapido: 'Quick access — Venezuela',
     navBuscar: 'Search', navClima: 'Weather',
@@ -2599,7 +2606,7 @@ document.getElementById('notifBtn').addEventListener('click', toggleNotif);
  * en @media print (ver CSS), en vez de abrir una ventana nueva.
  * ============================================================ */
 function buildPrintReport(){
-  var html = '<h1>CICLÓN·MONITOR — ' + t('reporteTitulo') + '</h1>';
+  var html = '<h1><img src="icon-192.png" width="18" height="18" style="vertical-align:-2px;border-radius:50%;margin-right:4px"> CICLÓN·MONITOR — ' + t('reporteTitulo') + '</h1>';
   // un reporte de simulacro impreso y circulando por ahí sin marcar sería
   // indistinguible de uno real: se marca arriba del todo
   if (simulacroOn) html += '<p class="printAlert">🎓 ' + t('simReporte') + '</p>';
@@ -3626,7 +3633,7 @@ onMapMove(function(){
  * principio que ya usamos con CurrentStorms.json.
  * ============================================================ */
 var gdacsOn = false, gdacsLayer = null;
-var GDACS_TIPOS = { TC: '🌀', FL: '🌊', EQ: '⛰️', VO: '🌋', WF: '🔥', DR: '☀️' };
+var GDACS_TIPOS = { TC: '<img src="icon-192.png" width="16" height="16" style="border-radius:50%;vertical-align:middle" alt="">', FL: '🌊', EQ: '⛰️', VO: '🌋', WF: '🔥', DR: '☀️' };
 function gdacsAlertColor(level){
   var l = String(level || '').toLowerCase();
   if (l.indexOf('red') !== -1) return '#e8484f';
