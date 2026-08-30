@@ -1533,9 +1533,12 @@ var I18N = {
     riesgoAviso: 'Indicative values derived from the model, not storm or landslide forecasts. Saturated soil raises the risk from further rain; always check with Civil Protection.'
   }
 };
-var lang = (navigator.language || 'es').startsWith('en') ? 'en' : 'es';
+var lang = 'es';
+try {
+  lang = localStorage.getItem('ciclon_lang') || ((navigator.language || 'es').startsWith('en') ? 'en' : 'es');
+} catch(e){}
 
-function t(key){ return I18N[lang][key] || key; }
+function t(key){ return (I18N[lang] && I18N[lang][key]) || (I18N.es && I18N.es[key]) || key; }
 
 /* ============================================================
  * #14 UNIDADES CONFIGURABLES
@@ -1598,8 +1601,10 @@ function edadTexto(clave){
   if (!t0) return '';
   var min = Math.round((Date.now() - t0) / 60000);
   if (min < 1) return t('haceSegundos');
-  if (min < 60) return t('hace') + ' ' + min + ' min';
-  return t('hace') + ' ' + Math.round(min / 60) + ' h';
+  if (lang === 'en') {
+    return min < 60 ? min + ' min ago' : Math.round(min / 60) + ' h ago';
+  }
+  return (t('hace') + ' ' + (min < 60 ? min + ' min' : Math.round(min / 60) + ' h')).trim();
 }
 function applyI18n(){
   document.documentElement.lang = lang;
@@ -1611,11 +1616,12 @@ function applyI18n(){
   });
   document.getElementById('langBtn').textContent = lang === 'es' ? 'EN' : 'ES';
   renderEmptyState();
+  renderList();
+  renderDisturbiosLista();
+  renderDisturbiosLayer();
+  if (storms.length) renderMarkers();
   if (selectedStorm){
     renderDetail(selectedStorm);
-    // renderDetail reconstruye #trackStatus con el texto por defecto — si la
-    // trayectoria ya se había resuelto (o falló) para este sistema, se
-    // redibuja desde caché en vez de volver a mostrar "cargando" a medias.
     if (stormTrackCache.hasOwnProperty(selectedStorm.id)) drawStormTrack(selectedStorm, stormTrackCache[selectedStorm.id]);
   } else {
     renderNoSelection();
@@ -1623,6 +1629,13 @@ function applyI18n(){
   updateNavLabels();
   renderQuickCities();
   if (climaLocation) renderClima(); else renderClimaNoSelection();
+  if (ciudadesOn && ciudadesCache && ciudadesCache.datos) renderCiudades(ciudadesCache.datos);
+  if (typeof radarFrames !== 'undefined' && radarFrames.length) showRadarFrame(radarIdx);
+  if (lastGoodAt) document.getElementById('lastUpdateTxt').textContent = fmtTimeDual(lastGoodAt);
+  if (gdacsOn) loadGdacs();
+  if (sismosOn) loadSismos();
+  if (recursosOn) loadRecursos();
+  syncUnidadBtns();
 }
 /* #5 Tema: se recuerda la elección; por defecto sigue al sistema operativo. */
 var temaActual = 'dark';
@@ -1643,6 +1656,7 @@ aplicarTema();
 
 document.getElementById('langBtn').addEventListener('click', function(){
   lang = lang === 'es' ? 'en' : 'es';
+  try { localStorage.setItem('ciclon_lang', lang); } catch(e){}
   applyI18n();
 });
 
@@ -3646,6 +3660,8 @@ function renderAnalisis(){
  * ============================================================ */
 var disturbios = [];
 var disturbiosLayer = null;
+var lastDisturbiosRegionGeo = null;
+
 function probColor(p){
   if (typeof p !== 'number') return '#76879a';
   if (p >= 60) return '#e8484f';   // alta
@@ -3672,29 +3688,50 @@ function propPorcentaje(props, alias){
   }
   return null;
 }
-function loadDisturbios(){
-  function q(id){
-    return fetchJsonProxied(GIS_SUMMARY + '/' + id + '/query?where=1%3D1&outFields=*&f=geojson', GIS_PROXY)
-      .catch(function(){ return null; });
+function renderDisturbiosLayer(){
+  if (!disturbiosLayer) return;
+  disturbiosLayer.clearLayers();
+
+  // región de posible desarrollo: el área sombreada
+  if (lastDisturbiosRegionGeo && lastDisturbiosRegionGeo.features){
+    lastDisturbiosRegionGeo.features.forEach(function(f){
+      if (!f.geometry) return;
+      var pr = f.properties || {};
+      var p7 = propPorcentaje(pr, ['prob7', '7day']);
+      var col = probColor(p7);
+      L.geoJSON(f, { style: { color: col, weight: 1, fillColor: col, fillOpacity: .12, dashArray: '3,4' } })
+        .bindPopup('<b>' + t('regionDesarrollo') + '</b><br>' + (p7 != null ? p7 + '% ' + t('en7dias') : ''))
+        .addTo(disturbiosLayer);
+    });
   }
+
+  // puntos: posición actual de cada perturbación vigilada
+  disturbios.forEach(function(d){
+    var peor = Math.max(d.p2 == null ? -1 : d.p2, d.p7 == null ? -1 : d.p7);
+    var col = probColor(peor < 0 ? null : peor);
+    var icon = L.divIcon({
+      className: '',
+      html: '<div class="distPin" style="color:' + col + ';border-color:' + col + '">✕</div>',
+      iconSize: [24, 24], iconAnchor: [12, 12]
+    });
+    L.marker([d.lat, d.lon], { icon: icon, zIndexOffset: 150 })
+      .bindPopup('<b>' + t('perturbacion') + '</b><br>' +
+        (d.p2 != null ? t('en2dias') + ': <b>' + d.p2 + '%</b> (' + probEtiqueta(d.p2) + ')<br>' : '') +
+        (d.p7 != null ? t('en7dias') + ': <b>' + d.p7 + '%</b> (' + probEtiqueta(d.p7) + ')<br>' : '') +
+        '<span style="color:var(--muted);font-size:10px">' + t('perturbacionNota') + '</span><br>' +
+        '<a href="https://www.nhc.noaa.gov/gtwo.php" target="_blank" rel="noopener">' + t('verOficial') + '</a>')
+      .addTo(disturbiosLayer);
+  });
+}
+
+function loadDisturbios(){
+  if (simulacroOn) return Promise.resolve(0);
+  function q(layerId){ return fetchJsonProxied(gisUrl(layerId), GIS_PROXY); }
   return Promise.all([q(TWO_CAPAS.dosDias), q(TWO_CAPAS.sieteDias), q(TWO_CAPAS.region)])
     .then(function(r){
       if (!disturbiosLayer) disturbiosLayer = L.layerGroup().addTo(map);
-      disturbiosLayer.clearLayers();
       disturbios = [];
-
-      // región de posible desarrollo: el área sombreada
-      if (r[2] && r[2].features){
-        r[2].features.forEach(function(f){
-          if (!f.geometry) return;
-          var pr = f.properties || {};
-          var p7 = propPorcentaje(pr, ['prob7', '7day']);
-          var col = probColor(p7);
-          L.geoJSON(f, { style: { color: col, weight: 1, fillColor: col, fillOpacity: .12, dashArray: '3,4' } })
-            .bindPopup('<b>' + t('regionDesarrollo') + '</b><br>' + (p7 != null ? p7 + '% ' + t('en7dias') : ''))
-            .addTo(disturbiosLayer);
-        });
-      }
+      lastDisturbiosRegionGeo = r[2];
 
       // puntos: posición actual de cada perturbación vigilada
       [r[0], r[1]].forEach(function(geo, idx){
@@ -3718,22 +3755,7 @@ function loadDisturbios(){
         });
       });
 
-      disturbios.forEach(function(d){
-        var peor = Math.max(d.p2 == null ? -1 : d.p2, d.p7 == null ? -1 : d.p7);
-        var col = probColor(peor < 0 ? null : peor);
-        var icon = L.divIcon({
-          className: '',
-          html: '<div class="distPin" style="color:' + col + ';border-color:' + col + '">✕</div>',
-          iconSize: [24, 24], iconAnchor: [12, 12]
-        });
-        L.marker([d.lat, d.lon], { icon: icon, zIndexOffset: 150 })
-          .bindPopup('<b>' + t('perturbacion') + '</b><br>' +
-            (d.p2 != null ? t('en2dias') + ': <b>' + d.p2 + '%</b> (' + probEtiqueta(d.p2) + ')<br>' : '') +
-            (d.p7 != null ? t('en7dias') + ': <b>' + d.p7 + '%</b> (' + probEtiqueta(d.p7) + ')<br>' : '') +
-            '<span style="color:var(--muted);font-size:10px">' + t('perturbacionNota') + '</span><br>' +
-            '<a href="https://www.nhc.noaa.gov/gtwo.php" target="_blank" rel="noopener">' + t('verOficial') + '</a>')
-          .addTo(disturbiosLayer);
-      });
+      renderDisturbiosLayer();
       renderDisturbiosLista();
       return disturbios.length;
     });
