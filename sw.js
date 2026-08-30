@@ -7,7 +7,7 @@
  *    viejos como frescos.
  * Al actualizar la web, sube también este archivo cambiando VERSION.
  */
-const VERSION = 'v26';
+const VERSION = 'v27';
 const CACHE = 'ciclon-monitor-' + VERSION;
 
 const PRECACHE = [
@@ -22,6 +22,8 @@ const PRECACHE = [
 
 // dominios de datos en vivo: no interceptar jamás
 const DATOS_VIVOS = [
+  'fonts.googleapis.com',
+  'fonts.gstatic.com',
   'nhc.noaa.gov',
   'script.google.com',
   'script.googleusercontent.com',
