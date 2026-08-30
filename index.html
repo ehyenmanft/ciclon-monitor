@@ -37,7 +37,7 @@ html[data-theme="light"] .quickCities button,
 html[data-theme="light"] #climaSearchInput,
 html[data-theme="light"] .linkbtn,
 html[data-theme="light"] #langBtn,html[data-theme="light"] #notifBtn,
-html[data-theme="light"] #printBtn,html[data-theme="light"] #hideAllBtn,
+html[data-theme="light"] #hideAllBtn,
 html[data-theme="light"] #geoTopBtn{background:#f4f7fa;color:#0d1720}
 html[data-theme="light"] .warnbox{background:#fff4d6;border-color:#c99a2e;color:#4a3708}
 html[data-theme="light"] .wnBox{background:#eaf3f9;border-color:#9dc0d6}
@@ -404,10 +404,10 @@ html[data-theme="light"] .cityWx{text-shadow:0 0 3px #fff,0 0 3px #fff,0 0 5px #
 #tgBtn:hover{filter:brightness(1.12);transform:translateY(-1px)}
 #tgBtn svg{display:block}
 #sismoTopBtn{
-  display:inline-flex;align-items:center;gap:5px;flex:0 0 auto;
+  display:inline-flex;align-items:center;gap:4px;flex:0 0 auto;
   background:#161d26;border:1px solid #f07f3c88;color:#f07f3c;text-decoration:none;
-  border-radius:6px;padding:4px 9px;font-family:inherit;font-size:11px;font-weight:700;
-  min-height:28px;transition:all .15s;
+  border-radius:6px;padding:3px 7px;font-family:inherit;font-size:10.5px;font-weight:700;
+  min-height:26px;cursor:pointer;transition:all .15s;
 }
 #sismoTopBtn:hover{background:#f07f3c22;border-color:#f07f3c;color:#fff;transform:translateY(-1px)}
 #sismoTopBtn svg{display:block}
@@ -419,7 +419,7 @@ html[data-theme="light"] .cityWx{text-shadow:0 0 3px #fff,0 0 3px #fff,0 0 5px #
   35%{box-shadow:0 0 0 6px #229ED955}
   70%{box-shadow:0 0 0 10px #229ED900}
 }
-#langBtn,#notifBtn,#printBtn,#hideAllBtn,#geoTopBtn,#themeBtn{background:#161d26;border:1px solid var(--line);color:var(--text);border-radius:6px;padding:4px 8px;cursor:pointer;font-family:inherit;font-size:11px;flex:0 0 auto;min-height:28px}
+#langBtn,#notifBtn,#hideAllBtn,#geoTopBtn,#themeBtn{background:#161d26;border:1px solid var(--line);color:var(--text);border-radius:6px;padding:4px 8px;cursor:pointer;font-family:inherit;font-size:11px;flex:0 0 auto;min-height:28px}
 #notifBtn.act{border-color:#3ec6a8;color:#3ec6a8}
 #hideAllBtn.act{border-color:#6fb8e0;color:#6fb8e0}
 #reopenLeftBtn{flex:0 0 auto}
@@ -557,22 +557,18 @@ html[data-theme="light"] .cityWx{text-shadow:0 0 3px #fff,0 0 3px #fff,0 0 5px #
   #mobilenav button.act{color:var(--accent)}
   #mobilenav .ico{font-size:16px}
   #sourceBanner{bottom:calc(64px + env(safe-area-inset-bottom))}
-  /* pantallas muy angostas (≤380px): ahora hay 4 botones en la topbar (notif,
-     print, reopen, lang) además del título — sin esto se corta el borde derecho */
-  /* La barra superior ya lleva 5 botones (ubicación, ocultar, alertas, imprimir,
-     idioma). En pantallas angostas se recorta por prioridad operativa: primero
-     la hora, luego imprimir (lo menos crítico en un teléfono). */
+  /* La barra superior lleva botones operativos (ubicación, ocultar, alertas,
+     tema, idioma). */
   @media (max-width:420px){
     #tgBtnTxt{display:none}
     #sismoTopBtnTxt{display:none}
     #tgBtn,#sismoTopBtn{padding:4px 7px}
     #lastUpdateTxt{display:none}
     #topbar{gap:5px;padding:6px 9px}
-    #notifBtn,#printBtn,#geoTopBtn,#hideAllBtn,#themeBtn{padding:4px 6px}
+    #notifBtn,#geoTopBtn,#hideAllBtn,#themeBtn{padding:4px 6px}
     #topbar b{font-size:12px}
   }
   @media (max-width:370px){
-    #printBtn{display:none}
     #topbar b{font-size:11px}
   }
   /* En móvil el panel de capas DEJA de ser flotante: se comporta como una hoja
@@ -676,6 +672,14 @@ body.kiosko #kioskoHint{display:block}
 html[data-theme="light"] #rrssTexto{background:#f4f7fa}
 html[data-theme="light"] .rrssBtn{background:#f4f7fa}
 
+/* modal de sismos */
+#sismoModal{display:none;position:fixed;inset:0;z-index:60;background:#00000099;align-items:center;justify-content:center;padding:16px}
+#sismoModal.on{display:flex}
+#sismoCardModal{background:var(--panel);border:1px solid var(--line);border-radius:14px;max-width:440px;width:100%;
+  max-height:85vh;overflow-y:auto;padding:18px;backdrop-filter:blur(10px)}
+#sismoCardModal h2{display:flex;justify-content:space-between;align-items:center;font-size:14px;margin-bottom:10px;color:#f07f3c}
+#sismoCardModal h2 button{background:none;border:none;color:var(--muted);font-size:15px;cursor:pointer}
+
 /* #2 modal de diagnóstico */
 #diagModal{display:none;position:fixed;inset:0;z-index:60;background:#00000099;align-items:center;justify-content:center;padding:16px}
 #diagModal.on{display:flex}
@@ -722,9 +726,9 @@ html[data-theme="light"] .rrssBtn{background:#f4f7fa}
     </svg>
     <span id="tgBtnTxt" data-i18n="tgUnete">Avisos</span>
   </a>
-  <a id="sismoTopBtn" href="https://ehyenmanft.github.io/monitor-sismico/" target="_blank" rel="noopener"
-     title="Abrir SISMO·MONITOR (Monitoreo sísmico en tiempo real)" aria-label="Abrir SISMO·MONITOR (Monitoreo sísmico en tiempo real)">
-    <svg viewBox="0 0 100 100" width="16" height="16" aria-hidden="true" focusable="false">
+  <button id="sismoTopBtn"
+     title="SISMO·MONITOR (Monitoreo sísmico en tiempo real)" aria-label="Abrir información de SISMO·MONITOR">
+    <svg viewBox="0 0 100 100" width="14" height="14" aria-hidden="true" focusable="false">
       <circle cx="50" cy="50" r="32" fill="none" stroke="#4a6078" stroke-width="3"/>
       <ellipse cx="50" cy="50" rx="14" ry="32" fill="none" stroke="#4a6078" stroke-width="2.5"/>
       <line x1="18" y1="50" x2="82" y2="50" stroke="#4a6078" stroke-width="2.5"/>
@@ -735,12 +739,11 @@ html[data-theme="light"] .rrssBtn{background:#f4f7fa}
       <circle cx="63" cy="37" r="6" fill="#e8484f"/>
     </svg>
     <span id="sismoTopBtnTxt" data-i18n="sismoTopBtn">Sismos</span>
-  </a>
+  </button>
   <button id="themeBtn" title="Tema claro/oscuro" aria-label="Cambiar entre tema claro y oscuro">🌙</button>
   <button id="geoTopBtn" title="Mi ubicación" aria-label="Ir a mi ubicación">📍</button>
   <button id="hideAllBtn" title="Ocultar/mostrar todos los paneles" aria-label="Ocultar o mostrar todos los paneles">👁</button>
   <button id="notifBtn" title="Alertas del navegador" aria-label="Activar alertas del navegador">🔔</button>
-  <button id="printBtn" title="Reporte de situación" aria-label="Generar reporte de situación">🖨️</button>
   <button id="reopenLeftBtn" style="display:none" aria-label="Mostrar panel lateral">☰</button>
   <button id="langBtn">EN</button>
 </div>
@@ -960,6 +963,21 @@ html[data-theme="light"] .rrssBtn{background:#f4f7fa}
       <a class="rrssBtn" id="rrssMail" target="_blank" rel="noopener" data-i18n="rrssCorreo">Correo</a>
       <button class="rrssBtn" id="rrssCopiar" data-i18n="rrssCopiar">Copiar</button>
     </div>
+  </div>
+</div>
+
+<div id="sismoModal">
+  <div id="sismoCardModal">
+    <h2><span data-i18n="sismoTitulo">SISMO·MONITOR</span><button id="sismoClose" aria-label="Cerrar">✕</button></h2>
+    <div style="font-size:12px;color:var(--text);line-height:1.55;margin-bottom:12px">
+      <p style="margin-bottom:8px" data-i18n="sismoModalDesc">Plataforma hermana de monitoreo sísmico en tiempo real, con foco en Venezuela y la placa del Caribe.</p>
+      <ul style="padding-left:18px;margin-bottom:12px;font-size:11.5px;color:var(--muted);line-height:1.6">
+        <li data-i18n="sismoItem1">Sismos 24h con validación cruzada: FUNVISIS (red nacional), USGS y EMSC.</li>
+        <li data-i18n="sismoItem2">Fallas geológicas activas (Boconó, San Sebastián, El Pilar) y placas tectónicas.</li>
+        <li data-i18n="sismoItem3">Cálculo de distancia, profundidad, intensidad estimada y hora local de ocurrencia.</li>
+      </ul>
+    </div>
+    <a id="sismoModalLink" class="linkbtn" style="background:#f07f3c;border-color:#f07f3c;color:#fff;font-weight:700;padding:10px;font-size:12px" href="https://ehyenmanft.github.io/monitor-sismico/" target="_blank" rel="noopener" data-i18n="verSismoMonitor">→ Abrir SISMO·MONITOR</a>
   </div>
 </div>
 
@@ -1309,6 +1327,10 @@ var I18N = {
     sismoTitulo: 'SISMO·MONITOR',
     sismoDesc: 'Monitoreo sísmico en tiempo real, sismos 24h, fallas y placas tectónicas.',
     sismoTopBtn: 'Sismos',
+    sismoModalDesc: 'Plataforma hermana de monitoreo sísmico en tiempo real, con foco en Venezuela y la placa del Caribe.',
+    sismoItem1: 'Sismos 24h con validación cruzada: FUNVISIS (red nacional), USGS y EMSC.',
+    sismoItem2: 'Fallas geológicas activas (Boconó, San Sebastián, El Pilar) y placas tectónicas.',
+    sismoItem3: 'Cálculo de distancia, profundidad, intensidad estimada y hora local de ocurrencia.',
     panelSistemas: 'Sistemas activos',
     navMapa: 'Mapa', navSistemas: 'Sistemas', navFicha: 'Ficha', navCapas: 'Capas',
     disclaimerGlobal: '⚠ Esta plataforma es una herramienta informativa independiente. No sustituye los avisos oficiales de tu autoridad de Protección Civil, tu servicio meteorológico nacional, ni del NHC/NOAA. Ante un sistema activo, sigue siempre las fuentes oficiales.',
@@ -1485,6 +1507,10 @@ var I18N = {
     sismoTitulo: 'SISMO·MONITOR',
     sismoDesc: 'Real-time seismic monitoring, 24h earthquakes, faults and tectonic plates.',
     sismoTopBtn: 'Quakes',
+    sismoModalDesc: 'Sister real-time seismic monitoring platform, focused on Venezuela and the Caribbean plate.',
+    sismoItem1: '24h earthquakes cross-validated: FUNVISIS (national network), USGS and EMSC.',
+    sismoItem2: 'Active geological faults (Boconó, San Sebastián, El Pilar) and tectonic plates.',
+    sismoItem3: 'Calculated distance, depth, estimated intensity, and local occurrence time.',
     panelSistemas: 'Active systems',
     navMapa: 'Map', navSistemas: 'Systems', navFicha: 'Details', navCapas: 'Layers',
     disclaimerGlobal: '⚠ This platform is an independent informational tool. It does not replace official advisories from your civil protection authority, your national weather service, or the NHC/NOAA. During an active system, always follow official sources.',
@@ -1957,14 +1983,45 @@ function flattenObj(obj, prefix, out){
   });
   return out;
 }
+function toNum(v){
+  if (typeof v === 'number' && !isNaN(v)) return v;
+  if (typeof v === 'string'){
+    var clean = v.replace(/[^0-9.-]/g, '');
+    if (clean !== ''){
+      var n = parseFloat(clean);
+      if (!isNaN(n)) return n;
+    }
+  }
+  return undefined;
+}
+function parseCoord(v, isLon){
+  if (typeof v === 'number' && !isNaN(v)) return v;
+  if (typeof v === 'string'){
+    var upper = v.trim().toUpperCase();
+    var clean = upper.replace(/[^0-9.-]/g, '');
+    if (clean !== ''){
+      var n = parseFloat(clean);
+      if (!isNaN(n)){
+        if (upper.indexOf('S') !== -1 || upper.indexOf('W') !== -1) {
+          n = -Math.abs(n);
+        } else if (upper.indexOf('N') !== -1 || upper.indexOf('E') !== -1) {
+          n = Math.abs(n);
+        }
+        return n;
+      }
+    }
+  }
+  return undefined;
+}
 function scanByContent(flat, opts){
   // opts: {min, max, keyHints:[...]} → devuelve el primer valor numérico
   // dentro del rango cuyo nombre de clave contenga alguna pista.
   var keys = Object.keys(flat);
   // 1er intento: nombre de clave coincide con la pista Y valor en rango
   for (var i=0;i<keys.length;i++){
-    var k = keys[i].toLowerCase(), v = flat[keys[i]];
-    if (typeof v !== 'number') continue;
+    var k = keys[i].toLowerCase();
+    var v = toNum(flat[keys[i]]);
+    if (v === undefined) continue;
     if (v < opts.min || v > opts.max) continue;
     for (var j=0;j<opts.keyHints.length;j++){
       if (k.indexOf(opts.keyHints[j]) !== -1) return v;
@@ -1985,19 +2042,19 @@ function normalizeStorm(raw){
       return 'TS';
     })();
 
-  var lat = firstDefined(raw, ['latitude','latitudeNumeric','lat']);
-  var lon = firstDefined(raw, ['longitude','longitudeNumeric','lon']);
+  var lat = parseCoord(firstDefined(raw, ['latitudeNumeric','latitude','lat']), false);
+  var lon = parseCoord(firstDefined(raw, ['longitudeNumeric','longitude','lon']), true);
   if (typeof lat !== 'number') lat = scanByContent(flat, {min:-5,max:60,keyHints:['lat']});
   if (typeof lon !== 'number') lon = scanByContent(flat, {min:-170,max:0,keyHints:['lon','long']});
 
-  var windKt = firstDefined(raw, ['intensity','maxSustainedWind','windSpeed']);
+  var windKt = toNum(firstDefined(raw, ['intensity','maxSustainedWind','windSpeed']));
   if (typeof windKt !== 'number') windKt = scanByContent(flat, {min:10,max:220,keyHints:['wind','intensity']});
 
-  var pressureMb = firstDefined(raw, ['pressure','minimumPressure']);
+  var pressureMb = toNum(firstDefined(raw, ['pressure','minimumPressure']));
   if (typeof pressureMb !== 'number') pressureMb = scanByContent(flat, {min:860,max:1020,keyHints:['pressure']});
 
-  var moveDir = firstDefined(raw, ['movementDir','movementDirection']);
-  var moveSpeed = firstDefined(raw, ['movementSpeed']);
+  var moveDir = toNum(firstDefined(raw, ['movementDir','movementDirection']));
+  var moveSpeed = toNum(firstDefined(raw, ['movementSpeed']));
   if (typeof moveSpeed !== 'number') moveSpeed = scanByContent(flat, {min:0,max:70,keyHints:['speed','movement']});
 
   var lastUpdate = firstDefined(raw, ['lastUpdate','issuance','advisoryTime']);
@@ -2021,28 +2078,59 @@ var lastGoodStorms = null;
 var lastGoodAt = null;
 var storms = [];
 var selectedStorm = null;
+var NHC_GRACE_PERIOD_MS = 30 * 60 * 1000; // 30 min: los boletines oficiales del NHC salen cada 3-6h; si el refresco falla, el dato reciente sigue vigente sin alertar falsamente
 
-function fetchJson(url){
-  return fetch(url, { cache: 'no-store' }).then(function(r){
-    if (!r.ok) throw new Error('HTTP ' + r.status);
-    return r.json();
-  });
-}
-function fetchJsonProxied(url, proxyBase){
-  return fetchJson(url).catch(function(err){
-    if (proxyBase) return fetchJson(proxyBase + '?url=' + encodeURIComponent(url));
-    throw err;
-  });
-}
-
-function loadStorms(){
-  if (simulacroOn) return; // no pisar el ejercicio en curso con datos reales
-  setStatus('loading');
-  var attempt = fetchJson(NHC_URL)
-    .catch(function(err){
-      if (NHC_PROXY) return fetchJson(NHC_PROXY);
+function fetchJsonWithTimeout(url, ms){
+  ms = ms || 8000;
+  var controller = typeof AbortController !== 'undefined' ? new AbortController() : null;
+  var timer = controller ? setTimeout(function(){ controller.abort(); }, ms) : null;
+  return fetch(url, { cache: 'no-store', signal: controller ? controller.signal : undefined })
+    .then(function(r){
+      if (timer) clearTimeout(timer);
+      if (!r.ok) throw new Error('HTTP ' + r.status);
+      return r.json();
+    }).catch(function(err){
+      if (timer) clearTimeout(timer);
       throw err;
     });
+}
+
+function fetchJson(url){
+  return fetchJsonWithTimeout(url, 8000);
+}
+
+function buildProxyUrls(targetUrl, customProxy){
+  var urls = [];
+  if (customProxy){
+    if (customProxy.indexOf('?') === -1) {
+      urls.push(customProxy + '?url=' + encodeURIComponent(targetUrl));
+      urls.push(customProxy);
+    } else {
+      urls.push(customProxy);
+    }
+  }
+  urls.push('https://api.allorigins.win/raw?url=' + encodeURIComponent(targetUrl));
+  urls.push('https://corsproxy.io/?url=' + encodeURIComponent(targetUrl));
+  return urls;
+}
+
+function fetchJsonProxied(url, proxyBase){
+  // 1er intento: consulta directa (con timeout rápido de 4s)
+  return fetchJsonWithTimeout(url, 4000).catch(function(directErr){
+    var proxies = buildProxyUrls(url, proxyBase);
+    // Cascada ordenada de proxies de respaldo
+    return proxies.reduce(function(pChain, proxyUrl){
+      return pChain.catch(function(){
+        return fetchJsonWithTimeout(proxyUrl, 6000);
+      });
+    }, Promise.reject(directErr));
+  });
+}
+
+function loadStorms(isRetry){
+  if (simulacroOn) return; // no pisar el ejercicio en curso con datos reales
+  setStatus('loading');
+  var attempt = fetchJsonProxied(NHC_URL, NHC_PROXY);
 
   attempt.then(function(data){
     var list = (data && data.activeStorms) || [];
@@ -2062,7 +2150,31 @@ function loadStorms(){
     loadDisturbios().catch(function(e){ console.warn('Perturbaciones no disponibles:', e); });
   }).catch(function(err){
     console.error('Error leyendo NHC:', err);
+    // Reintento automático único con ligero retardo antes de reportar error al usuario
+    if (!isRetry){
+      setTimeout(function(){ loadStorms(true); }, 2000);
+      return;
+    }
     var persisted = lastGoodStorms ? null : loadPersistedLastGood();
+    var refAt = lastGoodAt || (persisted ? persisted.at : null);
+    var esFresco = refAt && ((Date.now() - new Date(refAt).getTime()) < NHC_GRACE_PERIOD_MS);
+
+    if (lastGoodStorms && esFresco){
+      // Dentro del período de gracia (timeout desde el último retrieve), mantener datos confirmados sin mostrar banner
+      storms = lastGoodStorms;
+      hideSourceBanner();
+      setStatus('live');
+      renderAll();
+      return;
+    } else if (persisted && esFresco){
+      storms = persisted.storms;
+      lastGoodStorms = persisted.storms; lastGoodAt = persisted.at;
+      hideSourceBanner();
+      setStatus('live');
+      renderAll();
+      return;
+    }
+
     if (lastGoodStorms){
       storms = lastGoodStorms;
       showSourceBanner(t('fuenteError') + ' (' + fmtTime(lastGoodAt) + ')');
@@ -2435,10 +2547,6 @@ function buildPrintReport(){
   html += '<p class="printFoot">' + t('disclaimerGlobal') + '</p>';
   document.getElementById('printReport').innerHTML = html;
 }
-document.getElementById('printBtn').addEventListener('click', function(){
-  buildPrintReport();
-  window.print();
-});
 try {
   if (localStorage.getItem('ciclon_notif') === '1' && 'Notification' in window && Notification.permission === 'granted'){
     notifEnabled = true;
@@ -3800,7 +3908,10 @@ function renderAnalisis(){
               '<span class="anDato">' + escapeHtml(x.dato) + '</span></div>';
     });
   }
-  html += '<button id="anCopiarBtn" class="linkbtn" style="margin-top:8px">📋 ' + t('anCopiar') + '</button>';
+  html += '<div style="display:flex;gap:6px;margin-top:8px;flex-wrap:wrap">' +
+          '<button id="anCopiarBtn" class="linkbtn">📋 ' + t('anCopiar') + '</button>' +
+          '<button id="anDifundirBtn" class="linkbtn">📤 ' + t('compartirRRSS') + '</button>' +
+          '</div>';
   html += '<div class="anNota">' + t('anNota') + '</div>';
   box.innerHTML = html;
   document.getElementById('anCopiarBtn').addEventListener('click', function(){
@@ -3811,6 +3922,10 @@ function renderAnalisis(){
     (navigator.clipboard ? navigator.clipboard.writeText(txt) : Promise.reject())
       .then(function(){ btn.textContent = '✓ ' + t('compartirUbiCopiado'); })
       .catch(function(){ btn.textContent = txt; });
+  });
+  var difBtn = document.getElementById('anDifundirBtn');
+  if (difBtn) difBtn.addEventListener('click', function(){
+    abrirCompartirRRSS();
   });
 }
 
@@ -5243,6 +5358,16 @@ document.getElementById('rrssCopiar').addEventListener('click', function(){
   (navigator.clipboard ? navigator.clipboard.writeText(txt) : Promise.reject())
     .then(function(){ btn.textContent = '✓ ' + t('compartirUbiCopiado'); setTimeout(function(){ btn.textContent = t('rrssCopiar'); }, 1600); })
     .catch(function(){ document.getElementById('rrssTexto').select(); });
+});
+document.getElementById('sismoTopBtn').addEventListener('click', function(e){
+  e.preventDefault();
+  document.getElementById('sismoModal').classList.add('on');
+});
+document.getElementById('sismoClose').addEventListener('click', function(){
+  document.getElementById('sismoModal').classList.remove('on');
+});
+document.getElementById('sismoModal').addEventListener('click', function(e){
+  if (e.target === this) this.classList.remove('on');
 });
 document.getElementById('btnKiosko').addEventListener('click', toggleKiosko);
 document.getElementById('btnDiag').addEventListener('click', function(){
