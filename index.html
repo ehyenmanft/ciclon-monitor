@@ -270,7 +270,31 @@ a{color:inherit}
   #left.on ~ #zoomBar, #right.on ~ #zoomBar, #layersControl.on ~ #zoomBar{display:none}
 }
 .legendItem{display:inline-flex;align-items:center;gap:3px}
-.windArrow{font-size:16px;line-height:1;text-shadow:0 0 3px #000, 0 0 3px #000;pointer-events:none}
+.windPin{
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  pointer-events:auto;cursor:pointer;user-select:none;
+}
+.windArrowBox{
+  width:30px;height:30px;display:flex;align-items:center;justify-content:center;
+  position:relative;filter:drop-shadow(0 2px 4px rgba(0,0,0,0.9));
+}
+.windStream{
+  width:26px;height:26px;display:block;transform-origin:center center;
+}
+.windFlowAnim{
+  stroke-dasharray:4,8;
+  animation:windFlowKey 1s linear infinite;
+}
+@keyframes windFlowKey{
+  from{stroke-dashoffset:12}
+  to{stroke-dashoffset:0}
+}
+.windBadge{
+  font-size:9.5px;font-weight:700;padding:1px 4px;border-radius:4px;
+  background:#0b0f14eb;border:1px solid #ffffff2a;
+  margin-top:-2px;white-space:nowrap;font-variant-numeric:tabular-nums;
+  backdrop-filter:blur(4px);box-shadow:0 2px 5px rgba(0,0,0,0.5);line-height:1.2;
+}
 .trackPointDot{border-radius:50%;border:2px solid #0b0f14}
 /* Marcador de ciudad: icono de condición + temperatura + nombre.
  * Fondo semitransparente para que se lea sobre radar y satélite. */
@@ -379,6 +403,14 @@ html[data-theme="light"] .cityWx{text-shadow:0 0 3px #fff,0 0 3px #fff,0 0 5px #
 }
 #tgBtn:hover{filter:brightness(1.12);transform:translateY(-1px)}
 #tgBtn svg{display:block}
+#sismoTopBtn{
+  display:inline-flex;align-items:center;gap:5px;flex:0 0 auto;
+  background:#161d26;border:1px solid #f07f3c88;color:#f07f3c;text-decoration:none;
+  border-radius:6px;padding:4px 9px;font-family:inherit;font-size:11px;font-weight:700;
+  min-height:28px;transition:all .15s;
+}
+#sismoTopBtn:hover{background:#f07f3c22;border-color:#f07f3c;color:#fff;transform:translateY(-1px)}
+#sismoTopBtn svg{display:block}
 /* Llama la atención las primeras veces y luego se calma: un canal de avisos
    merece verse, pero un botón parpadeando para siempre acaba ignorándose. */
 #tgBtn.nuevo{animation:tgPulso 2.4s ease-out 3}
@@ -532,7 +564,8 @@ html[data-theme="light"] .cityWx{text-shadow:0 0 3px #fff,0 0 3px #fff,0 0 5px #
      la hora, luego imprimir (lo menos crítico en un teléfono). */
   @media (max-width:420px){
     #tgBtnTxt{display:none}
-    #tgBtn{padding:4px 7px}
+    #sismoTopBtnTxt{display:none}
+    #tgBtn,#sismoTopBtn{padding:4px 7px}
     #lastUpdateTxt{display:none}
     #topbar{gap:5px;padding:6px 9px}
     #notifBtn,#printBtn,#geoTopBtn,#hideAllBtn,#themeBtn{padding:4px 6px}
@@ -688,6 +721,20 @@ html[data-theme="light"] .rrssBtn{background:#f4f7fa}
       <path fill="currentColor" d="M21.94 4.3 18.9 19.1c-.23 1.02-.84 1.27-1.7.79l-4.7-3.46-2.27 2.18c-.25.25-.46.46-.94.46l.34-4.78 8.7-7.86c.38-.34-.08-.53-.59-.19L6.98 12.9 2.34 11.45c-1.01-.32-1.03-1.01.21-1.5L20.63 2.9c.84-.31 1.57.2 1.31 1.4Z"/>
     </svg>
     <span id="tgBtnTxt" data-i18n="tgUnete">Avisos</span>
+  </a>
+  <a id="sismoTopBtn" href="https://ehyenmanft.github.io/monitor-sismico/" target="_blank" rel="noopener"
+     title="Abrir SISMO·MONITOR (Monitoreo sísmico en tiempo real)" aria-label="Abrir SISMO·MONITOR (Monitoreo sísmico en tiempo real)">
+    <svg viewBox="0 0 100 100" width="16" height="16" aria-hidden="true" focusable="false">
+      <circle cx="50" cy="50" r="32" fill="none" stroke="#4a6078" stroke-width="3"/>
+      <ellipse cx="50" cy="50" rx="14" ry="32" fill="none" stroke="#4a6078" stroke-width="2.5"/>
+      <line x1="18" y1="50" x2="82" y2="50" stroke="#4a6078" stroke-width="2.5"/>
+      <line x1="50" y1="18" x2="50" y2="82" stroke="#4a6078" stroke-width="2.5"/>
+      <circle cx="63" cy="37" r="23" fill="none" stroke="#7a4521" stroke-width="3"/>
+      <circle cx="63" cy="37" r="17" fill="none" stroke="#c6722d" stroke-width="3"/>
+      <circle cx="63" cy="37" r="11" fill="none" stroke="#f07f3c" stroke-width="3.5"/>
+      <circle cx="63" cy="37" r="6" fill="#e8484f"/>
+    </svg>
+    <span id="sismoTopBtnTxt" data-i18n="sismoTopBtn">Sismos</span>
   </a>
   <button id="themeBtn" title="Tema claro/oscuro" aria-label="Cambiar entre tema claro y oscuro">🌙</button>
   <button id="geoTopBtn" title="Mi ubicación" aria-label="Ir a mi ubicación">📍</button>
@@ -1261,6 +1308,7 @@ var I18N = {
     tgDesc: 'Boletín diario a las 6:00 con el clima de cada ciudad y aviso si hay un sistema cerca de Venezuela.',
     sismoTitulo: 'SISMO·MONITOR',
     sismoDesc: 'Monitoreo sísmico en tiempo real, sismos 24h, fallas y placas tectónicas.',
+    sismoTopBtn: 'Sismos',
     panelSistemas: 'Sistemas activos',
     navMapa: 'Mapa', navSistemas: 'Sistemas', navFicha: 'Ficha', navCapas: 'Capas',
     disclaimerGlobal: '⚠ Esta plataforma es una herramienta informativa independiente. No sustituye los avisos oficiales de tu autoridad de Protección Civil, tu servicio meteorológico nacional, ni del NHC/NOAA. Ante un sistema activo, sigue siempre las fuentes oficiales.',
@@ -1436,6 +1484,7 @@ var I18N = {
     tgDesc: 'Daily 6:00 bulletin with each city\'s weather, plus a heads-up if a system approaches Venezuela.',
     sismoTitulo: 'SISMO·MONITOR',
     sismoDesc: 'Real-time seismic monitoring, 24h earthquakes, faults and tectonic plates.',
+    sismoTopBtn: 'Quakes',
     panelSistemas: 'Active systems',
     navMapa: 'Map', navSistemas: 'Systems', navFicha: 'Details', navCapas: 'Layers',
     disclaimerGlobal: '⚠ This platform is an independent informational tool. It does not replace official advisories from your civil protection authority, your national weather service, or the NHC/NOAA. During an active system, always follow official sources.',
@@ -3220,11 +3269,20 @@ function gridCacheSet(lat, lon, d){
   var keys = Object.keys(GRID_CACHE);
   if (keys.length > 200) delete GRID_CACHE[keys[0]]; // tope de memoria
 }
+function dirCard(deg){
+  var dirs = ['N', 'NNE', 'NE', 'ENE', 'E', 'ESE', 'SE', 'SSE', 'S', 'SSO', 'SO', 'OSO', 'O', 'ONO', 'NO', 'NNO'];
+  if (lang === 'en') dirs = ['N', 'NNE', 'NE', 'ENE', 'E', 'ESE', 'SE', 'SSE', 'S', 'SSW', 'SW', 'WSW', 'W', 'WNW', 'NW', 'NNW'];
+  var idx = Math.round(((deg % 360) + 360) % 360 / 22.5) % 16;
+  return dirs[idx];
+}
 function windColor(kmh){
-  if (kmh < 20) return '#3ec6a8';
-  if (kmh < 40) return '#e8b23c';
-  if (kmh < 65) return '#f07f3c';
-  return '#e8484f';
+  if (kmh < 15) return '#3ec6a8';  // brisa suave (turquesa)
+  if (kmh < 30) return '#6fb8e0';  // moderado (azul cielo)
+  if (kmh < 45) return '#e8b23c';  // fresco (amarillo)
+  if (kmh < 62) return '#f07f3c';  // fuerte (naranja)
+  if (kmh < 85) return '#e8484f';  // muy fuerte (rojo)
+  if (kmh < 118) return '#d048e8'; // temporal / tormenta (magenta)
+  return '#a855f7';                // huracanado (púrpura)
 }
 function windUV(spd, dirFrom){
   var rad = dirFrom * Math.PI / 180;
@@ -3252,24 +3310,43 @@ function loadGridConditions(){
   var pts = buildGrid();
   var byKey = pts._byKey;
   gridLayer.clearLayers();
-  var pending = pts.length;
-  function aplicar(p, cur){
-    p.spd = cur.wind_speed_10m; p.dir = cur.wind_direction_10m; p.cloud = cur.cloud_cover;
-    renderGridPoint(p);
-  }
+
+  var uncached = [];
   pts.forEach(function(p){
     var cached = gridCacheGet(p.lat, p.lon);
     if (cached){
-      aplicar(p, cached);
-      pending--; if (pending === 0 && vientoOn) renderConvergence(byKey);
-      return; // sin petición de red: ahorro directo de datos móviles
+      p.spd = cached.wind_speed_10m; p.dir = cached.wind_direction_10m; p.cloud = cached.cloud_cover;
+      renderGridPoint(p);
+    } else {
+      uncached.push(p);
     }
-    var url = OM_FORECAST + '?latitude=' + p.lat.toFixed(3) + '&longitude=' + p.lon.toFixed(3) +
-      '&current=wind_speed_10m,wind_direction_10m,cloud_cover';
-    fetchJson(url).then(function(data){
-      if (data.current){ gridCacheSet(p.lat, p.lon, data.current); aplicar(p, data.current); }
-    }).catch(function(err){ console.error('Error rejilla clima:', err); })
-      .then(function(){ pending--; if (pending === 0 && vientoOn) renderConvergence(byKey); });
+  });
+
+  if (!uncached.length){
+    if (vientoOn) renderConvergence(byKey);
+    return;
+  }
+
+  // Open-Meteo multi-point: pide todos los puntos no cacheados en una sola llamada eficiente
+  var lats = uncached.map(function(p){ return p.lat.toFixed(3); }).join(',');
+  var lons = uncached.map(function(p){ return p.lon.toFixed(3); }).join(',');
+  var url = OM_FORECAST + '?latitude=' + lats + '&longitude=' + lons +
+    '&current=wind_speed_10m,wind_direction_10m,cloud_cover';
+
+  fetchJson(url).then(function(data){
+    var list = Array.isArray(data) ? data : [data];
+    list.forEach(function(item, idx){
+      var p = uncached[idx];
+      if (!p || !item || !item.current) return;
+      gridCacheSet(p.lat, p.lon, item.current);
+      p.spd = item.current.wind_speed_10m;
+      p.dir = item.current.wind_direction_10m;
+      p.cloud = item.current.cloud_cover;
+      renderGridPoint(p);
+    });
+    if (vientoOn) renderConvergence(byKey);
+  }).catch(function(err){
+    console.error('Error rejilla clima:', err);
   });
 }
 function renderGridPoint(p){
@@ -3281,11 +3358,27 @@ function renderGridPoint(p){
   }
   if (vientoOn && typeof p.spd === 'number' && typeof p.dir === 'number'){
     var color = windColor(p.spd);
+    var flowDeg = Math.round((p.dir + 180) % 360);
+    var animDur = Math.max(0.35, (42 / Math.max(8, p.spd))).toFixed(2) + 's';
+    var cardinal = dirCard(p.dir);
+    var badgeTxt = fmtVientoKmh(p.spd);
+    var tooltipTxt = '<b>' + badgeTxt + '</b> · ' + cardinal + ' (' + Math.round(p.dir) + '° → ' + flowDeg + '°)';
     var icon = L.divIcon({
-      className: '', html: '<div class="windArrow" style="color:'+color+';transform:rotate(' + p.dir + 'deg)">↑</div>',
-      iconSize: [20, 20], iconAnchor: [10, 10]
+      className: '',
+      html: '<div class="windPin" style="color:' + color + '">' +
+        '<div class="windArrowBox">' +
+          '<svg class="windStream" viewBox="0 0 28 28" style="transform:rotate(' + flowDeg + 'deg)">' +
+            '<line x1="14" y1="24" x2="14" y2="8" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" class="windFlowAnim" style="animation-duration:' + animDur + '"/>' +
+            '<path d="M9 12 L14 4 L19 12 L15.2 10.5 L15.2 23 L12.8 23 L12.8 10.5 Z" fill="currentColor"/>' +
+          '</svg>' +
+        '</div>' +
+        '<div class="windBadge" style="color:' + color + '">' + badgeTxt + '</div>' +
+      '</div>',
+      iconSize: [44, 44], iconAnchor: [22, 22]
     });
-    L.marker([p.lat, p.lon], { icon: icon, zIndexOffset: 100 }).bindTooltip(fmtVientoKmh(p.spd)).addTo(gridLayer);
+    L.marker([p.lat, p.lon], { icon: icon, zIndexOffset: 100 })
+      .bindTooltip(tooltipTxt)
+      .addTo(gridLayer);
   }
 }
 var CONVERGENCIA_UMBRAL = 14; // km/h combinados — umbral empírico, no un estándar meteorológico
