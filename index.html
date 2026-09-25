@@ -678,6 +678,11 @@ html[data-theme="light"] .cityWxName{text-shadow:0 0 2px #fff, 0 0 4px #fff}
 .panelBtns{display:flex;gap:4px;align-items:center}
 .panelBtns button{background:none;border:none;color:var(--muted);cursor:pointer;font-family:inherit;font-size:13px;padding:2px 4px;border-radius:4px;line-height:1}
 .panelBtns button:hover{color:var(--text);background:#1b2430}
+.panelCollapseBtn{transition:transform .15s}
+.panelCollapseBtn.collapsed{transform:rotate(-90deg)}
+/* al contraer, se oculta todo el contenido de la sección salvo su propio
+ * encabezado: el panel queda reducido a una barra de título */
+.panelSection.panelCollapsed > *:not(h2){display:none}
 .panel.dragging{opacity:.92;box-shadow:0 8px 30px #000a}
 .panel.fullscreen{
   left:12px !important;top:12px !important;right:12px !important;bottom:12px !important;
@@ -842,8 +847,8 @@ html[data-theme="light"] .rrssBtn{background:#f4f7fa}
     <button id="modeBtnClima" class="act" data-i18n="modeClima">🌦️ Clima</button>
   </div>
 
-  <div id="panelCiclonesLeft" style="display:none">
-    <h2><span data-i18n="panelSistemas">Sistemas activos</span><span class="panelBtns"><button id="leftFull" title="Pantalla completa" aria-label="Ampliar panel a pantalla completa">⤢</button><button id="leftClose" title="Ocultar" aria-label="Ocultar panel de sistemas">✕</button></span></h2>
+  <div id="panelCiclonesLeft" class="panelSection" style="display:none">
+    <h2><span data-i18n="panelSistemas">Sistemas activos</span><span class="panelBtns"><button id="leftCollapse" class="panelCollapseBtn" title="Contraer panel" aria-label="Contraer o expandir el panel de sistemas" aria-expanded="true">▾</button><button id="leftFull" title="Pantalla completa" aria-label="Ampliar panel a pantalla completa">⤢</button><button id="leftClose" title="Ocultar" aria-label="Ocultar panel de sistemas">✕</button></span></h2>
     <div id="stormList"></div>
     <div id="disturbiosList"></div>
     <div id="emptyState"></div>
@@ -886,8 +891,8 @@ html[data-theme="light"] .rrssBtn{background:#f4f7fa}
     </div>
   </div>
 
-  <div id="panelClimaLeft">
-    <h2><span data-i18n="panelClimaBuscar">Buscar ubicación</span><span class="panelBtns"><button id="leftCloseClima" title="Ocultar" aria-label="Ocultar panel de búsqueda">✕</button></span></h2>
+  <div id="panelClimaLeft" class="panelSection">
+    <h2><span data-i18n="panelClimaBuscar">Buscar ubicación</span><span class="panelBtns"><button id="leftCollapseClima" class="panelCollapseBtn" title="Contraer panel" aria-label="Contraer o expandir el panel de búsqueda" aria-expanded="true">▾</button><button id="leftCloseClima" title="Ocultar" aria-label="Ocultar panel de búsqueda">✕</button></span></h2>
     <div class="searchRow">
       <input id="climaSearchInput" type="text" data-i18n-ph="climaBuscarPh" placeholder="Ciudad, país…">
       <button id="climaSearchBtn" title="Buscar" aria-label="Buscar ubicación">🔍</button>
@@ -900,12 +905,12 @@ html[data-theme="light"] .rrssBtn{background:#f4f7fa}
 </aside>
 
 <aside class="panel" id="right">
-  <div id="panelCiclonesRight" style="display:none">
-    <h2><span id="detailTitle">—</span><span class="panelBtns"><button id="rightFull" title="Pantalla completa" aria-label="Ampliar panel a pantalla completa">⤢</button><button id="rightClose" title="Ocultar" aria-label="Ocultar ficha del sistema">✕</button></span></h2>
+  <div id="panelCiclonesRight" class="panelSection" style="display:none">
+    <h2><span id="detailTitle">—</span><span class="panelBtns"><button id="rightCollapse" class="panelCollapseBtn" title="Contraer panel" aria-label="Contraer o expandir la ficha del sistema" aria-expanded="true">▾</button><button id="rightFull" title="Pantalla completa" aria-label="Ampliar panel a pantalla completa">⤢</button><button id="rightClose" title="Ocultar" aria-label="Ocultar ficha del sistema">✕</button></span></h2>
     <div id="detailBody"></div>
   </div>
-  <div id="panelClimaRight">
-    <h2><span id="climaTitle">—</span><span class="panelBtns"><button id="rightCloseClima" title="Ocultar" aria-label="Ocultar ficha del clima">✕</button></span></h2>
+  <div id="panelClimaRight" class="panelSection">
+    <h2><span id="climaTitle">—</span><span class="panelBtns"><button id="rightCollapseClima" class="panelCollapseBtn" title="Contraer panel" aria-label="Contraer o expandir la ficha del clima" aria-expanded="true">▾</button><button id="rightCloseClima" title="Ocultar" aria-label="Ocultar ficha del clima">✕</button></span></h2>
     <div id="climaBody"></div>
   </div>
 </aside>
@@ -4633,6 +4638,23 @@ function toggleFullscreen(panelId){
  * de tarjetas y ampliarlos solo deja espacio vacío. */
 document.getElementById('leftFull').addEventListener('click', function(e){ e.stopPropagation(); toggleFullscreen('left'); });
 document.getElementById('rightFull').addEventListener('click', function(e){ e.stopPropagation(); toggleFullscreen('right'); });
+
+/* Contraer/expandir: reduce la sección a solo su encabezado sin ocultar
+ * el panel entero (eso ya lo hace el botón ✕, que además necesita la
+ * barra "restaurar" para volver a traerlo). El botón vive dentro del <h2>,
+ * que es el asa de arrastre, pero makeDraggable() ya ignora los clics que
+ * caen sobre un botón, así que ambos gestos conviven sin pisarse. */
+function togglePanelCollapse(btn){
+  var section = btn.closest('h2').parentElement;
+  var collapsed = section.classList.toggle('panelCollapsed');
+  btn.classList.toggle('collapsed', collapsed);
+  btn.setAttribute('aria-expanded', collapsed ? 'false' : 'true');
+  updateZoomBarPos();
+}
+['leftCollapse', 'leftCollapseClima', 'rightCollapse', 'rightCollapseClima'].forEach(function(id){
+  var btn = document.getElementById(id);
+  if (btn) btn.addEventListener('click', function(e){ e.stopPropagation(); togglePanelCollapse(btn); });
+});
 
 /* ============================================================
  * POSICIÓN DINÁMICA Y ANTI-SOLAPAMIENTO DE PANELES
