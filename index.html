@@ -945,7 +945,8 @@ html[data-theme="light"] .rrssBtn{background:#f4f7fa}
       <button id="btnKiosko" title="Modo kiosko (Ctrl+K)" aria-label="Activar modo kiosko">📺 <span data-i18n="modoKiosko">Kiosko</span></button>
       <button id="btnDiag" title="Diagnóstico de fuentes" aria-label="Ejecutar diagnóstico de fuentes">🩺 <span data-i18n="diagnostico">Diagnóstico</span></button>
     </div>
-    <div class="layerBtns single">
+    <div class="layerBtns">
+      <button id="printBtn" title="Reporte de situación" aria-label="Generar reporte de situación">🖨️ <span data-i18n="reporteBtn">Reporte</span></button>
       <button id="btnSimulacro" title="Modo simulacro (ejercicio)" aria-label="Iniciar modo simulacro de entrenamiento">🎓 <span data-i18n="simulacro">Simulacro</span></button>
     </div>
     <div id="satModeRow">
@@ -1511,7 +1512,7 @@ var I18N = {
     legTiposGdacs: 'Ciclón · Inundación · Sismo · Volcán · Incendio · Sequía',
     legHospital: 'Hospital o centro de salud', legBomberos: 'Estación de bomberos',
     legPolicia: 'Policía', legRefugio: 'Refugio',
-    bajoConsumo: 'Modo bajo consumo', compartirVista: 'Enlace', modoKiosko: 'Kiosko',
+    bajoConsumo: 'Modo bajo consumo', compartirVista: 'Enlace', modoKiosko: 'Kiosko', reporteBtn: 'Reporte',
     proxyTitulo: 'Configuración de proxy', proxyGuardar: 'Guardar y volver a probar', proxyGuardado: 'Guardado',
     proxyAyuda: 'Si una fuente de NOAA aparece bloqueada, pega aquí la URL /exec de tu Apps Script. Se guarda en este navegador y sobrevive a las actualizaciones de la aplicación, así que no hay que volver a editar el código en cada versión.',
     diagnostico: 'Diagnóstico', diagTitulo: 'Diagnóstico de fuentes',
@@ -1691,7 +1692,7 @@ var I18N = {
     legTiposGdacs: 'Cyclone · Flood · Earthquake · Volcano · Wildfire · Drought',
     legHospital: 'Hospital or health centre', legBomberos: 'Fire station',
     legPolicia: 'Police', legRefugio: 'Shelter',
-    bajoConsumo: 'Low data mode', compartirVista: 'Link', modoKiosko: 'Kiosk',
+    bajoConsumo: 'Low data mode', compartirVista: 'Link', modoKiosko: 'Kiosk', reporteBtn: 'Report',
     proxyTitulo: 'Proxy settings', proxyGuardar: 'Save and re-test', proxyGuardado: 'Saved',
     proxyAyuda: 'If a NOAA source shows as blocked, paste your Apps Script /exec URL here. It is stored in this browser and survives application updates, so there is no need to edit the code on every version.',
     diagnostico: 'Diagnostics', diagTitulo: 'Source diagnostics',
@@ -1850,7 +1851,7 @@ function applyI18n(){
   updateNavLabels();
   renderQuickCities();
   if (climaLocation) renderClima(); else renderClimaNoSelection();
-  if (ciudadesOn && ciudadesCache && ciudadesCache.datos) renderCiudades(ciudadesCache.datos);
+  if (ciudadesOn && ciudadesCache && ciudadesCache.datos) pintarCiudades(ciudadesVisibles(), ciudadesCache.datos);
   if (typeof radarFrames !== 'undefined' && radarFrames.length) showRadarFrame(radarIdx);
   if (lastGoodAt) document.getElementById('lastUpdateTxt').textContent = fmtTimeDual(lastGoodAt);
   if (gdacsOn) loadGdacs();
@@ -2391,6 +2392,9 @@ function gisLayerId(basin, slot, field){
   if (base === undefined) return null;
   return base + (slot - 1) * 26 + GIS_FIELD_OFFSET[field];
 }
+function gisSummaryUrl(layerId){
+  return GIS_SUMMARY + '/' + layerId + '/query?where=1%3D1&outFields=*&f=geojson';
+}
 function gisQueryUrl(layerId){
   return GIS_BASE + '/' + layerId + '/query?where=1%3D1&outFields=*&f=geojson';
 }
@@ -2622,6 +2626,10 @@ function buildPrintReport(){
   html += '<p class="printFoot">' + t('disclaimerGlobal') + '</p>';
   document.getElementById('printReport').innerHTML = html;
 }
+document.getElementById('printBtn').addEventListener('click', function(){
+  buildPrintReport();
+  window.print();
+});
 try {
   if (localStorage.getItem('ciclon_notif') === '1' && 'Notification' in window && Notification.permission === 'granted'){
     notifEnabled = true;
@@ -4080,7 +4088,7 @@ function renderDisturbiosLayer(){
 
 function loadDisturbios(){
   if (simulacroOn) return Promise.resolve(0);
-  function q(layerId){ return fetchJsonProxied(gisUrl(layerId), GIS_PROXY); }
+  function q(layerId){ return fetchJsonProxied(gisSummaryUrl(layerId), GIS_PROXY); }
   return Promise.all([q(TWO_CAPAS.dosDias), q(TWO_CAPAS.sieteDias), q(TWO_CAPAS.region)])
     .then(function(r){
       if (!disturbiosLayer) disturbiosLayer = L.layerGroup().addTo(map);
@@ -5210,7 +5218,7 @@ function runDiagnostico(){
     { n: 'Open-Meteo (marino)', u: OM_MARINE + '?latitude=10.7&longitude=-66.9&current=wave_height&forecast_days=1' },
     { n: 'RainViewer (radar)', u: RAINVIEWER_META },
     { n: 'GDACS (alertas)', u: GDACS_API + '?eventlist=TC;FL&alertlevel=orange;red' },
-    { n: 'NHC perturbaciones (outlook)', u: (GIS_PROXY ? GIS_PROXY + '?url=' + encodeURIComponent(GIS_SUMMARY + '/' + TWO_CAPAS.sieteDias + '/query?where=1%3D1&outFields=*&f=geojson') : GIS_SUMMARY + '/' + TWO_CAPAS.sieteDias + '/query?where=1%3D1&outFields=*&f=geojson') },
+    { n: 'NHC perturbaciones (outlook)', u: (GIS_PROXY ? GIS_PROXY + '?url=' + encodeURIComponent(gisSummaryUrl(TWO_CAPAS.sieteDias)) : gisSummaryUrl(TWO_CAPAS.sieteDias)) },
     { n: 'USGS (sismos 24 h)', u: USGS_FEED },
     { n: 'EMSC (sismos)', u: EMSC_FEED + new Date(Date.now() - 86400000).toISOString().slice(0,19) },
     { n: 'FUNVISIS (proxy)', u: FUNVISIS_PROXY }

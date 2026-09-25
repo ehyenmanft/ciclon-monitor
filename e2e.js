@@ -391,6 +391,9 @@ function clic(win, id) {
   seccion('Degradación ante fuentes caídas');
   errores.length = 0;
   const caido = await abrirPagina({ fallan: ['CurrentStorms', 'script.google', 'gdacs', 'usgs', 'overpass'] });
+  // loadStorms reintenta una vez tras 2s antes de reportar el fallo: hay que
+  // esperar ese reintento real antes de comprobar que se avisó del fallo.
+  await new Promise(r => setTimeout(r, 2200));
   ok('la página sobrevive con varias fuentes caídas', errores.length === 0, errores.join(' | '));
   ok('se avisa del fallo de fuente',
      caido.win.document.getElementById('sourceBanner').classList.contains('on'));
