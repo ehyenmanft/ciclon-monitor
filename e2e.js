@@ -361,6 +361,25 @@ function clic(win, id) {
   ok('el reporte de impresión se genera',
      (win.document.getElementById('printReport').innerHTML || '').length > 50);
 
+  seccion('Contraer paneles');
+  // en modo Clima (el arranque por defecto) los paneles visibles son los de
+  // Clima; los de Ciclones existen en el DOM pero su sección está oculta.
+  [
+    { btn: 'leftCollapseClima', seccion: 'panelClimaLeft' },
+    { btn: 'rightCollapseClima', seccion: 'panelClimaRight' },
+    { btn: 'leftCollapse', seccion: 'panelCiclonesLeft' },
+    { btn: 'rightCollapse', seccion: 'panelCiclonesRight' }
+  ].forEach(function(caso) {
+    const boton = win.document.getElementById(caso.btn);
+    const cont = win.document.getElementById(caso.seccion);
+    clic(win, caso.btn);
+    ok(caso.btn + ' contrae la sección', cont.classList.contains('panelCollapsed'));
+    ok(caso.btn + ' marca aria-expanded=false', boton.getAttribute('aria-expanded') === 'false');
+    clic(win, caso.btn);
+    ok(caso.btn + ' expande de nuevo', !cont.classList.contains('panelCollapsed'));
+    ok(caso.btn + ' restaura aria-expanded=true', boton.getAttribute('aria-expanded') === 'true');
+  });
+
   seccion('Simulacro');
   const sim = win.document.getElementById('simuladorModal');
   ok('el selector de simulacro se abre', sim.classList.contains('on'));
@@ -391,6 +410,9 @@ function clic(win, id) {
   seccion('Degradación ante fuentes caídas');
   errores.length = 0;
   const caido = await abrirPagina({ fallan: ['CurrentStorms', 'script.google', 'gdacs', 'usgs', 'overpass'] });
+  // loadStorms reintenta una vez tras 2s antes de reportar el fallo: hay que
+  // esperar ese reintento real antes de comprobar que se avisó del fallo.
+  await new Promise(r => setTimeout(r, 2200));
   ok('la página sobrevive con varias fuentes caídas', errores.length === 0, errores.join(' | '));
   ok('se avisa del fallo de fuente',
      caido.win.document.getElementById('sourceBanner').classList.contains('on'));
